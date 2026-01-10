@@ -583,26 +583,9 @@ def _generate_html_content(
         
         move_list_html.append(''.join(move_pair_html))
         
-        # If at divergence point, insert choice prompt and display both variants
+        # If at divergence point, trigger popup modal to choose variant (logic handled in JS)
         if is_at_divergence and (game_variant or opening_variant):
-            # Format variant moves for display
-            game_variant_display = ' '.join(game_variant) if game_variant else '(game ended)'
-            opening_variant_display = ' '.join(opening_variant) if opening_variant else '(no continuation)'
-            
-            # Insert divergence choice section
-            move_list_html.append(f'''
-                <div class="divergence-choice">
-                    <p>Divergence! Choose your path:</p>
-                    <div class="variant-options">
-                        <div class="game-option">
-                            <button class="btn" onclick="switchToVariant('game')">Game: {game_variant_display}</button>
-                        </div>
-                        <div class="opening-option">
-                            <button class="btn" onclick="switchToVariant('opening')">Opening: <span class="opening-move">{opening_variant_display}</span></button>
-                        </div>
-                    </div>
-                </div>
-            ''')
+            move_list_html.append('<div id="divergence-point-marker"></div>')
         
         move_number += 1
     
@@ -1222,12 +1205,29 @@ def _generate_html_content(
         let currentViewMode = 'main'; // 'main', 'game', 'opening'
         let currentBoards = boards;
         let currentPositions = positions;
+        let divergenceChoiceMade = false;
         
+        // --- Modal for Variant Choice ---
+        function showVariantModal() {
+            document.getElementById('variant-modal').style.display = 'flex';
+        }
+        function hideVariantModal() {
+            document.getElementById('variant-modal').style.display = 'none';
+        }
+        function selectVariant(mode) {
+            hideVariantModal();
+            divergenceChoiceMade = true;
+            switchToVariant(mode);
+        }
         // Initialize
         function init() {{
             updateBoard(0);
             setupMoveButtons();
             setupMoveList();
+            // If at divergence, block nav and show modal
+            if (document.getElementById('divergence-point-marker') && !divergenceChoiceMade) {
+                showVariantModal();
+            }
         }}
         
         // Update board display
@@ -1382,6 +1382,18 @@ def _generate_html_content(
         }}
         
         
+        // --- Modal for Variant Choice ---
+        function showVariantModal() {
+            document.getElementById('variant-modal').style.display = 'flex';
+        }
+        function hideVariantModal() {
+            document.getElementById('variant-modal').style.display = 'none';
+        }
+        function selectVariant(mode) {
+            hideVariantModal();
+            divergenceChoiceMade = true;
+            switchToVariant(mode);
+        }
         // Initialize on load
         window.addEventListener('load', init);
     </script>
@@ -2326,6 +2338,18 @@ def _generate_multi_game_html_content(games_data: List[dict], size: int) -> str:
         let currentMove = 0;
         let totalMoves = 0;
         
+        // --- Modal for Variant Choice ---
+        function showVariantModal() {
+            document.getElementById('variant-modal').style.display = 'flex';
+        }
+        function hideVariantModal() {
+            document.getElementById('variant-modal').style.display = 'none';
+        }
+        function selectVariant(mode) {
+            hideVariantModal();
+            divergenceChoiceMade = true;
+            switchToVariant(mode);
+        }
         // Initialize
         function init() {{
             switchToGame(0);
@@ -2525,6 +2549,18 @@ def _generate_multi_game_html_content(games_data: List[dict], size: int) -> str:
             }}
         }});
         
+        // --- Modal for Variant Choice ---
+        function showVariantModal() {
+            document.getElementById('variant-modal').style.display = 'flex';
+        }
+        function hideVariantModal() {
+            document.getElementById('variant-modal').style.display = 'none';
+        }
+        function selectVariant(mode) {
+            hideVariantModal();
+            divergenceChoiceMade = true;
+            switchToVariant(mode);
+        }
         // Initialize on load
         window.addEventListener('load', init);
     </script>
