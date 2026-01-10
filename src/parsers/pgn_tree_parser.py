@@ -271,28 +271,58 @@ def get_diverging_move(divergence_point: List[str], game_tree: PGNTree) -> Optio
 def find_first_divergence_across_openings(game_tree, opening_trees):
     """
     Given a game_tree and a list of opening_trees, returns the first divergence point and index
-    of the matching opening. If the game does not match any opening, returns the divergence point and None.
+    of the matching opening. If the game does not match any opening completely, returns the divergence point
+    and the index of the opening with the longest matching prefix (or None if no opening matches at all).
     Args:
         game_tree: PGNTree of the game
         opening_trees: list of PGNTree (openings)
     Returns:
         (divergence_point: List[str], matching_opening_index: Optional[int])
+        - If complete match: returns empty list and the opening index
+        - If partial match (game shares some moves): returns divergence point and opening index with longest match
+        - If no match at all (game starts differently from all openings): returns divergence point and None
     """
     best_idx = None
     best_divergence = None
     best_match_len = -1
+    best_first_move_match = False
 
     for idx, opening_tree in enumerate(opening_trees):
         divergence = find_divergence_point(game_tree, opening_tree)
         if divergence == []:
+            # Complete match - return immediately
             return divergence, idx
+        
         # The best match is the opening that shares the most moves before diverging
         match_len = len(divergence)
-        # If idx==0 or if we have a longer prefix that matches (i.e., later divergence), update
+        
+        # Check if the first move of the game matches the first move of this opening
+        # Get the first move from the game and opening
+        game_paths = game_tree.get_all_paths()
+        opening_paths = opening_tree.get_all_paths()
+        first_move_match = False
+        if game_paths and opening_paths and len(game_paths[0]) > 0 and len(opening_paths[0]) > 0:
+            first_move_match = (game_paths[0][0] == opening_paths[0][0])
+        
+        # Track the opening with the longest matching prefix
         if best_divergence is None or match_len > best_match_len:
             best_divergence = divergence
-            best_idx = None  # Not a complete match
             best_match_len = match_len
+            # Track if at least one opening had a matching first move
+            if first_move_match:
+                best_first_move_match = True
+                # If this opening has a matching first move and is the best so far, use its index
+                if best_idx is None or (match_len > len(best_divergence) if best_idx is not None else True):
+                    best_idx = idx
+            else:
+                # If this opening doesn't match first move but is longer, still track it if no better match exists
+                if best_idx is None and not best_first_move_match:
+                    best_idx = None
+    
+    # If no opening had a matching first move, return None (complete mismatch)
+    if not best_first_move_match:
+        return best_divergence, None
+    
     return best_divergence, best_idx
 
 # Example usage

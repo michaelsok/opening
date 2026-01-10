@@ -64,4 +64,6 @@ class TestMultiOpeningDivergence:
         game_tree = parse_pgn_string_to_tree(game_pgn)
         divergence, idx = find_first_divergence_across_openings(game_tree, trees)
         assert divergence == ["1. e4", "1... e5", "2. Nf3", "2... Nc6", "3. Bc4"]
-        assert idx is None
+        # Game matches opening1 for 4 moves before diverging, so return opening1's index
+        # This allows us to show the opening continuation even when there's a divergence
+        assert idx == 0
