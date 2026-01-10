@@ -10,6 +10,7 @@ from src.visualization.chess_display import (
     display_game_from_pgn,
     display_multiple_games_from_strings,
     display_multiple_games_from_pgn,
+    create_index_html,
 )
 from src.parsers.pgn_tree_parser import (
     parse_pgn_string_to_tree,
@@ -308,6 +309,32 @@ def example_display_with_opening_repertoire():
     print("  - Red arrow on board when viewing divergence position")
 
 
+def example_create_index_html():
+    """Example: Create an index.html page for chess game visualization."""
+    print("Creating index.html page for chess game visualization...")
+    
+    # Create index.html in default location (src/visualization/index.html)
+    index_path = create_index_html(
+        open_in_browser=True,  # Open in browser after creation
+    )
+    
+    print(f"Index page created at: {index_path}")
+    print("\nThe index.html page provides:")
+    print("  - Form to input PGN content directly")
+    print("  - File upload for PGN files")
+    print("  - URL parameter support: index.html?pgn=YOUR_PGN_HERE")
+    print("  - Example game loader button")
+    print("  - User-friendly interface for chess game visualization")
+    print("\nUsage options:")
+    print("  1. Open index.html in browser and paste PGN in the form")
+    print("  2. Upload a PGN file using the file input")
+    print("  3. Use URL parameter: index.html?pgn=[Event \"Game\"]\\n1. e4 e5...")
+    print("  4. Click 'Load Example' to see a sample game")
+    print("\nNote: For full functionality with automatic game viewer generation,")
+    print("      you would need a backend service that processes the PGN")
+    print("      using display_game_from_string() function.")
+
+
 if __name__ == "__main__":
     # Run the first example
     example_display_from_string()
@@ -318,4 +345,5 @@ if __name__ == "__main__":
     # example_display_multiple_games_from_strings()
     # example_display_multiple_games_from_file()
     # example_display_with_divergence()
-    example_display_with_opening_repertoire()
+    # example_display_with_opening_repertoire()
+    # example_create_index_html()

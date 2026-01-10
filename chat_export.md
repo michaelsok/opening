@@ -87,3 +87,10 @@ The index.html file provides a landing page for chess game visualization. While 
 - Instructions for using with the Python backend
 
 For full server-side integration, a backend service would be needed to process the PGN and generate game viewers using `display_game_from_string()`.
+
+## Additional Update - Examples
+Added `example_create_index_html()` function to `examples/display_game_example.py`:
+- Demonstrates how to create and use the index.html page
+- Shows all available features and usage options
+- Includes helpful documentation about the index page capabilities
+- Updated imports to include `create_index_html` function
