@@ -920,6 +920,396 @@ def _generate_html_content(
     return html
 
 
+def create_index_html(
+    output_file: Optional[Union[str, Path]] = None,
+    open_in_browser: bool = True
+) -> str:
+    """
+    Create an index.html file that can redirect to any chess game.
+    
+    Creates an HTML file with a form that allows users to input PGN content
+    (either via form input or URL parameters) and redirects to a generated
+    chess game viewer.
+    
+    Args:
+        output_file: Optional path to save the index.html file. 
+                     If None, saves to src/visualization/index.html
+        open_in_browser: If True, automatically opens the HTML file in the default browser
+        
+    Returns:
+        str: Path to the generated index.html file
+        
+    Example:
+        >>> create_index_html()
+        '/path/to/src/visualization/index.html'
+        
+        >>> create_index_html("my_index.html", open_in_browser=False)
+        'my_index.html'
+    """
+    # Set default output location
+    if output_file is None:
+        visualization_dir = Path(__file__).parent
+        output_file = visualization_dir / "index.html"
+    else:
+        output_file = Path(output_file)
+    
+    # Generate HTML content for index page
+    html_content = """<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chess Game Viewer - Index</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .container {
+            max-width: 800px;
+            width: 100%;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+        }
+        
+        h1 {
+            color: #1e3c72;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        textarea {
+            width: 100%;
+            min-height: 200px;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            resize: vertical;
+        }
+        
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .file-input-wrapper {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+            width: 100%;
+        }
+        
+        .file-input-wrapper input[type=file] {
+            position: absolute;
+            left: -9999px;
+        }
+        
+        .file-input-label {
+            display: block;
+            padding: 12px;
+            background: #f0f0f0;
+            border: 2px dashed #ddd;
+            border-radius: 5px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .file-input-label:hover {
+            background: #e0e0e0;
+            border-color: #667eea;
+        }
+        
+        .file-name {
+            margin-top: 8px;
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 30px;
+        }
+        
+        button {
+            flex: 1;
+            padding: 15px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+            font-weight: bold;
+        }
+        
+        .btn-primary {
+            background: #4CAF50;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #45a049;
+        }
+        
+        .btn-secondary {
+            background: #2196F3;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: #0b7dda;
+        }
+        
+        .info-box {
+            background: #e3f2fd;
+            border-left: 4px solid #2196F3;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+        }
+        
+        .info-box h3 {
+            margin-bottom: 10px;
+            color: #1976D2;
+        }
+        
+        .info-box p {
+            margin-bottom: 8px;
+            color: #555;
+            font-size: 14px;
+        }
+        
+        .example-link {
+            color: #2196F3;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        
+        .example-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>♟️ Chess Game Viewer</h1>
+        <p class="subtitle">Enter PGN content to view your chess game</p>
+        
+        <div class="info-box">
+            <h3>How to use:</h3>
+            <p>• Paste PGN content in the text area below, or</p>
+            <p>• Upload a PGN file, or</p>
+            <p>• Use URL parameter: <code>?pgn=YOUR_PGN_HERE</code></p>
+        </div>
+        
+        <form id="pgn-form" onsubmit="handleSubmit(event)">
+            <div class="form-group">
+                <label for="pgn-input">PGN Content:</label>
+                <textarea 
+                    id="pgn-input" 
+                    name="pgn" 
+                    placeholder="[Event &quot;Game&quot;]&#10;[White &quot;Player1&quot;]&#10;[Black &quot;Player2&quot;]&#10;[Result &quot;1-0&quot;]&#10;&#10;1. e4 e5 2. Nf3 Nc6 3. Bb5 1-0"
+                    required
+                ></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label>Or upload a PGN file:</label>
+                <div class="file-input-wrapper">
+                    <label for="file-input" class="file-input-label">
+                        📁 Click to select a PGN file
+                    </label>
+                    <input 
+                        type="file" 
+                        id="file-input" 
+                        accept=".pgn,.txt"
+                        onchange="handleFileSelect(event)"
+                    >
+                    <div id="file-name" class="file-name"></div>
+                </div>
+            </div>
+            
+            <div class="button-group">
+                <button type="submit" class="btn-primary">View Game →</button>
+                <button type="button" class="btn-secondary" onclick="loadExample()">Load Example</button>
+            </div>
+        </form>
+    </div>
+    
+    <script>
+        // Handle URL parameters
+        function getUrlParameter(name) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(name);
+        }
+        
+        // Load PGN from URL parameter if present
+        window.addEventListener('DOMContentLoaded', function() {
+            const pgnParam = getUrlParameter('pgn');
+            if (pgnParam) {
+                const pgnInput = document.getElementById('pgn-input');
+                pgnInput.value = decodeURIComponent(pgnParam);
+                // Auto-submit if PGN is provided in URL
+                handleSubmit(new Event('submit'));
+            }
+        });
+        
+        // Handle file selection
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const fileName = document.getElementById('file-name');
+                fileName.textContent = 'Selected: ' + file.name;
+                
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('pgn-input').value = e.target.result;
+                };
+                reader.readAsText(file);
+            }
+        }
+        
+        // Load example PGN
+        function loadExample() {
+            const examplePGN = `[Event "Example Game"]
+[White "Magnus Carlsen"]
+[Black "Hikaru Nakamura"]
+[Result "1-0"]
+[Date "2024.01.01"]
+
+1. e4 e5 2. Nf3 Nc6 3. Bb5 a6 4. Ba4 Nf6 5. O-O Be7 6. Re1 b5 7. Bb3 d6 8. c3 O-O 9. h3 Nb8 10. d4 Nbd7 11. Nbd2 Bb7 12. Bc2 Re8 13. Nf1 Bf8 14. Ng3 g6 15. Bg5 h6 16. Bd2 c5 17. d5 c4 18. b4 cxb3 19. axb3 Nh7 20. Nh2 Qc7 21. Nhf3 a5 22. Ra2 Rac8 23. Qd2 Ndf6 24. Ng4 Nxg4 25. hxg4 Bg7 26. g3 Qb7 27. Kg2 Qb6 28. Rh1 h5 29. gxh5 Nxh5 30. Bxg7 Kxg7 31. Rh5 f6 32. Qg5 Qxb3 33. Rxh5 gxh5 34. Qxh5 Rh8 35. Qg4+ Kh7 36. Qh4+ Kg7 37. Qg3+ Kh7 38. Nf5 Rg8 39. Qh3+ Kg7 40. Qh6+ Kf7 41. Qh7+ Ke8 42. Qxg8+ Kd7 43. Qxf8 1-0`;
+            document.getElementById('pgn-input').value = examplePGN;
+        }
+        
+        // Handle form submission
+        function handleSubmit(event) {
+            event.preventDefault();
+            const pgnInput = document.getElementById('pgn-input');
+            const pgn = pgnInput.value.trim();
+            
+            if (!pgn) {
+                alert('Please enter PGN content');
+                return;
+            }
+            
+            // Store PGN in localStorage and redirect to viewer generator
+            // The actual game viewer will be generated by calling display_game_from_string
+            // For now, we'll encode the PGN and pass it via a data URL or localStorage
+            // In a full implementation, this would call a backend endpoint
+            
+            // For client-side workaround: store PGN and show instructions
+            localStorage.setItem('pendingPgn', pgn);
+            
+            // Create a data URL with the PGN that can be processed
+            // For Python integration, you would use a server endpoint
+            // For now, show message with instructions
+            const message = 'PGN received! To view the game:\\n\\n' +
+                          '1. Use Python: from src.visualization.chess_display import display_game_from_string\\n' +
+                          '2. Call: display_game_from_string(pgn_string)\\n\\n' +
+                          'Or set up a server endpoint that processes the PGN automatically.';
+            
+            // Try to create a viewer page inline if possible
+            // For a full solution with Python backend:
+            // window.location.href = '/api/view-game?pgn=' + encodeURIComponent(pgn);
+            
+            // For now, create a simple viewer page that processes PGN client-side
+            // Note: This requires chess.js or similar library for full functionality
+            createInlineViewer(pgn);
+        }
+        
+        // Create an inline game viewer page
+        // This generates a page with the PGN that can be processed
+        function createInlineViewer(pgn) {
+            // Encode PGN for URL
+            const encodedPgn = encodeURIComponent(pgn);
+            
+            // Create a new HTML page with the game viewer
+            // In a real implementation, this would call the Python function
+            // For demonstration, we'll create a page that shows the PGN
+            // and instructions on how to view it
+            
+            const viewerHtml = `<!DOCTYPE html>
+<html>
+<head>
+    <title>Chess Game Viewer</title>
+    <meta charset="UTF-8">
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .pgn-display { background: #f5f5f5; padding: 15px; border-radius: 5px; margin: 20px 0; }
+        .info { background: #e3f2fd; padding: 15px; border-left: 4px solid #2196F3; margin: 20px 0; }
+    </style>
+</head>
+<body>
+    <h1>Chess Game Viewer</h1>
+    <div class="info">
+        <p><strong>Note:</strong> To view this game with full functionality, use the Python function:</p>
+        <pre>from src.visualization.chess_display import display_game_from_string
+display_game_from_string(` + '`' + pgn.replace('`', '\\`') + '`' + `)</pre>
+    </div>
+    <div class="pgn-display">
+        <h3>PGN Content:</h3>
+        <pre>${pgn.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</pre>
+    </div>
+    <p><a href="index.html">← Back to Index</a></p>
+</body>
+</html>`;
+            
+            // Create blob and open in new window/tab
+            const blob = new Blob([viewerHtml], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            window.open(url, '_blank');
+        }
+        }
+    </script>
+</body>
+</html>"""
+    
+    # Write HTML file
+    output_file.parent.mkdir(parents=True, exist_ok=True)
+    with open(output_file, 'w', encoding='utf-8') as f:
+        f.write(html_content)
+    
+    # Open in browser if requested
+    if open_in_browser:
+        webbrowser.open(f'file://{output_file.absolute()}')
+    
+    return str(output_file.absolute())
+
+
 def _process_game(game: chess.pgn.Game, size: int) -> dict:
     """Process a single game and extract all data needed for display."""
     board = game.board()
