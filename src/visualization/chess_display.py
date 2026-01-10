@@ -16,6 +16,12 @@ import webbrowser
 import tempfile
 import os
 
+# Import for divergence analysis
+from src.parsers.pgn_tree_parser import (
+    parse_pgn_string_to_tree,
+    find_first_divergence_across_openings,
+)
+
 
 def display_game_from_pgn(
     pgn_file_path: Union[str, Path],
@@ -921,31 +927,99 @@ def _generate_html_content(
 
 
 def create_index_html(
+    games: List[str],
+    opening_repertoire: Union[List[str], str, Path],
     output_file: Optional[Union[str, Path]] = None,
-    open_in_browser: bool = True
+    open_in_browser: bool = True,
+    size: int = 400
 ) -> str:
     """
-    Create an index.html file that can redirect to any chess game.
+    Create an index.html file that displays all games with their divergence points.
     
-    Creates an HTML file with a form that allows users to input PGN content
-    (either via form input or URL parameters) and redirects to a generated
-    chess game viewer.
+    Creates an HTML index page that lists all provided games with their divergence
+    information against an opening repertoire. Each game is clickable and redirects
+    to a game viewer with divergence highlighting.
     
     Args:
+        games: List of PGN strings representing the games to index
+        opening_repertoire: List of PGN strings or path to directory containing opening PGN files
         output_file: Optional path to save the index.html file. 
                      If None, saves to src/visualization/index.html
         open_in_browser: If True, automatically opens the HTML file in the default browser
+        size: Size of chess board in pixels (default: 400)
         
     Returns:
         str: Path to the generated index.html file
         
-    Example:
-        >>> create_index_html()
-        '/path/to/src/visualization/index.html'
+    Raises:
+        ValueError: If games list is empty
         
-        >>> create_index_html("my_index.html", open_in_browser=False)
-        'my_index.html'
+    Example:
+        >>> games = ["[Event \"Game\"]\\n1. e4 e5 1-0", "[Event \"Game2\"]\\n1. d4 d5 1-0"]
+        >>> opening_repertoire = ["1. e4 e5 2. Nf3"]
+        >>> create_index_html(games, opening_repertoire)
+        '/path/to/src/visualization/index.html'
     """
+    if not games:
+        raise ValueError("games list cannot be empty")
+    
+    # Load opening repertoire
+    opening_trees = []
+    opening_pgns = []
+    
+    if isinstance(opening_repertoire, (str, Path)):
+        # It's a directory path
+        opening_dir = Path(opening_repertoire)
+        if opening_dir.is_dir():
+            for pgn_file in opening_dir.glob("*.pgn"):
+                with open(pgn_file, encoding="utf-8") as f:
+                    pgn_str = f.read()
+                    opening_pgns.append(pgn_str)
+                    opening_trees.append(parse_pgn_string_to_tree(pgn_str))
+        else:
+            raise ValueError(f"Opening repertoire path is not a directory: {opening_repertoire}")
+    else:
+        # It's a list of PGN strings
+        opening_pgns = opening_repertoire
+        opening_trees = [parse_pgn_string_to_tree(pgn) for pgn in opening_repertoire]
+    
+    if not opening_trees:
+        raise ValueError("Opening repertoire cannot be empty")
+    
+    # Analyze each game and find divergence points
+    game_data_list = []
+    for idx, game_pgn in enumerate(games):
+        try:
+            game = chess.pgn.read_game(io.StringIO(game_pgn))
+            if game is None:
+                continue
+                
+            # Get game headers
+            headers = dict(game.headers)
+            
+            # Find divergence point
+            game_tree = parse_pgn_string_to_tree(game_pgn)
+            divergence_point, opening_idx = find_first_divergence_across_openings(game_tree, opening_trees)
+            
+            # Get matching opening PGN
+            matching_opening_pgn = opening_pgns[opening_idx] if opening_idx is not None and 0 <= opening_idx < len(opening_pgns) else None
+            
+            game_data_list.append({
+                'index': idx,
+                'pgn': game_pgn,
+                'game': game,
+                'headers': headers,
+                'divergence_point': divergence_point,
+                'opening_pgn': matching_opening_pgn,
+                'opening_idx': opening_idx
+            })
+        except Exception as e:
+            # Skip games that fail to parse
+            continue
+    
+    if not game_data_list:
+        raise ValueError("No valid games found in games list")
+    
     # Set default output location
     if output_file is None:
         visualization_dir = Path(__file__).parent
@@ -953,361 +1027,270 @@ def create_index_html(
     else:
         output_file = Path(output_file)
     
-    # Generate HTML content for index page
-    html_content = """<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chess Game Viewer - Index</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-        
-        .container {
-            max-width: 800px;
-            width: 100%;
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-            padding: 40px;
-        }
-        
-        h1 {
-            color: #1e3c72;
-            margin-bottom: 10px;
-            text-align: center;
-        }
-        
-        .subtitle {
-            text-align: center;
-            color: #666;
-            margin-bottom: 30px;
-        }
-        
-        .form-group {
-            margin-bottom: 20px;
-        }
-        
-        label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: bold;
-            color: #333;
-        }
-        
-        textarea {
-            width: 100%;
-            min-height: 200px;
-            padding: 12px;
-            border: 2px solid #ddd;
-            border-radius: 5px;
-            font-family: 'Courier New', monospace;
-            font-size: 14px;
-            resize: vertical;
-        }
-        
-        textarea:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-        
-        .file-input-wrapper {
-            position: relative;
-            overflow: hidden;
-            display: inline-block;
-            width: 100%;
-        }
-        
-        .file-input-wrapper input[type=file] {
-            position: absolute;
-            left: -9999px;
-        }
-        
-        .file-input-label {
-            display: block;
-            padding: 12px;
-            background: #f0f0f0;
-            border: 2px dashed #ddd;
-            border-radius: 5px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        
-        .file-input-label:hover {
-            background: #e0e0e0;
-            border-color: #667eea;
-        }
-        
-        .file-name {
-            margin-top: 8px;
-            color: #666;
-            font-size: 14px;
-        }
-        
-        .button-group {
-            display: flex;
-            gap: 10px;
-            margin-top: 30px;
-        }
-        
-        button {
-            flex: 1;
-            padding: 15px;
-            font-size: 16px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background 0.3s;
-            font-weight: bold;
-        }
-        
-        .btn-primary {
-            background: #4CAF50;
-            color: white;
-        }
-        
-        .btn-primary:hover {
-            background: #45a049;
-        }
-        
-        .btn-secondary {
-            background: #2196F3;
-            color: white;
-        }
-        
-        .btn-secondary:hover {
-            background: #0b7dda;
-        }
-        
-        .info-box {
-            background: #e3f2fd;
-            border-left: 4px solid #2196F3;
-            padding: 15px;
-            margin-bottom: 20px;
-            border-radius: 5px;
-        }
-        
-        .info-box h3 {
-            margin-bottom: 10px;
-            color: #1976D2;
-        }
-        
-        .info-box p {
-            margin-bottom: 8px;
-            color: #555;
-            font-size: 14px;
-        }
-        
-        .example-link {
-            color: #2196F3;
-            text-decoration: none;
-            cursor: pointer;
-        }
-        
-        .example-link:hover {
-            text-decoration: underline;
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h1>♟️ Chess Game Viewer</h1>
-        <p class="subtitle">Enter PGN content to view your chess game</p>
-        
-        <div class="info-box">
-            <h3>How to use:</h3>
-            <p>• Paste PGN content in the text area below, or</p>
-            <p>• Upload a PGN file, or</p>
-            <p>• Use URL parameter: <code>?pgn=YOUR_PGN_HERE</code></p>
-        </div>
-        
-        <form id="pgn-form" onsubmit="handleSubmit(event)">
-            <div class="form-group">
-                <label for="pgn-input">PGN Content:</label>
-                <textarea 
-                    id="pgn-input" 
-                    name="pgn" 
-                    placeholder="[Event &quot;Game&quot;]&#10;[White &quot;Player1&quot;]&#10;[Black &quot;Player2&quot;]&#10;[Result &quot;1-0&quot;]&#10;&#10;1. e4 e5 2. Nf3 Nc6 3. Bb5 1-0"
-                    required
-                ></textarea>
-            </div>
-            
-            <div class="form-group">
-                <label>Or upload a PGN file:</label>
-                <div class="file-input-wrapper">
-                    <label for="file-input" class="file-input-label">
-                        📁 Click to select a PGN file
-                    </label>
-                    <input 
-                        type="file" 
-                        id="file-input" 
-                        accept=".pgn,.txt"
-                        onchange="handleFileSelect(event)"
-                    >
-                    <div id="file-name" class="file-name"></div>
-                </div>
-            </div>
-            
-            <div class="button-group">
-                <button type="submit" class="btn-primary">View Game →</button>
-                <button type="button" class="btn-secondary" onclick="loadExample()">Load Example</button>
-            </div>
-        </form>
-    </div>
-    
-    <script>
-        // Handle URL parameters
-        function getUrlParameter(name) {
-            const urlParams = new URLSearchParams(window.location.search);
-            return urlParams.get(name);
-        }
-        
-        // Load PGN from URL parameter if present
-        window.addEventListener('DOMContentLoaded', function() {
-            const pgnParam = getUrlParameter('pgn');
-            if (pgnParam) {
-                const pgnInput = document.getElementById('pgn-input');
-                pgnInput.value = decodeURIComponent(pgnParam);
-                // Auto-submit if PGN is provided in URL
-                handleSubmit(new Event('submit'));
-            }
-        });
-        
-        // Handle file selection
-        function handleFileSelect(event) {
-            const file = event.target.files[0];
-            if (file) {
-                const fileName = document.getElementById('file-name');
-                fileName.textContent = 'Selected: ' + file.name;
-                
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    document.getElementById('pgn-input').value = e.target.result;
-                };
-                reader.readAsText(file);
-            }
-        }
-        
-        // Load example PGN
-        function loadExample() {
-            const examplePGN = `[Event "Example Game"]
-[White "Magnus Carlsen"]
-[Black "Hikaru Nakamura"]
-[Result "1-0"]
-[Date "2024.01.01"]
-
-1. e4 e5 2. Nf3 Nc6 3. Bb5 a6 4. Ba4 Nf6 5. O-O Be7 6. Re1 b5 7. Bb3 d6 8. c3 O-O 9. h3 Nb8 10. d4 Nbd7 11. Nbd2 Bb7 12. Bc2 Re8 13. Nf1 Bf8 14. Ng3 g6 15. Bg5 h6 16. Bd2 c5 17. d5 c4 18. b4 cxb3 19. axb3 Nh7 20. Nh2 Qc7 21. Nhf3 a5 22. Ra2 Rac8 23. Qd2 Ndf6 24. Ng4 Nxg4 25. hxg4 Bg7 26. g3 Qb7 27. Kg2 Qb6 28. Rh1 h5 29. gxh5 Nxh5 30. Bxg7 Kxg7 31. Rh5 f6 32. Qg5 Qxb3 33. Rxh5 gxh5 34. Qxh5 Rh8 35. Qg4+ Kh7 36. Qh4+ Kg7 37. Qg3+ Kh7 38. Nf5 Rg8 39. Qh3+ Kg7 40. Qh6+ Kf7 41. Qh7+ Ke8 42. Qxg8+ Kd7 43. Qxf8 1-0`;
-            document.getElementById('pgn-input').value = examplePGN;
-        }
-        
-        // Handle form submission
-        function handleSubmit(event) {
-            event.preventDefault();
-            const pgnInput = document.getElementById('pgn-input');
-            const pgn = pgnInput.value.trim();
-            
-            if (!pgn) {
-                alert('Please enter PGN content');
-                return;
-            }
-            
-            // Store PGN in localStorage and redirect to viewer generator
-            // The actual game viewer will be generated by calling display_game_from_string
-            // For now, we'll encode the PGN and pass it via a data URL or localStorage
-            // In a full implementation, this would call a backend endpoint
-            
-            // For client-side workaround: store PGN and show instructions
-            localStorage.setItem('pendingPgn', pgn);
-            
-            // Create a data URL with the PGN that can be processed
-            // For Python integration, you would use a server endpoint
-            // For now, show message with instructions
-            const message = 'PGN received! To view the game:\\n\\n' +
-                          '1. Use Python: from src.visualization.chess_display import display_game_from_string\\n' +
-                          '2. Call: display_game_from_string(pgn_string)\\n\\n' +
-                          'Or set up a server endpoint that processes the PGN automatically.';
-            
-            // Try to create a viewer page inline if possible
-            // For a full solution with Python backend:
-            // window.location.href = '/api/view-game?pgn=' + encodeURIComponent(pgn);
-            
-            // For now, create a simple viewer page that processes PGN client-side
-            // Note: This requires chess.js or similar library for full functionality
-            createInlineViewer(pgn);
-        }
-        
-        // Create an inline game viewer page
-        // This generates a page with the PGN that can be processed
-        function createInlineViewer(pgn) {
-            // Encode PGN for URL
-            const encodedPgn = encodeURIComponent(pgn);
-            
-            // Create a new HTML page with the game viewer
-            // In a real implementation, this would call the Python function
-            // For demonstration, we'll create a page that shows the PGN
-            // and instructions on how to view it
-            
-            const viewerHtml = `<!DOCTYPE html>
-<html>
-<head>
-    <title>Chess Game Viewer</title>
-    <meta charset="UTF-8">
-    <style>
-        body { font-family: Arial, sans-serif; padding: 20px; }
-        .pgn-display { background: #f5f5f5; padding: 15px; border-radius: 5px; margin: 20px 0; }
-        .info { background: #e3f2fd; padding: 15px; border-left: 4px solid #2196F3; margin: 20px 0; }
-    </style>
-</head>
-<body>
-    <h1>Chess Game Viewer</h1>
-    <div class="info">
-        <p><strong>Note:</strong> To view this game with full functionality, use the Python function:</p>
-        <pre>from src.visualization.chess_display import display_game_from_string
-display_game_from_string(` + '`' + pgn.replace('`', '\\`') + '`' + `)</pre>
-    </div>
-    <div class="pgn-display">
-        <h3>PGN Content:</h3>
-        <pre>${pgn.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</pre>
-    </div>
-    <p><a href="index.html">← Back to Index</a></p>
-</body>
-</html>`;
-            
-            // Create blob and open in new window/tab
-            const blob = new Blob([viewerHtml], { type: 'text/html' });
-            const url = URL.createObjectURL(blob);
-            window.open(url, '_blank');
-        }
-        }
-    </script>
-</body>
-</html>"""
+    # Generate HTML content for index page with game list
+    html_content = _generate_index_html_content(game_data_list, size)
     
     # Write HTML file
     output_file.parent.mkdir(parents=True, exist_ok=True)
     with open(output_file, 'w', encoding='utf-8') as f:
         f.write(html_content)
     
+    # Generate individual game viewer files
+    game_viewer_files = []
+    for game_data in game_data_list:
+        viewer_file = output_file.parent / f"game_{game_data['index']}.html"
+        try:
+            display_game_from_string(
+                game_data['pgn'],
+                output_file=str(viewer_file),
+                open_in_browser=False,
+                size=size,
+                opening_pgn=game_data['opening_pgn'],
+                divergence_point=game_data['divergence_point'] if game_data['divergence_point'] else None
+            )
+            game_viewer_files.append(str(viewer_file.name))
+        except Exception:
+            game_viewer_files.append(None)
+    
     # Open in browser if requested
     if open_in_browser:
         webbrowser.open(f'file://{output_file.absolute()}')
     
     return str(output_file.absolute())
+
+
+def _generate_index_html_content(game_data_list: List[dict], size: int) -> str:
+    """Generate HTML content for the games index page."""
+    num_games = len(game_data_list)
+    
+    # Build game list HTML
+    game_list_items = []
+    for game_data in game_data_list:
+        headers = game_data['headers']
+        event = headers.get('Event', f"Game {game_data['index'] + 1}")
+        white = headers.get('White', 'Unknown')
+        black = headers.get('Black', 'Unknown')
+        result = headers.get('Result', '*')
+        date = headers.get('Date', '')
+        
+        # Format divergence info
+        divergence = game_data['divergence_point']
+        if divergence:
+            divergence_display = ' → '.join(divergence[-3:]) if len(divergence) > 3 else ' → '.join(divergence)
+            divergence_html = f'<span class="divergence-info">Diverges at: {divergence_display}</span>'
+        else:
+            divergence_html = '<span class="divergence-info no-divergence">✓ Follows opening repertoire</span>'
+        
+        viewer_file = f"game_{game_data['index']}.html"
+        event_escaped = event.replace('"', '&quot;').replace("'", "&#39;")
+        white_escaped = white.replace('"', '&quot;').replace("'", "&#39;")
+        black_escaped = black.replace('"', '&quot;').replace("'", "&#39;")
+        
+        game_list_items.append(f'''
+            <div class="game-item" onclick="window.open('{viewer_file}', '_blank')">
+                <div class="game-header">
+                    <span class="game-number">#{game_data['index'] + 1}</span>
+                    <span class="game-title">{event_escaped}</span>
+                    <span class="game-result">{result}</span>
+                </div>
+                <div class="game-players">{white_escaped} vs {black_escaped}{f" - {date}" if date else ""}</div>
+                <div class="game-divergence">{divergence_html}</div>
+            </div>
+        ''')
+    
+    games_list_html = '\n'.join(game_list_items)
+    
+    html = f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chess Games Index - {num_games} Games</title>
+    <style>
+        * {{
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }}
+        
+        body {{
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }}
+        
+        .container {{
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }}
+        
+        .header {{
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }}
+        
+        .header h1 {{
+            font-size: 28px;
+            margin-bottom: 10px;
+        }}
+        
+        .header .subtitle {{
+            font-size: 16px;
+            opacity: 0.9;
+        }}
+        
+        .games-list {{
+            padding: 30px;
+            max-height: calc(100vh - 200px);
+            overflow-y: auto;
+        }}
+        
+        .games-list h2 {{
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 20px;
+        }}
+        
+        .game-item {{
+            background: #f9f9f9;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }}
+        
+        .game-item:hover {{
+            background: #f0f0f0;
+            border-color: #667eea;
+            transform: translateX(5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }}
+        
+        .game-header {{
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 10px;
+        }}
+        
+        .game-number {{
+            background: #667eea;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 14px;
+        }}
+        
+        .game-title {{
+            flex: 1;
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+        }}
+        
+        .game-result {{
+            background: #4CAF50;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 5px;
+            font-weight: bold;
+            font-size: 14px;
+        }}
+        
+        .game-players {{
+            color: #666;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }}
+        
+        .game-divergence {{
+            margin-top: 10px;
+            padding: 10px;
+            background: #fff3e0;
+            border-left: 4px solid #ff9800;
+            border-radius: 5px;
+            font-size: 13px;
+        }}
+        
+        .divergence-info {{
+            color: #e65100;
+            font-weight: 600;
+        }}
+        
+        .divergence-info.no-divergence {{
+            color: #2e7d32;
+        }}
+        
+        .info-box {{
+            background: #e3f2fd;
+            border-left: 4px solid #2196F3;
+            padding: 15px;
+            margin: 20px 30px;
+            border-radius: 5px;
+        }}
+        
+        .info-box h3 {{
+            margin-bottom: 10px;
+            color: #1976D2;
+        }}
+        
+        .info-box p {{
+            margin-bottom: 5px;
+            color: #555;
+            font-size: 14px;
+        }}
+        
+        ::-webkit-scrollbar {{
+            width: 10px;
+        }}
+        
+        ::-webkit-scrollbar-track {{
+            background: #f1f1f1;
+        }}
+        
+        ::-webkit-scrollbar-thumb {{
+            background: #888;
+            border-radius: 5px;
+        }}
+        
+        ::-webkit-scrollbar-thumb:hover {{
+            background: #555;
+        }}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>♟️ Chess Games Index</h1>
+            <p class="subtitle">Click on any game to view it with divergence analysis</p>
+        </div>
+        
+        <div class="info-box">
+            <h3>About This Index</h3>
+            <p>This page shows all games analyzed against the opening repertoire.</p>
+            <p>Games that diverge from the repertoire are highlighted in orange.</p>
+            <p>Click any game to open its interactive viewer with divergence highlighting.</p>
+        </div>
+        
+        <div class="games-list">
+            <h2>Games ({num_games})</h2>
+            {games_list_html}
+        </div>
+    </div>
+</body>
+</html>"""
+    
+    return html
 
 
 def _process_game(game: chess.pgn.Game, size: int) -> dict:

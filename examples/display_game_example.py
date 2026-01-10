@@ -310,29 +310,56 @@ def example_display_with_opening_repertoire():
 
 
 def example_create_index_html():
-    """Example: Create an index.html page for chess game visualization."""
-    print("Creating index.html page for chess game visualization...")
+    """Example: Create an index.html page with games and divergence points."""
+    print("Creating index.html page with games and divergence analysis...")
     
-    # Create index.html in default location (src/visualization/index.html)
+    # Sample games
+    games = [
+        """[Event "Ruy Lopez - Divergence"]
+[White "Player1"]
+[Black "Player2"]
+[Result "1-0"]
+
+1. e4 e5 2. Nf3 Nc6 3. Bc4 Nf6 4. d4 exd4 1-0""",
+        """[Event "Ruy Lopez - Match"]
+[White "Player3"]
+[Black "Player4"]
+[Result "1/2-1/2"]
+
+1. e4 e5 2. Nf3 Nc6 3. Bb5 a6 4. Ba4 Nf6 5. O-O Be7 1/2-1/2""",
+        """[Event "Sicilian Defense"]
+[White "Player5"]
+[Black "Player6"]
+[Result "0-1"]
+
+1. e4 c5 2. Nf3 d6 3. d4 cxd4 4. Nxd4 Nf6 0-1"""
+    ]
+    
+    # Opening repertoire
+    opening_repertoire = [
+        "1. e4 e5 2. Nf3 Nc6 3. Bb5 a6 4. Ba4 Nf6 5. O-O Be7"
+    ]
+    
+    # Create index.html with games and opening repertoire
     index_path = create_index_html(
+        games=games,
+        opening_repertoire=opening_repertoire,
         open_in_browser=True,  # Open in browser after creation
+        size=500
     )
     
     print(f"Index page created at: {index_path}")
     print("\nThe index.html page provides:")
-    print("  - Form to input PGN content directly")
-    print("  - File upload for PGN files")
-    print("  - URL parameter support: index.html?pgn=YOUR_PGN_HERE")
-    print("  - Example game loader button")
-    print("  - User-friendly interface for chess game visualization")
-    print("\nUsage options:")
-    print("  1. Open index.html in browser and paste PGN in the form")
-    print("  2. Upload a PGN file using the file input")
-    print("  3. Use URL parameter: index.html?pgn=[Event \"Game\"]\\n1. e4 e5...")
-    print("  4. Click 'Load Example' to see a sample game")
-    print("\nNote: For full functionality with automatic game viewer generation,")
-    print("      you would need a backend service that processes the PGN")
-    print("      using display_game_from_string() function.")
+    print("  - List of all games with their divergence points")
+    print("  - Divergence highlighting (games that diverge from opening repertoire)")
+    print("  - Clickable games that open individual game viewers")
+    print("  - Each game viewer shows divergence move highlighted in red")
+    print("  - Opening repertoire continuation shown for diverged games")
+    print("\nFeatures:")
+    print("  - Games that follow the opening repertoire are marked with ✓")
+    print("  - Games that diverge show the divergence move(s)")
+    print("  - Click any game to view it with full interactive board")
+    print("  - Individual game viewer files are generated automatically")
 
 
 if __name__ == "__main__":
@@ -346,4 +373,4 @@ if __name__ == "__main__":
     # example_display_multiple_games_from_file()
     # example_display_with_divergence()
     # example_display_with_opening_repertoire()
-    # example_create_index_html()
+    example_create_index_html()
