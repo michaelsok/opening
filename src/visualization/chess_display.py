@@ -249,12 +249,21 @@ def _extract_opening_variant(
     # Extract move SANs from divergence_point (remove move numbers)
     for move_str in divergence_point[:-1]:  # All moves except the last (diverging) one
         # Extract SAN from "1. e4" or "1... e5" format
-        parts = move_str.split('.', 1)
-        if len(parts) > 1:
-            san = parts[1].strip()
-            if san.startswith('...'):
-                san = san[3:].strip()
-            divergence_moves.append(san)
+        if '...' in move_str:
+            # Black move: "1... e5" -> split on '...' and take part after
+            parts = move_str.split('...', 1)
+            if len(parts) > 1:
+                san = parts[1].strip()
+            else:
+                continue
+        else:
+            # White move: "1. e4" -> split on first '.' and take part after
+            parts = move_str.split('.', 1)
+            if len(parts) > 1:
+                san = parts[1].strip()
+            else:
+                continue
+        divergence_moves.append(san)
     
     # Navigate to the position before divergence
     for move_san in divergence_moves:
@@ -347,9 +356,13 @@ def _create_html_viewer(
     # Find divergence move index and extract opening variant if provided
     divergence_move_index = None
     opening_variant = []
+    game_variant = []  # Moves actually played after divergence
     if opening_pgn and divergence_point:
         divergence_move_index = _find_divergence_move_index(divergence_point, moves_san)
         opening_variant = _extract_opening_variant(opening_pgn, divergence_point)
+        # Extract game variant - moves played after the divergence point
+        if divergence_move_index is not None and divergence_move_index + 1 < len(moves_san):
+            game_variant = moves_san[divergence_move_index + 1:]
     
     # Get game headers
     headers = dict(game.headers)
@@ -410,6 +423,7 @@ def _create_html_viewer(
         white, black, event, result, date, site, size,
         divergence_move_index=divergence_move_index,
         opening_variant=opening_variant,
+        game_variant=game_variant,
         divergence_point=divergence_point
     )
     
@@ -438,6 +452,7 @@ def _generate_html_content(
     size: int,
     divergence_move_index: Optional[int] = None,
     opening_variant: Optional[List[str]] = None,
+    game_variant: Optional[List[str]] = None,
     divergence_point: Optional[List[str]] = None
 ) -> str:
     """Generate HTML content for the chess game viewer."""
@@ -462,25 +477,61 @@ def _generate_html_content(
         )
         move_number += 1
     
-    # Format opening variant for display
-    opening_variant_html = ''
-    if opening_variant:
-        variant_moves = []
+    # Format variants for display (both game and opening repertoire)
+    variant_comparison_html = ''
+    if opening_variant or game_variant:
+        # Calculate starting move number (at divergence point)
+        # divergence_point contains moves like ["1. e4", "1... e5", "2. Nf3", ..., "3. Bc4"]
+        # The number of moves determines which move pair we're in
         move_num = len(divergence_point) // 2 + 1 if divergence_point else 1
-        for idx, move in enumerate(opening_variant):
-            if idx % 2 == 0:
-                variant_moves.append(f'{move_num}. {move}')
-            else:
-                variant_moves.append(f'{move_num}... {move}')
-                move_num += 1
-        if len(opening_variant) % 2 == 1:
-            # Last move was white, don't increment
-            pass
         
-        opening_variant_html = f'''
-            <div class="opening-variant-container">
-                <div class="opening-variant-title">Opening Repertoire Continuation:</div>
-                <div class="opening-variant-moves">{' '.join(variant_moves)}</div>
+        # Determine if divergence move was white or black
+        # If divergence_move_index is even, it's white's move; if odd, it's black's move
+        # If divergence_move_index is even, continuation starts with black (use "...")
+        # If divergence_move_index is odd, continuation starts with white (use ".")
+        start_is_white = (divergence_move_index is not None and divergence_move_index % 2 == 1) if divergence_move_index is not None else True
+        
+        # Format game variant (what was actually played)
+        game_variant_moves = []
+        if game_variant:
+            for idx, move in enumerate(game_variant):
+                is_white = (start_is_white and idx % 2 == 0) or (not start_is_white and idx % 2 == 1)
+                if is_white:
+                    game_variant_moves.append(f'{move_num}. {move}')
+                    # Don't increment after white move - increment happens after the following black move
+                else:
+                    game_variant_moves.append(f'{move_num}... {move}')
+                    # After black move, increment move number for next white move
+                    move_num += 1
+        
+        # Format opening variant (what should have been played)
+        opening_variant_moves = []
+        if opening_variant:
+            # Reset move number for opening variant
+            move_num = len(divergence_point) // 2 + 1 if divergence_point else 1
+            for idx, move in enumerate(opening_variant):
+                is_white = (start_is_white and idx % 2 == 0) or (not start_is_white and idx % 2 == 1)
+                if is_white:
+                    opening_variant_moves.append(f'{move_num}. {move}')
+                    # Don't increment after white move - increment happens after the following black move
+                else:
+                    opening_variant_moves.append(f'{move_num}... {move}')
+                    # After black move, increment move number for next white move
+                    move_num += 1
+        
+        variant_comparison_html = f'''
+            <div class="variant-comparison-container">
+                <div class="variant-comparison-title">Variants from Divergence Point:</div>
+                <div class="variant-comparison-content">
+                    <div class="game-variant-section">
+                        <div class="variant-label">Game Continuation (Played):</div>
+                        <div class="variant-moves game-variant-moves">{' '.join(game_variant_moves) if game_variant_moves else '(game ended at divergence)'}</div>
+                    </div>
+                    <div class="opening-variant-section">
+                        <div class="variant-label">Opening Repertoire (Should Play):</div>
+                        <div class="variant-moves opening-variant-moves">{' '.join(opening_variant_moves) if opening_variant_moves else '(no continuation)'}</div>
+                    </div>
+                </div>
             </div>
         '''
     
@@ -714,6 +765,81 @@ def _generate_html_content(
             margin-right: 5px;
         }}
         
+        .variant-comparison-container {{
+            margin-top: 20px;
+            padding: 15px;
+            background: #f5f5f5;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+        }}
+        
+        .variant-comparison-title {{
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 16px;
+            text-align: center;
+        }}
+        
+        .variant-comparison-content {{
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }}
+        
+        @media (min-width: 768px) {{
+            .variant-comparison-content {{
+                flex-direction: row;
+                gap: 20px;
+            }}
+        }}
+        
+        .game-variant-section {{
+            flex: 1;
+            padding: 12px;
+            background: #ffebee;
+            border-left: 4px solid #f44336;
+            border-radius: 5px;
+        }}
+        
+        .opening-variant-section {{
+            flex: 1;
+            padding: 12px;
+            background: #e8f5e9;
+            border-left: 4px solid #4CAF50;
+            border-radius: 5px;
+        }}
+        
+        .variant-label {{
+            font-weight: bold;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }}
+        
+        .game-variant-section .variant-label {{
+            color: #c62828;
+        }}
+        
+        .opening-variant-section .variant-label {{
+            color: #2e7d32;
+        }}
+        
+        .variant-moves {{
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            color: #333;
+            line-height: 1.8;
+        }}
+        
+        .game-variant-moves {{
+            color: #b71c1c;
+        }}
+        
+        .opening-variant-moves {{
+            color: #1b5e20;
+        }}
+        
+        /* Legacy class names for backwards compatibility */
         .opening-variant-container {{
             margin-top: 20px;
             padding: 15px;
@@ -838,7 +964,7 @@ def _generate_html_content(
                 <div class="move-list">
                     {' '.join(move_list_html)}
                 </div>
-                {opening_variant_html}
+                {variant_comparison_html}
             </div>
         </div>
     </div>
