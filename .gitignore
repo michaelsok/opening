@@ -1,2 +1,5 @@
 __pycache__/*
 *.pyc
+# Generated HTML visualization files
+src/visualization/*.html
+src/visualization/game_*.html
