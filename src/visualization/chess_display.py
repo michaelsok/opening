@@ -681,11 +681,23 @@ def _generate_html_content(
             font-weight: bold;
         }}
         
+        .move.current {{
+            border: 3px solid #2196F3 !important;
+            box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.3);
+            position: relative;
+            z-index: 1;
+        }}
+        
         .move.divergence-move {{
             background: #ff4444 !important;
             color: white !important;
             font-weight: bold;
             border: 2px solid #cc0000;
+        }}
+        
+        .move.divergence-move.current {{
+            border: 3px solid #2196F3 !important;
+            box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.3), 0 0 0 4px rgba(204, 0, 0, 0.3);
         }}
         
         .white-move {{
@@ -879,6 +891,11 @@ def _generate_html_content(
                     const shouldHighlight = moveIdx < currentMove && 
                                           (divergenceMoveIndex === null || moveIdx < divergenceMoveIndex);
                     moveEl.classList.toggle('active', shouldHighlight);
+                    
+                    // Add border highlight for the current move (the move that leads to the current position)
+                    // Position 0 = initial position (no move), Position 1 = after move 0, Position 2 = after move 1, etc.
+                    const isCurrentMove = currentMove > 0 && moveIdx === currentMove - 1;
+                    moveEl.classList.toggle('current', isCurrentMove);
                 }}
             }});
         }}
