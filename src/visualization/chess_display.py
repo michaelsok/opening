@@ -837,6 +837,7 @@ def _generate_html_content(
         const positions = {positions_json};
         const moves_san = {moves_san_json};
         const moves_uci = {moves_uci_json};
+        const divergenceMoveIndex = {divergence_move_index if divergence_move_index is not None else 'null'};
         
         let currentMove = 0;
         const totalMoves = positions.length - 1;
@@ -868,10 +869,16 @@ def _generate_html_content(
             }});
             
             // Update active moves in move list
+            // Only highlight moves in green if they're before the divergence point
             document.querySelectorAll('.move').forEach((moveEl) => {{
                 const moveIdx = parseInt(moveEl.dataset.index);
                 if (!isNaN(moveIdx)) {{
-                    moveEl.classList.toggle('active', moveIdx < currentMove);
+                    // Only apply green highlight if:
+                    // 1. The move has been played (moveIdx < currentMove), AND
+                    // 2. Either there's no divergence, or the move is before the divergence point
+                    const shouldHighlight = moveIdx < currentMove && 
+                                          (divergenceMoveIndex === null || moveIdx < divergenceMoveIndex);
+                    moveEl.classList.toggle('active', shouldHighlight);
                 }}
             }});
         }}
