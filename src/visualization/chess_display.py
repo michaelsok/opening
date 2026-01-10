@@ -357,12 +357,96 @@ def _create_html_viewer(
     divergence_move_index = None
     opening_variant = []
     game_variant = []  # Moves actually played after divergence
+    opening_variant_boards = []  # SVG boards for opening variant positions
+    opening_variant_positions = []  # FEN positions for opening variant
+    opening_variant_moves_uci = []  # UCI moves for opening variant
+    game_variant_boards = []  # SVG boards for game variant positions (from divergence)
+    game_variant_positions = []  # FEN positions for game variant (from divergence)
     if opening_pgn and divergence_point:
         divergence_move_index = _find_divergence_move_index(divergence_point, moves_san)
         opening_variant = _extract_opening_variant(opening_pgn, divergence_point)
         # Extract game variant - moves played after the divergence point
         if divergence_move_index is not None and divergence_move_index + 1 < len(moves_san):
             game_variant = moves_san[divergence_move_index + 1:]
+        
+        # Generate board positions for game variant (from divergence point onward)
+        if game_variant and divergence_move_index is not None:
+            # Start from the position at divergence
+            variant_board = game.board()
+            variant_board.reset()
+            # Play all moves up to and including the divergence move
+            for i in range(divergence_move_index + 1):
+                if i < len(moves_uci):
+                    move = chess.Move.from_uci(moves_uci[i])
+                    variant_board.push(move)
+            
+            # Store the divergence position (starting point for game variant)
+            game_variant_positions.append(variant_board.fen())
+            game_variant_boards.append(chess.svg.board(variant_board, size=size))
+            
+            # Play through the game variant moves
+            for idx, move_san in enumerate(game_variant):
+                try:
+                    move = variant_board.parse_san(move_san)
+                    move_uci = move.uci()
+                    
+                    # Generate SVG showing the move
+                    board_before = chess.Board(variant_board.fen())
+                    svg = chess.svg.board(board_before, size=size, lastmove=move)
+                    game_variant_boards.append(svg)
+                    
+                    # Push the move to get position after
+                    variant_board.push(move)
+                    game_variant_positions.append(variant_board.fen())
+                except (ValueError, AssertionError):
+                    break
+            
+            # Add final position if we have moves
+            if game_variant_positions:
+                final_board = chess.Board(game_variant_positions[-1])
+                game_variant_boards.append(chess.svg.board(final_board, size=size))
+        
+        # Generate board positions for opening variant if it exists
+        if opening_variant and divergence_move_index is not None:
+            # Start from the position at divergence
+            variant_board = game.board()
+            # Reset to initial position
+            variant_board.reset()
+            # Play all moves up to and including the divergence move
+            for i in range(divergence_move_index + 1):
+                if i < len(moves_uci):
+                    move = chess.Move.from_uci(moves_uci[i])
+                    variant_board.push(move)
+            
+            # Store the divergence position (starting point for variants) - this is the position BEFORE the first variant move
+            opening_variant_positions.append(variant_board.fen())
+            # First board shows the position at divergence (before any variant moves)
+            opening_variant_boards.append(chess.svg.board(variant_board, size=size))
+            
+            # Play through the opening variant moves
+            for idx, move_san in enumerate(opening_variant):
+                try:
+                    # Parse the move
+                    move = variant_board.parse_san(move_san)
+                    move_uci = move.uci()
+                    opening_variant_moves_uci.append(move_uci)
+                    
+                    # Generate SVG showing the move (position before move with arrow)
+                    board_before = chess.Board(variant_board.fen())
+                    svg = chess.svg.board(board_before, size=size, lastmove=move)
+                    opening_variant_boards.append(svg)
+                    
+                    # Now push the move to get the position after
+                    variant_board.push(move)
+                    opening_variant_positions.append(variant_board.fen())
+                except (ValueError, AssertionError) as e:
+                    # Invalid move, skip the rest
+                    break
+            
+            # Add final position board if we have moves
+            if opening_variant_positions:
+                final_board = chess.Board(opening_variant_positions[-1])
+                opening_variant_boards.append(chess.svg.board(final_board, size=size))
     
     # Get game headers
     headers = dict(game.headers)
@@ -424,7 +508,12 @@ def _create_html_viewer(
         divergence_move_index=divergence_move_index,
         opening_variant=opening_variant,
         game_variant=game_variant,
-        divergence_point=divergence_point
+        divergence_point=divergence_point,
+        opening_variant_boards=opening_variant_boards,
+        opening_variant_positions=opening_variant_positions,
+        opening_variant_moves_uci=opening_variant_moves_uci,
+        game_variant_boards=game_variant_boards,
+        game_variant_positions=game_variant_positions
     )
     
     # Write HTML file
@@ -453,12 +542,23 @@ def _generate_html_content(
     divergence_move_index: Optional[int] = None,
     opening_variant: Optional[List[str]] = None,
     game_variant: Optional[List[str]] = None,
-    divergence_point: Optional[List[str]] = None
+    divergence_point: Optional[List[str]] = None,
+    opening_variant_boards: Optional[List[str]] = None,
+    opening_variant_positions: Optional[List[str]] = None,
+    opening_variant_moves_uci: Optional[List[str]] = None,
+    game_variant_boards: Optional[List[str]] = None,
+    game_variant_positions: Optional[List[str]] = None
 ) -> str:
     """Generate HTML content for the chess game viewer."""
     # Format moves for display with divergence highlighting
+    # Include both game moves and opening repertoire moves after divergence point
     move_list_html = []
     move_number = 1
+    
+    # Calculate starting move number for variants
+    variant_start_move_num = len(divergence_point) // 2 + 1 if divergence_point else 1
+    start_is_white = (divergence_move_index is not None and divergence_move_index % 2 == 1) if divergence_move_index is not None else True
+    
     for i in range(0, len(moves_san), 2):
         white_move = moves_san[i] if i < len(moves_san) else ''
         black_move = moves_san[i + 1] if i + 1 < len(moves_san) else ''
@@ -466,16 +566,89 @@ def _generate_html_content(
         # Check if this is the divergence move
         white_divergence = (divergence_move_index is not None and i == divergence_move_index)
         black_divergence = (divergence_move_index is not None and i + 1 == divergence_move_index)
+        is_at_divergence = white_divergence or black_divergence
         
         white_class = 'move white-move' + (' divergence-move' if white_divergence else '')
         black_class = 'move black-move' + (' divergence-move' if black_divergence else '')
         
-        move_list_html.append(
-            f'<span class="move-number">{move_number}.</span> '
-            f'<span class="{white_class}" data-index="{i}">{white_move}</span> '
-            f'<span class="{black_class}" data-index="{i + 1}">{black_move}</span>'
-        )
+        # Build move HTML for this move pair
+        move_pair_html = [f'<span class="move-number">{move_number}.</span> ']
+        
+        # White move (game)
+        move_pair_html.append(f'<span class="{white_class}" data-index="{i}" data-move-type="game">{white_move}</span> ')
+        
+        # Black move (game)
+        if black_move:
+            move_pair_html.append(f'<span class="{black_class}" data-index="{i + 1}" data-move-type="game">{black_move}</span> ')
+        
+        move_list_html.append(''.join(move_pair_html))
+        
+        # If at divergence point, insert choice prompt and display both variants
+        if is_at_divergence and (game_variant or opening_variant):
+            # Format variant moves for display
+            game_variant_display = ' '.join(game_variant) if game_variant else '(game ended)'
+            opening_variant_display = ' '.join(opening_variant) if opening_variant else '(no continuation)'
+            
+            # Insert divergence choice section
+            move_list_html.append(f'''
+                <div class="divergence-choice">
+                    <p>Divergence! Choose your path:</p>
+                    <div class="variant-options">
+                        <div class="game-option">
+                            <button class="btn" onclick="switchToVariant('game')">Game: {game_variant_display}</button>
+                        </div>
+                        <div class="opening-option">
+                            <button class="btn" onclick="switchToVariant('opening')">Opening: <span class="opening-move">{opening_variant_display}</span></button>
+                        </div>
+                    </div>
+                </div>
+            ''')
+        
         move_number += 1
+    
+    # Add continuation moves after divergence (display both game and opening variants)
+    if divergence_move_index is not None and (game_variant or opening_variant):
+        variant_move_num = variant_start_move_num
+        variant_idx = 0
+        
+        # Process moves in pairs (white, black)
+        while variant_idx < max(len(game_variant) if game_variant else 0, len(opening_variant) if opening_variant else 0):
+            move_pair_html = []
+            has_white_moves = False
+            
+            # White moves - display game variant first, then opening variant
+            if game_variant and variant_idx < len(game_variant):
+                game_white = game_variant[variant_idx]
+                is_white_move = (start_is_white and variant_idx % 2 == 0) or (not start_is_white and variant_idx % 2 == 1)
+                if is_white_move:
+                    move_pair_html.append(f'<span class="move-number">{variant_move_num}.</span> ')
+                    move_pair_html.append(f'<span class="move white-move" data-index="{divergence_move_index + 1 + variant_idx}" data-move-type="game" data-variant-index="{variant_idx}">{game_white}</span> ')
+                    has_white_moves = True
+            
+            if opening_variant and variant_idx < len(opening_variant):
+                opening_white = opening_variant[variant_idx]
+                is_white_move = (start_is_white and variant_idx % 2 == 0) or (not start_is_white and variant_idx % 2 == 1)
+                if is_white_move:
+                    if not has_white_moves:
+                        move_pair_html.append(f'<span class="move-number">{variant_move_num}.</span> ')
+                    move_pair_html.append(f'<span class="move opening-move white-move" data-index="{divergence_move_index + 1 + variant_idx}" data-move-type="opening" data-variant-index="{variant_idx}">{opening_white}</span> ')
+            
+            variant_idx += 1
+            
+            # Black moves - display game variant first, then opening variant
+            if game_variant and variant_idx < len(game_variant):
+                game_black = game_variant[variant_idx]
+                move_pair_html.append(f'<span class="move black-move" data-index="{divergence_move_index + 1 + variant_idx}" data-move-type="game" data-variant-index="{variant_idx}">{game_black}</span> ')
+            
+            if opening_variant and variant_idx < len(opening_variant):
+                opening_black = opening_variant[variant_idx]
+                move_pair_html.append(f'<span class="move opening-move black-move" data-index="{divergence_move_index + 1 + variant_idx}" data-move-type="opening" data-variant-index="{variant_idx}">{opening_black}</span> ')
+            
+            if move_pair_html:
+                move_list_html.append(''.join(move_pair_html))
+                variant_move_num += 1
+            
+            variant_idx += 1
     
     # Format variants for display (both game and opening repertoire)
     variant_comparison_html = ''
@@ -519,6 +692,10 @@ def _generate_html_content(
                     # After black move, increment move number for next white move
                     move_num += 1
         
+        # Create buttons to view variants on board
+        view_game_button = f'<button class="btn variant-btn" onclick="switchToVariant(\'game\')" style="background: #f44336; margin-top: 10px;">View Game Variant on Board</button>' if game_variant else ''
+        view_opening_button = f'<button class="btn variant-btn" onclick="switchToVariant(\'opening\')" style="background: #4CAF50; margin-top: 10px;">View Opening Variant on Board</button>' if opening_variant else ''
+        
         variant_comparison_html = f'''
             <div class="variant-comparison-container">
                 <div class="variant-comparison-title">Variants from Divergence Point:</div>
@@ -526,11 +703,16 @@ def _generate_html_content(
                     <div class="game-variant-section">
                         <div class="variant-label">Game Continuation (Played):</div>
                         <div class="variant-moves game-variant-moves">{' '.join(game_variant_moves) if game_variant_moves else '(game ended at divergence)'}</div>
+                        {view_game_button}
                     </div>
                     <div class="opening-variant-section">
                         <div class="variant-label">Opening Repertoire (Should Play):</div>
                         <div class="variant-moves opening-variant-moves">{' '.join(opening_variant_moves) if opening_variant_moves else '(no continuation)'}</div>
+                        {view_opening_button}
                     </div>
+                </div>
+                <div style="text-align: center; margin-top: 15px;">
+                    <button class="btn variant-btn" onclick="switchToVariant(\'main\')" style="background: #2196F3;">View Main Game</button>
                 </div>
             </div>
         '''
@@ -546,6 +728,12 @@ def _generate_html_content(
     positions_json = json.dumps(positions)
     moves_san_json = json.dumps(moves_san)
     moves_uci_json = json.dumps(moves_uci)
+    opening_variant_boards_json = json.dumps(opening_variant_boards if opening_variant_boards else [])
+    opening_variant_positions_json = json.dumps(opening_variant_positions if opening_variant_positions else [])
+    game_variant_boards_json = json.dumps(game_variant_boards if game_variant_boards else [])
+    game_variant_positions_json = json.dumps(game_variant_positions if game_variant_positions else [])
+    game_variant_json = json.dumps(game_variant if game_variant else [])
+    opening_variant_san_json = json.dumps(opening_variant if opening_variant else [])
     event_escaped = event.replace('"', '&quot;')
     white_escaped = white.replace('"', '&quot;')
     black_escaped = black.replace('"', '&quot;')
@@ -839,6 +1027,41 @@ def _generate_html_content(
             color: #1b5e20;
         }}
         
+        .divergence-choice {{
+            margin-top: 15px;
+            padding: 10px;
+            background: #fffde7;
+            border: 1px solid #ffeb3b;
+            border-radius: 5px;
+            text-align: center;
+        }}
+        .divergence-choice p {{
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #fbc02d;
+        }}
+        .variant-options {{
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }}
+        .variant-options .btn {{
+            width: 100%;
+            padding: 8px 15px;
+            font-size: 14px;
+        }}
+        .game-option .btn {{
+            background: #ef9a9a;
+            color: #b71c1c;
+        }}
+        .opening-option .btn {{
+            background: #a5d6a7;
+            color: #1b5e20;
+        }}
+        .opening-move {{
+            font-size: 0.9em; /* Smaller font for opening repertoire in move list */
+        }}
+        
         /* Legacy class names for backwards compatibility */
         .opening-variant-container {{
             margin-top: 20px;
@@ -964,7 +1187,18 @@ def _generate_html_content(
                 <div class="move-list">
                     {' '.join(move_list_html)}
                 </div>
-                {variant_comparison_html}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Variant Selection Modal -->
+    <div id="variant-modal" class="variant-modal">
+        <div class="variant-modal-content">
+            <h3>Choose Variant to Follow</h3>
+            <p>You've reached a divergence point. Which variant would you like to follow?</p>
+            <div class="variant-choice-buttons">
+                <button class="variant-choice-btn game" onclick="selectVariant('game')">Game (Played)</button>
+                <button class="variant-choice-btn opening" onclick="selectVariant('opening')">Opening Repertoire</button>
             </div>
         </div>
     </div>
@@ -976,9 +1210,18 @@ def _generate_html_content(
         const moves_san = {moves_san_json};
         const moves_uci = {moves_uci_json};
         const divergenceMoveIndex = {divergence_move_index if divergence_move_index is not None else 'null'};
+        const openingVariantBoards = {opening_variant_boards_json};
+        const openingVariantPositions = {opening_variant_positions_json};
+        const gameVariantBoards = {game_variant_boards_json};
+        const gameVariantPositions = {game_variant_positions_json};
+        const gameVariant = {game_variant_json};
+        const openingVariant = {opening_variant_san_json};
         
         let currentMove = 0;
-        const totalMoves = positions.length - 1;
+        let totalMoves = positions.length - 1;
+        let currentViewMode = 'main'; // 'main', 'game', 'opening'
+        let currentBoards = boards;
+        let currentPositions = positions;
         
         // Initialize
         function init() {{
@@ -989,11 +1232,13 @@ def _generate_html_content(
         
         // Update board display
         function updateBoard(moveIndex) {{
+            if (moveIndex < 0 || moveIndex >= currentPositions.length) return;
+            
             currentMove = moveIndex;
-            document.getElementById('chessboard').innerHTML = boards[moveIndex];
+            document.getElementById('chessboard').innerHTML = currentBoards[moveIndex];
             document.getElementById('current-move').textContent = currentMove;
             document.getElementById('total-moves').textContent = totalMoves;
-            document.getElementById('position-fen').textContent = positions[moveIndex];
+            document.getElementById('position-fen').textContent = currentPositions[moveIndex];
             
             // Update button states
             document.querySelector('.btn.first').disabled = currentMove === 0;
@@ -1006,29 +1251,30 @@ def _generate_html_content(
                 btn.classList.toggle('active', idx === currentMove);
             }});
             
-            // Update active moves in move list
-            // Only highlight moves in green if they're before the divergence point
-            document.querySelectorAll('.move').forEach((moveEl) => {{
-                const moveIdx = parseInt(moveEl.dataset.index);
-                if (!isNaN(moveIdx)) {{
-                    // Only apply green highlight if:
-                    // 1. The move has been played (moveIdx < currentMove), AND
-                    // 2. Either there's no divergence, or the move is before the divergence point
-                    const shouldHighlight = moveIdx < currentMove && 
-                                          (divergenceMoveIndex === null || moveIdx < divergenceMoveIndex);
-                    moveEl.classList.toggle('active', shouldHighlight);
-                    
-                    // Add border highlight for the current move (the move that leads to the current position)
-                    // Position 0 = initial position (no move), Position 1 = after move 0, Position 2 = after move 1, etc.
-                    const isCurrentMove = currentMove > 0 && moveIdx === currentMove - 1;
-                    moveEl.classList.toggle('current', isCurrentMove);
-                }}
-            }});
+            // Update active moves in move list only if viewing main game
+            if (currentViewMode === 'main') {{
+                document.querySelectorAll('.move').forEach((moveEl) => {{
+                    const moveIdx = parseInt(moveEl.dataset.index);
+                    if (!isNaN(moveIdx)) {{
+                        // Only apply green highlight if:
+                        // 1. The move has been played (moveIdx < currentMove), AND
+                        // 2. Either there's no divergence, or the move is before the divergence point
+                        const shouldHighlight = moveIdx < currentMove && 
+                                              (divergenceMoveIndex === null || moveIdx < divergenceMoveIndex);
+                        moveEl.classList.toggle('active', shouldHighlight);
+                        
+                        // Add border highlight for the current move (the move that leads to the current position)
+                        // Position 0 = initial position (no move), Position 1 = after move 0, Position 2 = after move 1, etc.
+                        const isCurrentMove = currentMove > 0 && moveIdx === currentMove - 1;
+                        moveEl.classList.toggle('current', isCurrentMove);
+                    }}
+                }});
+            }}
         }}
         
         // Navigation functions
         function goToMove(moveIndex) {{
-            if (moveIndex >= 0 && moveIndex <= totalMoves) {{
+            if (moveIndex >= 0 && moveIndex < currentPositions.length) {{
                 updateBoard(moveIndex);
             }}
         }}
@@ -1077,6 +1323,64 @@ def _generate_html_content(
                 }}
             }});
         }}
+        
+        // Switch variant view mode
+        function switchToVariant(mode) {{
+            if (divergenceMoveIndex === null) return; // No divergence, can't switch
+            
+            currentViewMode = mode;
+            
+            if (mode === 'main') {{
+                // Switch back to main game
+                currentBoards = boards;
+                currentPositions = positions;
+                totalMoves = positions.length - 1;
+            }} else if (mode === 'game' && gameVariantBoards.length > 0) {{
+                // Switch to game variant - show continuation from divergence point
+                currentBoards = gameVariantBoards;
+                currentPositions = gameVariantPositions;
+                totalMoves = gameVariantPositions.length - 1;
+            }} else if (mode === 'opening' && openingVariantBoards.length > 0) {{
+                // Switch to opening variant
+                currentBoards = openingVariantBoards;
+                currentPositions = openingVariantPositions;
+                totalMoves = openingVariantPositions.length - 1;
+            }} else {{
+                return; // Invalid mode or no variant available
+            }}
+            
+            // Reset to start of variant view
+            currentMove = divergenceMoveIndex !== null && mode !== 'main' ? 0 : 0;
+            
+            // Update move navigation buttons
+            updateMoveNavigation();
+            
+            // Update board display
+            updateBoard(currentMove);
+        }}
+        
+        // Update move navigation buttons
+        function updateMoveNavigation() {{
+            const moveNav = document.querySelector('.move-navigation');
+            if (!moveNav) return;
+            
+            moveNav.innerHTML = '';
+            for (let i = 0; i < currentPositions.length; i++) {{
+                const btn = document.createElement('button');
+                btn.className = 'move-btn';
+                btn.setAttribute('data-move', i);
+                btn.textContent = i;
+                btn.addEventListener('click', () => goToMove(i));
+                moveNav.appendChild(btn);
+            }}
+            
+            // Update last button onclick
+            const lastBtn = document.querySelector('.btn.last');
+            if (lastBtn) {{
+                lastBtn.setAttribute('onclick', `goToMove(${{totalMoves}})`);
+            }}
+        }}
+        
         
         // Initialize on load
         window.addEventListener('load', init);
