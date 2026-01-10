@@ -293,17 +293,28 @@ def _find_divergence_move_index(
     
     # Get the last move from divergence_point (the actual diverging move)
     last_divergence = divergence_point[-1]
+    
     # Extract SAN from "3. Bc4" or "1... c5" format
-    parts = last_divergence.split('.', 1)
-    if len(parts) > 1:
-        san = parts[1].strip()
-        if san.startswith('...'):
-            san = san[3:].strip()
-        
-        # Find this move in moves_san
-        for idx, move in enumerate(moves_san):
-            if move == san:
-                return idx
+    # Handle black moves: "1... c5" -> extract "c5"
+    if '...' in last_divergence:
+        # Black move: split on '...' and take the part after
+        parts = last_divergence.split('...', 1)
+        if len(parts) > 1:
+            san = parts[1].strip()
+        else:
+            return None
+    else:
+        # White move: "3. Bc4" -> split on first '.' and take part after
+        parts = last_divergence.split('.', 1)
+        if len(parts) > 1:
+            san = parts[1].strip()
+        else:
+            return None
+    
+    # Find this move in moves_san
+    for idx, move in enumerate(moves_san):
+        if move == san:
+            return idx
     
     return None
 
@@ -1074,10 +1085,12 @@ def _generate_index_html_content(game_data_list: List[dict], size: int) -> str:
         date = headers.get('Date', '')
         
         # Format divergence info
+        # Only show the actual diverging move (last move in divergence path)
         divergence = game_data['divergence_point']
         if divergence:
-            divergence_display = ' → '.join(divergence[-3:]) if len(divergence) > 3 else ' → '.join(divergence)
-            divergence_html = f'<span class="divergence-info">Diverges at: {divergence_display}</span>'
+            # Get the last move from the divergence path - this is the actual diverging move
+            diverging_move = divergence[-1]
+            divergence_html = f'<span class="divergence-info">Diverges at: {diverging_move}</span>'
         else:
             divergence_html = '<span class="divergence-info no-divergence">✓ Follows opening repertoire</span>'
         
