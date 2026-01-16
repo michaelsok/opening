@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,14 +11,14 @@
             padding: 0;
             box-sizing: border-box;
         }
-        
+
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             padding: 20px;
         }
-        
+
         .container {
             max-width: 1200px;
             margin: 0 auto;
@@ -26,19 +27,19 @@
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
             overflow: hidden;
         }
-        
+
         .header {
             background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
             color: white;
             padding: 20px;
             text-align: center;
         }
-        
+
         .header h1 {
             font-size: 24px;
             margin-bottom: 10px;
         }
-        
+
         .game-info {
             display: flex;
             justify-content: space-around;
@@ -46,27 +47,27 @@
             margin-top: 15px;
             font-size: 14px;
         }
-        
+
         .game-info div {
             margin: 5px;
         }
-        
+
         .game-info strong {
             margin-right: 5px;
         }
-        
+
         .main-content {
             display: flex;
             flex-direction: column;
             padding: 20px;
         }
-        
+
         @media (min-width: 768px) {
             .main-content {
                 flex-direction: row;
             }
         }
-        
+
         .board-container {
             flex: 1;
             display: flex;
@@ -74,18 +75,18 @@
             align-items: center;
             padding: 20px;
         }
-        
+
         .board-wrapper {
             position: relative;
             margin-bottom: 20px;
         }
-        
+
         #chessboard {
             display: block;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
             border-radius: 5px;
         }
-        
+
         .controls {
             display: flex;
             gap: 10px;
@@ -93,7 +94,7 @@
             flex-wrap: wrap;
             margin-top: 20px;
         }
-        
+
         .btn {
             padding: 10px 20px;
             font-size: 16px;
@@ -104,40 +105,40 @@
             color: white;
             transition: background 0.3s;
         }
-        
+
         .btn:hover {
             background: #45a049;
         }
-        
+
         .btn:disabled {
             background: #cccccc;
             cursor: not-allowed;
         }
-        
+
         .btn.prev {
             background: #2196F3;
         }
-        
+
         .btn.prev:hover {
             background: #0b7dda;
         }
-        
+
         .btn.next {
             background: #ff9800;
         }
-        
+
         .btn.next:hover {
             background: #e68900;
         }
-        
+
         .btn.first {
             background: #9e9e9e;
         }
-        
+
         .btn.last {
             background: #9e9e9e;
         }
-        
+
         .move-list-container {
             flex: 1;
             padding: 20px;
@@ -146,205 +147,73 @@
             max-height: 600px;
             overflow-y: auto;
         }
-        
+
         .move-list-title {
             font-size: 18px;
             font-weight: bold;
             margin-bottom: 15px;
             color: #333;
         }
-        
+
         .move-list {
             display: flex;
             flex-wrap: wrap;
             gap: 5px;
             line-height: 2;
         }
-        
+
         .move {
-            padding: 5px 10px;
-            margin: 2px;
+            padding: 2px 5px;
+            margin: 1px;
             border-radius: 3px;
             cursor: pointer;
             transition: background 0.2s;
             display: inline-block;
         }
-        
+
         .move:hover {
             background: #e0e0e0;
         }
-        
+
         .move.active {
             background: #4CAF50;
             color: white;
             font-weight: bold;
         }
-        
+
         .move.current {
-            border: 3px solid #2196F3 !important;
-            box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.3);
+            border: 2px solid #2196F3 !important;
+            box-shadow: 0 0 0 1px rgba(33, 150, 243, 0.3);
             position: relative;
             z-index: 1;
         }
-        
+
         .move.divergence-move {
             background: #ff4444 !important;
             color: white !important;
             font-weight: bold;
-            border: 2px solid #cc0000;
+            border: 1px solid #cc0000;
         }
-        
+
         .move.divergence-move.current {
-            border: 3px solid #2196F3 !important;
-            box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.3), 0 0 0 4px rgba(204, 0, 0, 0.3);
+            border: 2px solid #2196F3 !important;
+            box-shadow: 0 0 0 1px rgba(33, 150, 243, 0.3), 0 0 0 2px rgba(204, 0, 0, 0.3);
         }
-        
+
         .white-move {
             background: #fff;
         }
-        
+
         .black-move {
             background: #f0f0f0;
         }
-        
+
         .move-number {
             font-weight: bold;
             color: #666;
             margin-right: 5px;
         }
-        
-        .variant-comparison-container {
-            margin-top: 20px;
-            padding: 15px;
-            background: #f5f5f5;
-            border: 2px solid #ddd;
-            border-radius: 5px;
-        }
-        
-        .variant-comparison-title {
-            font-weight: bold;
-            color: #333;
-            margin-bottom: 15px;
-            font-size: 16px;
-            text-align: center;
-        }
-        
-        .variant-comparison-content {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-        
-        @media (min-width: 768px) {
-            .variant-comparison-content {
-                flex-direction: row;
-                gap: 20px;
-            }
-        }
-        
-        .game-variant-section {
-            flex: 1;
-            padding: 12px;
-            background: #ffebee;
-            border-left: 4px solid #f44336;
-            border-radius: 5px;
-        }
-        
-        .opening-variant-section {
-            flex: 1;
-            padding: 12px;
-            background: #e8f5e9;
-            border-left: 4px solid #4CAF50;
-            border-radius: 5px;
-        }
-        
-        .variant-label {
-            font-weight: bold;
-            font-size: 14px;
-            margin-bottom: 8px;
-        }
-        
-        .game-variant-section .variant-label {
-            color: #c62828;
-        }
-        
-        .opening-variant-section .variant-label {
-            color: #2e7d32;
-        }
-        
-        .variant-moves {
-            font-family: 'Courier New', monospace;
-            font-size: 14px;
-            color: #333;
-            line-height: 1.8;
-        }
-        
-        .game-variant-moves {
-            color: #b71c1c;
-        }
-        
-        .opening-variant-moves {
-            color: #1b5e20;
-        }
-        
-        .divergence-choice {
-            margin-top: 15px;
-            padding: 10px;
-            background: #fffde7;
-            border: 1px solid #ffeb3b;
-            border-radius: 5px;
-            text-align: center;
-        }
-        .divergence-choice p {
-            font-weight: bold;
-            margin-bottom: 10px;
-            color: #fbc02d;
-        }
-        .variant-options {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-        .variant-options .btn {
-            width: 100%;
-            padding: 8px 15px;
-            font-size: 14px;
-        }
-        .game-option .btn {
-            background: #ef9a9a;
-            color: #b71c1c;
-        }
-        .opening-option .btn {
-            background: #a5d6a7;
-            color: #1b5e20;
-        }
-        .opening-move {
-            font-size: 0.9em; /* Smaller font for opening repertoire in move list */
-        }
-        
-        /* Legacy class names for backwards compatibility */
-        .opening-variant-container {
-            margin-top: 20px;
-            padding: 15px;
-            background: #fff9e6;
-            border-left: 4px solid #ff9800;
-            border-radius: 5px;
-        }
-        
-        .opening-variant-title {
-            font-weight: bold;
-            color: #e65100;
-            margin-bottom: 10px;
-            font-size: 16px;
-        }
-        
-        .opening-variant-moves {
-            font-family: 'Courier New', monospace;
-            font-size: 14px;
-            color: #333;
-            line-height: 1.8;
-        }
-        
+
         .position-info {
             margin-top: 15px;
             padding: 10px;
@@ -354,7 +223,7 @@
             font-family: 'Courier New', monospace;
             font-size: 12px;
         }
-        
+
         .move-navigation {
             margin-top: 10px;
             padding: 10px;
@@ -367,7 +236,7 @@
             max-height: 150px;
             overflow-y: auto;
         }
-        
+
         .move-btn {
             padding: 5px 10px;
             border: 1px solid #ddd;
@@ -376,36 +245,66 @@
             background: white;
             font-size: 12px;
         }
-        
+
         .move-btn:hover {
             background: #f0f0f0;
         }
-        
+
         .move-btn.active {
             background: #4CAF50;
             color: white;
             border-color: #4CAF50;
         }
-        
+
+        /* Variation styles (Lichess style) */
+        .variation {
+            color: #888;
+            font-size: 0.9em;
+            margin-left: 5px;
+            margin-right: 5px;
+        }
+
+        .variation .move {
+            color: #555;
+            background: transparent;
+            padding: 1px 3px;
+        }
+
+        .variation .move:hover {
+            background: #e0e0e0;
+            color: #333;
+        }
+
+        .variation .move.active {
+            background: #a5d6a7;
+            /* Light green */
+            color: #1b5e20;
+        }
+
+        .variation .move.current {
+            border-bottom: 2px solid #2e7d32;
+        }
+
         ::-webkit-scrollbar {
             width: 8px;
         }
-        
+
         ::-webkit-scrollbar-track {
             background: #f1f1f1;
             border-radius: 5px;
         }
-        
+
         ::-webkit-scrollbar-thumb {
             background: #888;
             border-radius: 5px;
         }
-        
+
         ::-webkit-scrollbar-thumb:hover {
             background: #555;
         }
     </style>
 </head>
+
 <body>
     <div class="container">
         <div class="header">
@@ -418,148 +317,284 @@
                 {% if site %}<div><strong>Site:</strong> {{ site }}</div>{% endif %}
             </div>
         </div>
-        
+
         <div class="main-content">
             <div class="board-container">
                 <div class="board-wrapper">
                     <div id="chessboard"></div>
                 </div>
-                
+
                 <div class="controls">
                     <button class="btn first" onclick="goToMove(0)">⏮ First</button>
                     <button class="btn prev" onclick="previousMove()">⏪ Previous</button>
                     <button class="btn next" onclick="nextMove()">Next ⏩</button>
                     <button class="btn last" onclick="goToMove({{ positions|length - 1 }})">Last ⏭</button>
                 </div>
-                
+
                 <div class="position-info">
-                    <div>Move: <span id="current-move">0</span> / <span id="total-moves">{{ positions|length - 1 }}</span></div>
+                    <div>Move: <span id="current-move">0</span> / <span id="total-moves">{{ positions|length - 1
+                            }}</span></div>
                     <div>Position: <span id="position-fen"></span></div>
                 </div>
-                
+
                 <div class="move-navigation">
                     {% for i in range(positions|length) %}
                     <button class="move-btn" data-move="{{ i }}">{{ i }}</button>
                     {% endfor %}
                 </div>
             </div>
-            
+
             <div class="move-list-container">
                 <div class="move-list-title">Move List</div>
                 <div class="move-list">
-                    {{ move_list_html|safe }}
+                    {% set ns = namespace(move_num=1) %}
+                    {% for i in range(0, moves_san|length, 2) %}
+                    {% set white_move = moves_san[i] %}
+                    {% set black_move = moves_san[i+1] if i+1 < moves_san|length else none %} {# Display Move Number #}
+                        <span class="move-number">{{ ns.move_num }}.</span>
+
+                        {# Display White Move #}
+                        <span
+                            class="move white-move {% if divergence_move_index is not none and i == divergence_move_index %}divergence-move{% endif %}"
+                            data-index="{{ i }}" data-move-type="game">
+                            {{ white_move }}
+                        </span>
+
+                        {# Inline Variation for White Divergence #}
+                        {% if divergence_move_index is not none and i == divergence_move_index and opening_variant %}
+                        <span class="variation">
+                            (
+                            {% for var_move in opening_variant %}
+                            {% set var_idx = loop.index0 %}
+                            {% set abs_idx = divergence_move_index + var_idx %}
+                            {% set is_white_var = (abs_idx % 2 == 0) %}
+                            {% set move_num_var = (abs_idx // 2) + 1 %}
+
+                            {% if is_white_var %}
+                            <span class="move-number">{{ move_num_var }}.</span>
+                            {% elif loop.first %}
+                            <span class="move-number">{{ move_num_var }}...</span>
+                            {% endif %}
+
+                            <span class="move" onclick="showVariantMove({{ loop.index }})">{{ var_move }}</span>
+                            {% endfor %}
+                            )
+                        </span>
+                        {% endif %}
+
+                        {# Display Black Move #}
+                        {% if black_move %}
+                        <span
+                            class="move black-move {% if divergence_move_index is not none and i+1 == divergence_move_index %}divergence-move{% endif %}"
+                            data-index="{{ i+1 }}" data-move-type="game">
+                            {{ black_move }}
+                        </span>
+
+                        {# Inline Variation for Black Divergence #}
+                        {% if divergence_move_index is not none and i+1 == divergence_move_index and opening_variant %}
+                        <span class="variation">
+                            (
+                            {% for var_move in opening_variant %}
+                            {% set var_idx = loop.index0 %}
+                            {% set abs_idx = divergence_move_index + var_idx %}
+                            {% set is_white_var = (abs_idx % 2 == 0) %}
+                            {% set move_num_var = (abs_idx // 2) + 1 %}
+
+                            {% if is_white_var %}
+                            <span class="move-number">{{ move_num_var }}.</span>
+                            {% elif loop.first %}
+                            <span class="move-number">{{ move_num_var }}...</span>
+                            {% endif %}
+
+                            <span class="move" onclick="showVariantMove({{ loop.index }})">{{ var_move }}</span>
+                            {% endfor %}
+                            )
+                        </span>
+                        {% endif %}
+                        {% endif %}
+
+                        {% set ns.move_num = ns.move_num + 1 %}
+                        {% endfor %}
                 </div>
             </div>
         </div>
     </div>
-    
-    <!-- Variant Selection Modal -->
-    <div id="variant-modal" class="variant-modal">
-        <div class="variant-modal-content">
-            <h3>Choose Variant to Follow</h3>
-            <p>You've reached a divergence point. Which variant would you like to follow?</p>
-            <div class="variant-choice-buttons">
-                <button class="variant-choice-btn game" onclick="selectVariant('game')">Game (Played)</button>
-                <button class="variant-choice-btn opening" onclick="selectVariant('opening')">Opening Repertoire</button>
-            </div>
-        </div>
-    </div>
-    
-    <div class="variant-comparison-wrapper">
-        {{ variant_comparison_html|safe }}
-    </div>
-    
+
     <script>
         // Store all board positions
-        const boards = {{ boards_json|safe }};
-        const positions = {{ positions_json|safe }};
-        const moves_san = {{ moves_san_json|safe }};
-        const moves_uci = {{ moves_uci_json|safe }};
+        const boards = {{ boards_json| safe }};
+        const positions = {{ positions_json| safe }};
+        const moves_san = {{ moves_san_json| safe }};
+        const moves_uci = {{ moves_uci_json| safe }};
         // Use strict null check for divergenceMoveIndex to match Python behavior
         const divergenceMoveIndex = {{ divergence_move_index if divergence_move_index is not none else 'null' }};
-        const openingVariantBoards = {{ opening_variant_boards_json|safe }};
-        const openingVariantPositions = {{ opening_variant_positions_json|safe }};
-        const gameVariantBoards = {{ game_variant_boards_json|safe }};
-        const gameVariantPositions = {{ game_variant_positions_json|safe }};
-        const gameVariant = {{ game_variant_json|safe }};
-        const openingVariant = {{ opening_variant_san_json|safe }};
-        
+        const openingVariantBoards = {{ opening_variant_boards_json| safe }};
+        const openingVariantPositions = {{ opening_variant_positions_json| safe }};
+        const gameVariantBoards = {{ game_variant_boards_json| safe }};
+        const gameVariantPositions = {{ game_variant_positions_json| safe }};
+        const gameVariant = {{ game_variant_json| safe }};
+        const openingVariant = {{ opening_variant_san_json| safe }};
+
         let currentMove = 0;
         let totalMoves = positions.length - 1;
         let currentViewMode = 'main'; // 'main', 'game', 'opening'
         let currentBoards = boards;
         let currentPositions = positions;
-        
+
         // Initialize
         function init() {
             updateBoard(0);
             setupMoveButtons();
             setupMoveList();
         }
-        
+
         // Update board display
         function updateBoard(moveIndex) {
+            // Validate bounds based on current Arrays
             if (moveIndex < 0 || moveIndex >= currentPositions.length) return;
-            
+
             currentMove = moveIndex;
             document.getElementById('chessboard').innerHTML = currentBoards[moveIndex];
             document.getElementById('current-move').textContent = currentMove;
             document.getElementById('total-moves').textContent = totalMoves;
             document.getElementById('position-fen').textContent = currentPositions[moveIndex];
-            
+
             // Update button states
             document.querySelector('.btn.first').disabled = currentMove === 0;
             document.querySelector('.btn.prev').disabled = currentMove === 0;
             document.querySelector('.btn.next').disabled = currentMove === totalMoves;
             document.querySelector('.btn.last').disabled = currentMove === totalMoves;
-            
+
             // Update active move buttons
             document.querySelectorAll('.move-btn').forEach((btn, idx) => {
                 btn.classList.toggle('active', idx === currentMove);
             });
-            
-            // Update active moves in move list only if viewing main game
-            if (currentViewMode === 'main') {
-                document.querySelectorAll('.move').forEach((moveEl) => {
-                    const moveIdx = parseInt(moveEl.dataset.index);
-                    if (!isNaN(moveIdx)) {
-                        // Only apply green highlight if:
-                        // 1. The move has been played (moveIdx < currentMove), AND
-                        // 2. Either there's no divergence, or the move is before the divergence point
-                        const shouldHighlight = moveIdx < currentMove && 
-                                              (divergenceMoveIndex === null || moveIdx < divergenceMoveIndex);
-                        moveEl.classList.toggle('active', shouldHighlight);
-                        
-                        // Add border highlight for the current move (the move that leads to the current position)
-                        // Position 0 = initial position (no move), Position 1 = after move 0, Position 2 = after move 1, etc.
-                        const isCurrentMove = currentMove > 0 && moveIdx === currentMove - 1;
-                        moveEl.classList.toggle('current', isCurrentMove);
+
+            // Update active moves in move list
+            // Logic differs by view mode
+            document.querySelectorAll('.move').forEach((moveEl) => {
+                // Clear all active/current states first
+                moveEl.classList.remove('active', 'current');
+
+                const moveIdx = parseInt(moveEl.dataset.index);
+                // Check if this is a main game move
+                const isMainMove = moveEl.closest('.move-list') && !moveEl.closest('.variation');
+                const isVariationMove = !!moveEl.closest('.variation');
+
+                if (currentViewMode === 'main') {
+                    if (isMainMove && !isNaN(moveIdx)) {
+                        // Active if played
+                        if (moveIdx < currentMove) moveEl.classList.add('active');
+                        // Current if last played
+                        if (currentMove > 0 && moveIdx === currentMove - 1) moveEl.classList.add('current');
                     }
-                });
-            }
+                } else if (currentViewMode === 'opening') {
+                    // logic for highlighting variation moves
+                    // This is handled by showVariantMove usually, but let's try to highlight
+                    // If we are in opening mode, we are viewing openingVariantPositions
+                    // The move indices in variation spans (onclick) are 1, 2, 3... corresponding to currentMove 1, 2, 3
+                    // I need to add data attributes to variation moves to highlight them correctly
+                }
+            });
         }
-        
+
         // Navigation functions
         function goToMove(moveIndex) {
+            // Need to ensure we stay in current mode bounds
             if (moveIndex >= 0 && moveIndex < currentPositions.length) {
                 updateBoard(moveIndex);
             }
         }
-        
+
         function previousMove() {
             if (currentMove > 0) {
                 updateBoard(currentMove - 1);
             }
         }
-        
+
         function nextMove() {
             if (currentMove < totalMoves) {
                 updateBoard(currentMove + 1);
             }
         }
-        
+
+        // Switch variant view mode
+        function switchToVariant(mode) {
+            if (divergenceMoveIndex === null) return;
+
+            currentViewMode = mode;
+
+            if (mode === 'main') {
+                currentBoards = boards;
+                currentPositions = positions;
+                totalMoves = positions.length - 1;
+            } else if (mode === 'opening' && openingVariantBoards.length > 0) {
+                currentBoards = openingVariantBoards;
+                currentPositions = openingVariantPositions;
+                totalMoves = openingVariantPositions.length - 1;
+            } else {
+                return;
+            }
+
+            // Update move navigation buttons for the new context
+            updateMoveNavigation();
+        }
+
+        function showVariantMove(variantIndex) {
+            // VariantIndex is 1-based index in the variation list (1st move, 2nd move...)
+            // 1st move corresponds to index 1 in openingVariantPositions (0 is start)
+
+            if (currentViewMode !== 'opening') {
+                switchToVariant('opening');
+            }
+
+            goToMove(variantIndex);
+
+            // Highlight specific variation move
+            // This requires we can select the element. 
+            // In the loop we use onclick="showVariantMove(index)"
+            // We can add `this` to function call or rely on state.
+            // For now, simple board update is enough.
+        }
+
+        // Update move navigation buttons
+        function updateMoveNavigation() {
+            const moveNav = document.querySelector('.move-navigation');
+            if (!moveNav) return;
+
+            moveNav.innerHTML = '';
+            for (let i = 0; i < currentPositions.length; i++) {
+                const btn = document.createElement('button');
+                btn.className = 'move-btn';
+                btn.setAttribute('data-move', i);
+                btn.textContent = i;
+                btn.addEventListener('click', () => goToMove(i));
+                moveNav.appendChild(btn);
+            }
+
+            const lastBtn = document.querySelector('.btn.last');
+            if (lastBtn) {
+                lastBtn.setAttribute('onclick', `goToMove(${totalMoves})`);
+            }
+        }
+
+        // Setup move list clicks for main moves
+        function setupMoveList() {
+            document.querySelectorAll('.move-list > .move').forEach((moveEl) => {
+                const moveIdx = parseInt(moveEl.dataset.index);
+                if (!isNaN(moveIdx)) {
+                    moveEl.addEventListener('click', () => {
+                        if (currentViewMode !== 'main') {
+                            switchToVariant('main');
+                        }
+                        goToMove(moveIdx + 1);
+                    });
+                }
+            });
+        }
+
         // Keyboard navigation
-        document.addEventListener('keydown', function(e) {
+        document.addEventListener('keydown', function (e) {
             if (e.key === 'ArrowLeft') {
                 previousMove();
             } else if (e.key === 'ArrowRight') {
@@ -570,87 +605,9 @@
                 goToMove(totalMoves);
             }
         });
-        
-        // Setup move buttons
-        function setupMoveButtons() {
-            document.querySelectorAll('.move-btn').forEach((btn, idx) => {
-                btn.addEventListener('click', () => goToMove(idx));
-            });
-        }
-        
-        // Setup move list clicks
-        function setupMoveList() {
-            document.querySelectorAll('.move').forEach((moveEl) => {
-                const moveIdx = parseInt(moveEl.dataset.index);
-                if (!isNaN(moveIdx) && moveIdx < positions.length - 1) {
-                    moveEl.addEventListener('click', () => {
-                        // Go to position after this move
-                        goToMove(moveIdx + 1);
-                    });
-                }
-            });
-        }
-        
-        // Switch variant view mode
-        function switchToVariant(mode) {
-            if (divergenceMoveIndex === null) return; // No divergence, can't switch
-            
-            currentViewMode = mode;
-            
-            if (mode === 'main') {
-                // Switch back to main game
-                currentBoards = boards;
-                currentPositions = positions;
-                totalMoves = positions.length - 1;
-            } else if (mode === 'game' && gameVariantBoards.length > 0) {
-                // Switch to game variant - show continuation from divergence point
-                currentBoards = gameVariantBoards;
-                currentPositions = gameVariantPositions;
-                totalMoves = gameVariantPositions.length - 1;
-            } else if (mode === 'opening' && openingVariantBoards.length > 0) {
-                // Switch to opening variant
-                currentBoards = openingVariantBoards;
-                currentPositions = openingVariantPositions;
-                totalMoves = openingVariantPositions.length - 1;
-            } else {
-                return; // Invalid mode or no variant available
-            }
-            
-            // Reset to start of variant view
-            currentMove = divergenceMoveIndex !== null && mode !== 'main' ? 0 : 0;
-            
-            // Update move navigation buttons
-            updateMoveNavigation();
-            
-            // Update board display
-            updateBoard(currentMove);
-        }
-        
-        // Update move navigation buttons
-        function updateMoveNavigation() {
-            const moveNav = document.querySelector('.move-navigation');
-            if (!moveNav) return;
-            
-            moveNav.innerHTML = '';
-            for (let i = 0; i < currentPositions.length; i++) {
-                const btn = document.createElement('button');
-                btn.className = 'move-btn';
-                btn.setAttribute('data-move', i);
-                btn.textContent = i;
-                btn.addEventListener('click', () => goToMove(i));
-                moveNav.appendChild(btn);
-            }
-            
-            // Update last button onclick
-            const lastBtn = document.querySelector('.btn.last');
-            if (lastBtn) {
-                lastBtn.setAttribute('onclick', `goToMove(${totalMoves})`);
-            }
-        }
-        
-        
-        // Initialize on load
+
         window.addEventListener('load', init);
     </script>
 </body>
+
 </html>

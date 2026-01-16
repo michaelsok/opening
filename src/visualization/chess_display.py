@@ -763,7 +763,9 @@ def _generate_html_content(
         game_variant_positions_json=game_variant_positions_json,
         game_variant_json=game_variant_json,
         opening_variant_san_json=opening_variant_san_json,
-        positions=positions 
+        positions=positions,
+        moves_san=moves_san,
+        opening_variant=opening_variant
     )
 
 
