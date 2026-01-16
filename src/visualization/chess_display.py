@@ -90,7 +90,8 @@ def display_game_from_string(
     open_in_browser: bool = True,
     size: int = 400,
     opening_pgn: Optional[str] = None,
-    divergence_point: Optional[List[str]] = None
+    divergence_point: Optional[List[str]] = None,
+    user_color: Optional[str] = None
 ) -> str:
     """
     Display a chess game from a PGN string with an interactive board viewer.
@@ -108,28 +109,13 @@ def display_game_from_string(
                          Format: ["1. e4", "1... e5", "2. Nf3", "2... Nc6", "3. Bc4"]
                          If provided with opening_pgn, will highlight divergence move in red
                          and show opening variant continuation.
+        user_color: Optional color played by the user ("white" or "black")
         
     Returns:
         str: Path to the generated HTML file
         
     Raises:
         ValueError: If PGN string contains no valid game
-        
-    Example:
-        >>> pgn = \"\"\"[Event "Test Game"]
-        ... [White "Player1"]
-        ... [Black "Player2"]
-        ... [Result "1-0"]
-        ...
-        ... 1. e4 e5 2. Nf3 Nc6 3. Bb5 1-0\"\"\"
-        >>> display_game_from_string(pgn)
-        '/tmp/tmpXXXXXX.html'
-        
-        >>> # With opening repertoire and divergence
-        >>> opening = "1. e4 e5 2. Nf3 Nc6 3. Bb5"
-        >>> divergence = ["1. e4", "1... e5", "2. Nf3", "2... Nc6", "3. Bc4"]
-        >>> display_game_from_string(pgn, opening_pgn=opening, divergence_point=divergence)
-        '/tmp/tmpXXXXXX.html'
     """
     game = chess.pgn.read_game(io.StringIO(pgn_string))
     
@@ -138,7 +124,8 @@ def display_game_from_string(
     
     return _create_html_viewer(
         game, output_file, open_in_browser, size,
-        opening_pgn=opening_pgn, divergence_point=divergence_point
+        opening_pgn=opening_pgn, divergence_point=divergence_point,
+        user_color=user_color
     )
 
 
@@ -346,7 +333,8 @@ def _create_html_viewer(
     open_in_browser: bool,
     size: int,
     opening_pgn: Optional[str] = None,
-    divergence_point: Optional[List[str]] = None
+    divergence_point: Optional[List[str]] = None,
+    user_color: Optional[str] = None
 ) -> str:
     """Create an HTML viewer for a chess game."""
     # Collect all moves and positions
@@ -374,9 +362,25 @@ def _create_html_viewer(
     opening_variant_moves_uci = []  # UCI moves for opening variant
     game_variant_boards = []  # SVG boards for game variant positions (from divergence)
     game_variant_positions = []  # FEN positions for game variant (from divergence)
+    
+    # New metadata for highlighting
+    repertoire_length = len(moves_san)
+    is_opponent_divergence = False
+
     if opening_pgn and divergence_point:
         divergence_move_index = _find_divergence_move_index(divergence_point, moves_san)
         opening_variant = _extract_opening_variant(opening_pgn, divergence_point)
+        
+        # Calculate repertoire length (moves that matched before the divergence)
+        if divergence_move_index is not None:
+            repertoire_length = divergence_move_index # Moves up to (but not including) divergence
+            
+            # Check if divergence was by opponent
+            # index 0 (White), 1 (Black), 2 (White)...
+            divergence_color = 'white' if divergence_move_index % 2 == 0 else 'black'
+            if user_color and divergence_color != user_color.lower():
+                is_opponent_divergence = True
+
         # Extract game variant - moves played after the divergence point
         if divergence_move_index is not None and divergence_move_index + 1 < len(moves_san):
             game_variant = moves_san[divergence_move_index + 1:]
@@ -525,7 +529,10 @@ def _create_html_viewer(
         opening_variant_positions=opening_variant_positions,
         opening_variant_moves_uci=opening_variant_moves_uci,
         game_variant_boards=game_variant_boards,
-        game_variant_positions=game_variant_positions
+        game_variant_positions=game_variant_positions,
+        repertoire_length=repertoire_length,
+        is_opponent_divergence=is_opponent_divergence,
+        user_color=user_color
     )
     
     # Write HTML file
@@ -559,7 +566,8 @@ def _generate_html_content(
     opening_variant_positions: Optional[List[str]] = None,
     opening_variant_moves_uci: Optional[List[str]] = None,
     game_variant_boards: Optional[List[str]] = None,
-    game_variant_positions: Optional[List[str]] = None
+    game_variant_positions: Optional[List[str]] = None,
+    **kwargs
 ) -> str:
     """Generate HTML content for the chess game viewer."""
     
@@ -574,6 +582,11 @@ def _generate_html_content(
     game_variant_positions_json = json.dumps(game_variant_positions if game_variant_positions else [])
     game_variant_json = json.dumps(game_variant if game_variant else [])
     opening_variant_san_json = json.dumps(opening_variant if opening_variant else [])
+    
+    # New metadata
+    repertoire_length = kwargs.get('repertoire_length', len(moves_san))
+    is_opponent_divergence = kwargs.get('is_opponent_divergence', False)
+    user_color = kwargs.get('user_color', None)
     
     # Render template
     env = _get_jinja_env()
@@ -599,27 +612,28 @@ def _generate_html_content(
         opening_variant_san_json=opening_variant_san_json,
         positions=positions,
         moves_san=moves_san,
-        opening_variant=opening_variant
+        opening_variant=opening_variant,
+        repertoire_length=repertoire_length,
+        is_opponent_divergence=is_opponent_divergence,
+        user_color=user_color
     )
 
 
 def create_index_html(
     games: List[str],
-    opening_repertoire: Union[List[str], str, Path],
+    opening_repertoire: Union[str, Path, List[str]],
+    target_username: Optional[str] = None,
     output_file: Optional[Union[str, Path]] = None,
     open_in_browser: bool = True,
     size: int = 400
 ) -> str:
     """
-    Create an index.html file that displays all games with their divergence points.
-    
-    Creates an HTML index page that lists all provided games with their divergence
-    information against an opening repertoire. Each game is clickable and redirects
-    to a game viewer with divergence highlighting.
-    
+    Create an index.html file with a list of chess games and their divergence points.
+
     Args:
         games: List of PGN strings representing the games to index
         opening_repertoire: List of PGN strings or path to directory containing opening PGN files
+        target_username: Optional username to determine which color repertoire to use
         output_file: Optional path to save the index.html file. 
                      If None, saves to src/visualization/index.html
         open_in_browser: If True, automatically opens the HTML file in the default browser
@@ -630,68 +644,81 @@ def create_index_html(
         
     Raises:
         ValueError: If games list is empty
-        
-    Example:
-        >>> games = ["[Event \"Game\"]\\n1. e4 e5 1-0", "[Event \"Game2\"]\\n1. d4 d5 1-0"]
-        >>> opening_repertoire = ["1. e4 e5 2. Nf3"]
-        >>> create_index_html(games, opening_repertoire)
-        '/path/to/src/visualization/index.html'
     """
     if not games:
         raise ValueError("games list cannot be empty")
     
-    # Load opening repertoire
-    opening_trees = []
-    opening_pgns = []
+    # Pre-parse opening directory PGNs for color matching if directory provided
+    all_opening_pgns = []
+    white_repertoire_pgn = None
+    black_repertoire_pgn = None
     
     if isinstance(opening_repertoire, (str, Path)):
-        # It's a directory path
         opening_dir = Path(opening_repertoire)
         if opening_dir.is_dir():
             for pgn_file in opening_dir.glob("*.pgn"):
                 with open(pgn_file, encoding="utf-8") as f:
                     pgn_str = f.read()
-                    opening_pgns.append(pgn_str)
-                    opening_trees.append(parse_pgn_string_to_tree(pgn_str))
+                    all_opening_pgns.append(pgn_str)
+                    if pgn_file.name.lower() == "white.pgn":
+                        white_repertoire_pgn = pgn_str
+                    elif pgn_file.name.lower() == "black.pgn":
+                        black_repertoire_pgn = pgn_str
         else:
             raise ValueError(f"Opening repertoire path is not a directory: {opening_repertoire}")
     else:
-        # It's a list of PGN strings
-        opening_pgns = opening_repertoire
-        opening_trees = [parse_pgn_string_to_tree(pgn) for pgn in opening_repertoire]
+        all_opening_pgns = opening_repertoire
+
+    # Pre-build trees for all_opening_pgns if no color logic needed
+    all_opening_trees = [parse_pgn_string_to_tree(pgn) for pgn in all_opening_pgns]
     
-    if not opening_trees:
-        raise ValueError("Opening repertoire cannot be empty")
-    
-    # Analyze each game and find divergence points
+    # Results container
     game_data_list = []
+    
     for idx, game_pgn in enumerate(games):
         try:
-            game = chess.pgn.read_game(io.StringIO(game_pgn))
-            if game is None:
+            game_obj = chess.pgn.read_game(io.StringIO(game_pgn))
+            if game_obj is None:
                 continue
                 
-            # Get game headers
-            headers = dict(game.headers)
+            headers = dict(game_obj.headers)
+            user_color = None
+            if target_username:
+                target_username_lower = target_username.lower()
+                if headers.get('White', '').lower() == target_username_lower:
+                    user_color = 'white'
+                elif headers.get('Black', '').lower() == target_username_lower:
+                    user_color = 'black'
+
+            # Decide which trees to use
+            current_opening_pgns = all_opening_pgns
+            current_opening_trees = all_opening_trees
             
+            if user_color == 'white' and white_repertoire_pgn:
+                current_opening_pgns = [white_repertoire_pgn]
+                current_opening_trees = [parse_pgn_string_to_tree(white_repertoire_pgn)]
+            elif user_color == 'black' and black_repertoire_pgn:
+                current_opening_pgns = [black_repertoire_pgn]
+                current_opening_trees = [parse_pgn_string_to_tree(black_repertoire_pgn)]
+
             # Find divergence point
             game_tree = parse_pgn_string_to_tree(game_pgn)
-            divergence_point, opening_idx = find_first_divergence_across_openings(game_tree, opening_trees)
+            divergence_point, opening_idx = find_first_divergence_across_openings(game_tree, current_opening_trees)
             
             # Get matching opening PGN
-            matching_opening_pgn = opening_pgns[opening_idx] if opening_idx is not None and 0 <= opening_idx < len(opening_pgns) else None
+            matching_opening_pgn = current_opening_pgns[opening_idx] if opening_idx is not None else None
             
             game_data_list.append({
                 'index': idx,
                 'pgn': game_pgn,
-                'game': game,
+                'game': game_obj,
                 'headers': headers,
                 'divergence_point': divergence_point,
                 'opening_pgn': matching_opening_pgn,
-                'opening_idx': opening_idx
+                'opening_idx': opening_idx,
+                'user_color': user_color
             })
-        except Exception as e:
-            # Skip games that fail to parse
+        except Exception:
             continue
     
     if not game_data_list:
@@ -723,10 +750,12 @@ def create_index_html(
                 open_in_browser=False,
                 size=size,
                 opening_pgn=game_data['opening_pgn'],
-                divergence_point=game_data['divergence_point'] if game_data['divergence_point'] else None
+                divergence_point=game_data['divergence_point'] if game_data['divergence_point'] else None,
+                user_color=game_data.get('user_color')
             )
             game_viewer_files.append(str(viewer_file.name))
-        except Exception:
+        except Exception as e:
+            print(f"Warning: Failed to generate viewer for game {game_data['index']}: {e}")
             game_viewer_files.append(None)
     
     # Open in browser if requested

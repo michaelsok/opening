@@ -106,6 +106,7 @@ def analyze_user_openings(
     return create_index_html(
         games=game_pgns,
         opening_repertoire=opening_repertoire,
+        target_username=username,
         output_file=output_file,
         open_in_browser=open_in_browser,
         size=size

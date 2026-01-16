@@ -364,7 +364,7 @@ def example_create_index_html():
 
 if __name__ == "__main__":
     # Run the first example
-    example_display_from_string()
+    # example_display_from_string()
     
     # Uncomment to try other examples:
     # example_display_from_file()
@@ -372,5 +372,5 @@ if __name__ == "__main__":
     # example_display_multiple_games_from_strings()
     # example_display_multiple_games_from_file()
     # example_display_with_divergence()
-    example_display_with_opening_repertoire()
-    # example_create_index_html()
+    # example_display_with_opening_repertoire()
+    example_create_index_html()
