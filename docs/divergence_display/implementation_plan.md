@@ -24,7 +24,9 @@ Update the divergence display in the chess game viewer to mimic Lichess style. T
     - Ensure variation moves are clickable and update the board state.
 - Update JavaScript:
     - Handle clicking on variation moves.
+    - Implement `showVariantMove(index)` to switch context and update board.
     - Maintain state for "viewing main line" vs "viewing variation".
+    - Update highlighting logic to show current selected move within variation (blue highlight).
 
 #### [MODIFY] [templates/multi_game.html](file:///home/msok/projects/opening/src/visualization/templates/multi_game.html)
 - Apply similar styling changes to the multi-game viewer if consistent.

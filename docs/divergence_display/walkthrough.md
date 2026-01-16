@@ -28,10 +28,6 @@ New templates were created in `src/visualization/templates/`:
 - Implemented Lichess-style inline variations for divergence points.
 - Opening repertoire moves are now shown as a parenthesized variation `( ... )` directly in the move list.
 - Clicking on variation moves updates the board to the corresponding opening position.
-- Added full navigation support for inline opening moves:
-    - Moves in the variation are clickable and navigable.
-    - Active variation moves are highlighted in green.
-    - The current variation move is highlighted in blue (similar to Lichess).
 - Removed the old divergence modal/buttons.
 
 ## Verification Results
