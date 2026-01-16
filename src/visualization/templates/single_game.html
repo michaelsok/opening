@@ -287,73 +287,6 @@
             border-bottom: none;
         }
 
-        /* Variation Switcher Styles */
-        .variation-switcher {
-            display: flex;
-            margin: 15px 0;
-            background: #eee;
-            border-radius: 5px;
-            padding: 2px;
-            gap: 2px;
-        }
-
-        .variation-tab {
-            flex: 1;
-            padding: 8px;
-            text-align: center;
-            cursor: pointer;
-            border-radius: 3px;
-            font-size: 14px;
-            font-weight: 500;
-            transition: all 0.2s;
-            color: #666;
-        }
-
-        .variation-tab:hover {
-            background: #e0e0e0;
-        }
-
-        .variation-tab.active {
-            background: white;
-            color: #2196F3;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-
-        .variation-tab.opening.active {
-            color: #4CAF50;
-        }
-
-        .variation-tab.game.active {
-            color: #ff9800;
-        }
-
-        .variation-content {
-            margin-top: 10px;
-            padding: 10px;
-            background: #fff;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            display: none;
-        }
-
-        .variation-content.active {
-            display: block;
-        }
-
-        .variation-title {
-            font-size: 14px;
-            font-weight: bold;
-            margin-bottom: 8px;
-            color: #444;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-
-        .variation-title i {
-            font-style: normal;
-        }
-
         ::-webkit-scrollbar {
             width: 8px;
         }
@@ -415,16 +348,6 @@
 
             <div class="move-list-container">
                 <div class="move-list-title">Move List</div>
-
-                {# Variation Switcher UI #}
-                {% if opening_variant or game_variant %}
-                <div class="variation-switcher">
-                    <div class="variation-tab opening active" onclick="switchToVariant('opening')">Opening Repertoire
-                    </div>
-                    <div class="variation-tab game" onclick="switchToVariant('game')">Game Continuation</div>
-                </div>
-                {% endif %}
-
                 <div class="move-list">
                     {% set ns = namespace(move_num=1) %}
                     {% for i in range(0, moves_san|length, 2) %}
@@ -440,58 +363,24 @@
                         </span>
 
                         {# Inline Variation for White Divergence #}
-                        {% if divergence_move_index is not none and i == divergence_move_index %}
-                        {# Opening Repertoire Variation #}
-                        {% if opening_variant %}
-                        <div id="opening-var-{{ i }}" class="variation-content opening active">
-                            <div class="variation-title">Repertoire:</div>
-                            <span class="variation">
-                                (
-                                {% for var_move in opening_variant %}
-                                {% set var_idx = loop.index0 %}
-                                {% set abs_idx = divergence_move_index + var_idx %}
-                                {% set is_white_var = (abs_idx % 2 == 0) %}
-                                {% set move_num_var = (abs_idx // 2) + 1 %}
+                        {% if divergence_move_index is not none and i == divergence_move_index and opening_variant %}
+                        <span class="variation">
+                            (
+                            {% for var_move in opening_variant %}
+                            {% set var_idx = loop.index0 %}
+                            {% set abs_idx = divergence_move_index + var_idx %}
+                            {% set is_white_var = (abs_idx % 2 == 0) %}
+                            {% set move_num_var = (abs_idx // 2) + 1 %}
 
-                                {% if is_white_var %}
-                                <span class="move-number">{{ move_num_var }}.</span>
-                                {% elif loop.first %}
-                                <span class="move-number">{{ move_num_var }}...</span>
-                                {% endif %}
-
-                                <span class="move" data-variant-index="{{ loop.index }}"
-                                    onclick="showVariantMove({{ loop.index }})">{{ var_move }}</span>
-                                {% endfor %}
-                                )
-                            </span>
-                        </div>
-                        {% endif %}
-
-                        {# Game Continuation Variation #}
-                        {% if game_variant %}
-                        <div id="game-var-{{ i }}" class="variation-content game">
-                            <div class="variation-title">Played in game:</div>
-                            <span class="variation">
-                                (
-                                {% for var_move in game_variant %}
-                                {% set var_idx = loop.index0 %}
-                                {% set abs_idx = divergence_move_index + var_idx %}
-                                {% set is_white_var = (abs_idx % 2 == 0) %}
-                                {% set move_num_var = (abs_idx // 2) + 1 %}
-
-                                {% if is_white_var %}
-                                <span class="move-number">{{ move_num_var }}.</span>
-                                {% elif loop.first %}
-                                <span class="move-number">{{ move_num_var }}...</span>
-                                {% endif %}
-
-                                <span class="move" data-game-variant-index="{{ loop.index }}"
-                                    onclick="showGameVariantMove({{ loop.index }})">{{ var_move }}</span>
-                                {% endfor %}
-                                )
-                            </span>
-                        </div>
-                        {% endif %}
+                            {% if is_white_var %}
+                            <span class="move-number">{{ move_num_var }}.</span>
+                            {% elif loop.first %}
+                            <span class="move-number">{{ move_num_var }}...</span>
+                            {% endif %}
+                            <span class="move" data-variant-index="{{ loop.index }}">{{ var_move }}</span>
+                            {% endfor %}
+                            )
+                        </span>
                         {% endif %}
 
                         {# Display Black Move #}
@@ -503,58 +392,25 @@
                         </span>
 
                         {# Inline Variation for Black Divergence #}
-                        {% if divergence_move_index is not none and i+1 == divergence_move_index %}
-                        {# Opening Repertoire Variation #}
-                        {% if opening_variant %}
-                        <div id="opening-var-{{ i+1 }}" class="variation-content opening active">
-                            <div class="variation-title">Repertoire:</div>
-                            <span class="variation">
-                                (
-                                {% for var_move in opening_variant %}
-                                {% set var_idx = loop.index0 %}
-                                {% set abs_idx = divergence_move_index + var_idx %}
-                                {% set is_white_var = (abs_idx % 2 == 0) %}
-                                {% set move_num_var = (abs_idx // 2) + 1 %}
+                        {% if divergence_move_index is not none and i+1 == divergence_move_index and opening_variant %}
+                        <span class="variation">
+                            (
+                            {% for var_move in opening_variant %}
+                            {% set var_idx = loop.index0 %}
+                            {% set abs_idx = divergence_move_index + var_idx %}
+                            {% set is_white_var = (abs_idx % 2 == 0) %}
+                            {% set move_num_var = (abs_idx // 2) + 1 %}
 
-                                {% if is_white_var %}
-                                <span class="move-number">{{ move_num_var }}.</span>
-                                {% elif loop.first %}
-                                <span class="move-number">{{ move_num_var }}...</span>
-                                {% endif %}
+                            {% if is_white_var %}
+                            <span class="move-number">{{ move_num_var }}.</span>
+                            {% elif loop.first %}
+                            <span class="move-number">{{ move_num_var }}...</span>
+                            {% endif %}
 
-                                <span class="move" data-variant-index="{{ loop.index }}"
-                                    onclick="showVariantMove({{ loop.index }})">{{ var_move }}</span>
-                                {% endfor %}
-                                )
-                            </span>
-                        </div>
-                        {% endif %}
-
-                        {# Game Continuation Variation #}
-                        {% if game_variant %}
-                        <div id="game-var-{{ i+1 }}" class="variation-content game">
-                            <div class="variation-title">Played in game:</div>
-                            <span class="variation">
-                                (
-                                {% for var_move in game_variant %}
-                                {% set var_idx = loop.index0 %}
-                                {% set abs_idx = divergence_move_index + var_idx %}
-                                {% set is_white_var = (abs_idx % 2 == 0) %}
-                                {% set move_num_var = (abs_idx // 2) + 1 %}
-
-                                {% if is_white_var %}
-                                <span class="move-number">{{ move_num_var }}.</span>
-                                {% elif loop.first %}
-                                <span class="move-number">{{ move_num_var }}...</span>
-                                {% endif %}
-
-                                <span class="move" data-game-variant-index="{{ loop.index }}"
-                                    onclick="showGameVariantMove({{ loop.index }})">{{ var_move }}</span>
-                                {% endfor %}
-                                )
-                            </span>
-                        </div>
-                        {% endif %}
+                            <span class="move" data-variant-index="{{ loop.index }}">{{ var_move }}</span>
+                            {% endfor %}
+                            )
+                        </span>
                         {% endif %}
                         {% endif %}
 
@@ -589,7 +445,6 @@
         // Initialize
         function init() {
             updateBoard(0);
-            setupMoveButtons();
             setupMoveList();
         }
 
@@ -616,18 +471,21 @@
             });
 
             // Update active moves in move list
+            // Logic differs by view mode
             document.querySelectorAll('.move').forEach((moveEl) => {
                 // Clear all active/current states first
                 moveEl.classList.remove('active', 'current');
 
                 const moveIdx = parseInt(moveEl.dataset.index);
+                // Check if this is a main game move
                 const isMainMove = moveEl.closest('.move-list') && !moveEl.closest('.variation');
-                const isVariationMove = !!moveEl.closest('.variation-content.opening');
-                const isGameVariationMove = !!moveEl.closest('.variation-content.game');
+                const isVariationMove = !!moveEl.closest('.variation');
 
                 if (currentViewMode === 'main') {
                     if (isMainMove && !isNaN(moveIdx)) {
+                        // Active if played
                         if (moveIdx < currentMove) moveEl.classList.add('active');
+                        // Current if last played
                         if (currentMove > 0 && moveIdx === currentMove - 1) moveEl.classList.add('current');
                     }
                 } else if (currentViewMode === 'opening') {
@@ -635,26 +493,15 @@
                     if (isMainMove && !isNaN(moveIdx)) {
                         if (divergenceMoveIndex !== null && moveIdx < divergenceMoveIndex) {
                             moveEl.classList.add('active');
+                            // No main move is 'current' in this mode effectively, as focus is on variation
                         }
                     }
+
                     // Highlight variation moves
                     const variantIdx = parseInt(moveEl.dataset.variantIndex);
                     if (isVariationMove && !isNaN(variantIdx)) {
                         if (variantIdx <= currentMove) moveEl.classList.add('active');
                         if (variantIdx === currentMove) moveEl.classList.add('current');
-                    }
-                } else if (currentViewMode === 'game') {
-                    // Highlight main moves leading up to divergence
-                    if (isMainMove && !isNaN(moveIdx)) {
-                        if (divergenceMoveIndex !== null && moveIdx < divergenceMoveIndex) {
-                            moveEl.classList.add('active');
-                        }
-                    }
-                    // Highlight game variation moves
-                    const gVariantIdx = parseInt(moveEl.dataset.gameVariantIndex);
-                    if (isGameVariationMove && !isNaN(gVariantIdx)) {
-                        if (gVariantIdx <= currentMove) moveEl.classList.add('active');
-                        if (gVariantIdx === currentMove) moveEl.classList.add('current');
                     }
                 }
             });
@@ -662,6 +509,7 @@
 
         // Navigation functions
         function goToMove(moveIndex) {
+            // Need to ensure we stay in current mode bounds
             if (moveIndex >= 0 && moveIndex < currentPositions.length) {
                 updateBoard(moveIndex);
             }
@@ -685,16 +533,6 @@
 
             currentViewMode = mode;
 
-            // Update UI tabs
-            document.querySelectorAll('.variation-tab').forEach(tab => {
-                tab.classList.toggle('active', tab.classList.contains(mode));
-            });
-
-            // Toggle visibility of variation content
-            document.querySelectorAll('.variation-content').forEach(content => {
-                content.classList.toggle('active', content.classList.contains(mode));
-            });
-
             if (mode === 'main') {
                 currentBoards = boards;
                 currentPositions = positions;
@@ -703,31 +541,29 @@
                 currentBoards = openingVariantBoards;
                 currentPositions = openingVariantPositions;
                 totalMoves = openingVariantPositions.length - 1;
-            } else if (mode === 'game' && gameVariantBoards.length > 0) {
-                currentBoards = gameVariantBoards;
-                currentPositions = gameVariantPositions;
-                totalMoves = gameVariantPositions.length - 1;
             } else {
                 return;
             }
 
-            // Reset to divergence position (0-index in variant arrays)
+            // Update move navigation buttons for the new context
             updateMoveNavigation();
-            updateBoard(0);
         }
 
         function showVariantMove(variantIndex) {
+            // VariantIndex is 1-based index in the variation list (1st move, 2nd move...)
+            // 1st move corresponds to index 1 in openingVariantPositions (0 is start)
+
             if (currentViewMode !== 'opening') {
                 switchToVariant('opening');
             }
-            goToMove(variantIndex);
-        }
 
-        function showGameVariantMove(variantIndex) {
-            if (currentViewMode !== 'game') {
-                switchToVariant('game');
-            }
             goToMove(variantIndex);
+
+            // Highlight specific variation move
+            // This requires we can select the element. 
+            // In the loop we use onclick="showVariantMove(index)"
+            // We can add `this` to function call or rely on state.
+            // For now, simple board update is enough.
         }
 
         // Update move navigation buttons
@@ -751,17 +587,27 @@
             }
         }
 
-        // Setup move list clicks for main moves
+        // Setup move list clicks using event delegation
         function setupMoveList() {
-            document.querySelectorAll('.move-list > .move').forEach((moveEl) => {
+            const moveList = document.querySelector('.move-list');
+            if (!moveList) return;
+
+            moveList.addEventListener('click', (e) => {
+                const moveEl = e.target.closest('.move');
+                if (!moveEl) return;
+
                 const moveIdx = parseInt(moveEl.dataset.index);
+                const variantIdx = parseInt(moveEl.dataset.variantIndex);
+
                 if (!isNaN(moveIdx)) {
-                    moveEl.addEventListener('click', () => {
-                        if (currentViewMode !== 'main') {
-                            switchToVariant('main');
-                        }
-                        goToMove(moveIdx + 1);
-                    });
+                    // Main game move clicked
+                    if (currentViewMode !== 'main') {
+                        switchToVariant('main');
+                    }
+                    goToMove(moveIdx + 1);
+                } else if (!isNaN(variantIdx)) {
+                    // Variation move clicked
+                    showVariantMove(variantIdx);
                 }
             });
         }

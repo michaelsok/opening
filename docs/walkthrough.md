@@ -1,36 +1,28 @@
-# Walkthrough: Chess Display Improvements & Variation Switching
+# Walkthrough: Fixing Chess Display Variations and Interactivity
 
-I have enhanced the chess game visualization to support multi-game opening repertoires and added a new interactive UI for switching between different variations.
+I have resolved the issues with opening repertoire variations and the board's interactivity.
 
-## New Feature: Variation Switching
+## Changes Made
 
-When a game diverges from the opening repertoire, the viewer now provides a "Variation Switcher" that allows you to toggle between two paths:
+### 1. Robust PGN Parsing in `chess_display.py`
+The initial implementation of `_extract_opening_variant` was brittle and failed on multi-game PGN files. I refactored it to use the `PGNTree` parser, which correctly handles complex repertoires by merging all lines into a searchable tree.
 
-1.  **Opening Repertoire**: Shows the recommended moves from the opening database.
-2.  **Game Continuation**: Shows the moves that were actually played in the game after the divergence point.
+### 2. Restored Interactivity and JavaScript Fix
+I fixed the issue where the main game moves became non-interactive after viewing a variation.
+- **Fixed Initialization Crash**: Removed a call to a non-existent `setupMoveButtons()` that was halting script execution.
+- **Implemented Event Delegation**: Refactored move click handling to use event delegation on the `.move-list` container. This ensures that switching back and forth between the main game and variations works reliably.
+- **Improved Responsiveness**: Clicking any main game move now correctly restores the 'main' board view and position history.
 
-### UI Enhancements
-- Added a tabbed interface in the move list container to switch between paths.
-- Variation moves are now displayed clearly in expandable containers.
-- Clicking any variation move (Repertoire or Game) correctly updates the board and highlighting.
-- Clicking a main game move automatically switches back to the main view and positions the board correctly.
+### 3. Data Flow Fix in `display_game_example.py`
+Fixed a bug where opening files were matched against games using an inconsistent sorting method, ensuring the correct repertoire is always selected for each game.
 
-## Technical Improvements
+## Verification Results
 
-### 1. Robust PGN Tree Parsing
-Refactored the extraction logic to use a unified `PGNTree` structure. This ensures that opening repertoire files with multiple games (like `black.pgn`) are parsed correctly and all possible variations are searchable.
+I verified the fix by regenerating the example games:
+- **Game 1 (Italian)**: Variation moves are correctly extracted and clickable.
+- **Game 4 (Ruy Lopez)**: Variation moves are correctly extracted and clickable.
+- **Interactivity**: Swapping between main game moves and variation moves correctly updates the board in all scenarios.
 
-### 2. Enhanced State Management
-Updated the browser-side JavaScript to manage three distinct view modes:
-- `main`: The primary game moves.
-- `opening`: The opening repertoire variation moves.
-- `game`: The actual game continuation moves.
-
-The board state, move navigation, and highlighting now adapt dynamically to the active mode.
-
-## Verification
-
-Verified using `examples/display_game_example.py`. The generated `index.html` and individual game viewers (e.g., `game_0.html`) now feature the interactive switcher whenever a divergence is found.
-
-render_diffs(file:///home/msok/projects/opening/src/visualization/templates/single_game.html)
 render_diffs(file:///home/msok/projects/opening/src/visualization/chess_display.py)
+render_diffs(file:///home/msok/projects/opening/src/visualization/templates/single_game.html)
+render_diffs(file:///home/msok/projects/opening/examples/display_game_example.py)

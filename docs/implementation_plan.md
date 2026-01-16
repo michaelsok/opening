@@ -1,28 +1,26 @@
-# Implementation Plan - Variation Switching UI
+# Plan: Fix Main Variant Interactivity
 
-The goal is to allow users to switch between the "Opening Repertoire" and "Game Continuation" paths after a divergence point is reached in the chess game.
+The user reported that clicking main game moves no longer works once an opening variation has been selected. This is likely due to an issue in the `switchToVariant('main')` logic or the click handlers in `single_game.html`.
 
 ## Proposed Changes
 
-### [Visualization Component]
+### [Component Name] Visualization Templates
 
 #### [MODIFY] [single_game.html](file:///home/msok/projects/opening/src/visualization/templates/single_game.html)
-- Add CSS for a "variation-toggle" UI.
-- Add a UI element (e.g., buttons) to switch between "Opening Repertoire" and "Game Continuation" when a divergence is present.
-- Update `switchToVariant(mode)` to support `mode === 'game'` using `gameVariantBoards` and `gameVariantPositions`.
-- Display the Game Continuation moves as a clickable list when in 'game' mode, similar to how the main moves or opening variations are displayed.
-- Ensure that clicking a move in the main list correctly switches back to 'main' mode.
+- Remove the call to `setupMoveButtons()` in the `init()` function as it is not defined and causes a script execution error.
+- Refactor move list click handlers to use event delegation on the `.move-list` container. This will make the interaction more robust and ensure that switching between main game and variations works correctly.
+- Ensure that clicking a main game move while in 'opening' view mode correctly triggers `switchToVariant('main')`.
+
+### [Component Name] Visualization Logic
+
+#### [MODIFY] [chess_display.py](file:///home/msok/projects/opening/src/visualization/chess_display.py)
+- Double check that `positions_json` and `boards_json` are correctly passed and that `positions_json` matches the moves in `moves_san`.
 
 ## Verification Plan
 
 ### Automated Tests
-- No automated tests for UI changes, but I will manually verify using the example script.
+- Regenerate games using `display_game_example.py`.
+- Inspect the generated HTML for valid click handlers and state management.
 
 ### Manual Verification
-- Run `examples/display_game_example.py`.
-- Open a generated HTML file with a divergence (e.g., `game_4_with_divergence.html`).
-- Click on an opening variation move to switch to "Opening" mode.
-- Verify that a button or toggle exists to switch to "Game Continuation".
-- Click "Game Continuation" and verify the board updates to the moves actually played in the game.
-- Verify navigation works in both modes.
-- Verify clicking a move in the main list switches back to 'main' mode.
+- Manually check the behavior in the browser (if possible through instructions to the user or by inspecting the code logic).
