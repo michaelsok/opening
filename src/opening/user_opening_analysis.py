@@ -59,6 +59,8 @@ def analyze_user_openings(
     month: Union[str, List[str]] = None,
     time_class: str = None,
     color: str = None,
+    start_date: 'datetime' = None,
+    end_date: 'datetime' = None,
     output_file: Union[str, Path] = None,
     open_in_browser: bool = True,
     size: int = 400
@@ -74,6 +76,8 @@ def analyze_user_openings(
         month: Optional month filter (e.g., "01" or ["01", "02"])
         time_class: Optional time class filter (e.g., "blitz", "rapid")
         color: Optional color filter ("white" or "black")
+        start_date: Optional start date filter (datetime)
+        end_date: Optional end date filter (datetime)
         output_file: Optional path for the generated HTML
         open_in_browser: Whether to automatically open the report
         size: Board size in pixels
@@ -82,13 +86,14 @@ def analyze_user_openings(
         str: Absolute path to the generated index.html
     """
     # Fetch games from Chess.com
-    # Use the same filter kwargs as get_user_games supports
     games_data = get_user_games(
         username=username,
         year=year,
         month=month,
         time_class=time_class,
-        color=color
+        color=color,
+        start_date=start_date,
+        end_date=end_date
     )
 
     # Extract PGN strings
