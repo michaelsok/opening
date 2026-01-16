@@ -242,21 +242,17 @@ def _extract_opening_variant(
     Extract the opening variant continuation from the divergence point.
     
     Args:
-        opening_pgn: PGN string of the opening repertoire
+        opening_pgn: PGN string of the opening repertoire (can be complex multi-game PGN)
         divergence_point: List of moves up to and including the divergence point
         
     Returns:
         List[str]: List of moves (SAN) that continue from the divergence point in the opening
     """
+    import io
     from src.parsers.pgn_tree_parser import parse_pgn_string_to_tree
     
-    opening_tree = parse_pgn_string_to_tree(opening_pgn)
-    
-    # Navigate to the position just before divergence
-    current_node = opening_tree.root
-    divergence_moves = []
-    
     # Extract move SANs from divergence_point (remove move numbers)
+    divergence_moves = []
     for move_str in divergence_point[:-1]:  # All moves except the last (diverging) one
         # Extract SAN from "1. e4" or "1... e5" format
         if '...' in move_str:
@@ -274,6 +270,73 @@ def _extract_opening_variant(
             else:
                 continue
         divergence_moves.append(san)
+    
+    # For complex PGN files with multiple games, search through all games to find
+    # the one that matches our divergence path
+    try:
+        pgn_io = io.StringIO(opening_pgn)
+        best_match_moves = []
+        best_match_length = 0
+        
+        while True:
+            game = chess.pgn.read_game(pgn_io)
+            if game is None:
+                break
+            
+            # Extract main line moves from this game
+            board = game.board()
+            main_line_moves = []
+            for move in game.mainline_moves():
+                main_line_moves.append(board.san(move))
+                board.push(move)
+            
+            # Check how many moves match our divergence path
+            match_length = 0
+            for i, div_move in enumerate(divergence_moves):
+                if i < len(main_line_moves) and main_line_moves[i] == div_move:
+                    match_length += 1
+                else:
+                    break
+            
+            # If this game matches better than previous best, use it
+            if match_length > best_match_length:
+                best_match_length = match_length
+                best_match_moves = main_line_moves
+                
+                # If we found a perfect match, we can stop searching
+                if match_length == len(divergence_moves):
+                    break
+        
+        if not best_match_moves:
+            return []
+        
+        # Build a simple PGN string with just the best matching main line
+        simple_pgn = ' '.join(f"{(i//2)+1}. {move}" if i % 2 == 0 else f"{move}" 
+                              for i, move in enumerate(best_match_moves))
+        
+        # Now parse this simplified PGN into a tree
+        opening_tree = parse_pgn_string_to_tree(simple_pgn)
+    except Exception:
+        # Fallback to original parsing if something goes wrong
+        opening_tree = parse_pgn_string_to_tree(opening_pgn)
+        divergence_moves = []
+        for move_str in divergence_point[:-1]:
+            if '...' in move_str:
+                parts = move_str.split('...', 1)
+                if len(parts) > 1:
+                    san = parts[1].strip()
+                else:
+                    continue
+            else:
+                parts = move_str.split('.', 1)
+                if len(parts) > 1:
+                    san = parts[1].strip()
+                else:
+                    continue
+            divergence_moves.append(san)
+    
+    # Navigate to the position just before divergence
+    current_node = opening_tree.root
     
     # Navigate to the position before divergence
     for move_san in divergence_moves:
