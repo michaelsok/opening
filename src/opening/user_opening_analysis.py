@@ -9,6 +9,7 @@ from src.parsers.pgn_tree_parser import (
     find_first_divergence_across_openings,
 )
 from src.api.chesscom_api import get_user_games
+from src.visualization.chess_display import create_index_html
 
 
 def analyze_user_games_divergence(
@@ -50,3 +51,57 @@ def analyze_user_games_divergence(
             "pgn": pgn,
         })
     return result
+
+def analyze_user_openings(
+    username: str,
+    opening_repertoire: Union[str, Path, List[str]],
+    year: str = None,
+    month: Union[str, List[str]] = None,
+    time_class: str = None,
+    color: str = None,
+    output_file: Union[str, Path] = None,
+    open_in_browser: bool = True,
+    size: int = 400
+) -> str:
+    """
+    Fetch games from Chess.com and generate an interactive HTML report comparing them
+    against an opening repertoire.
+
+    Args:
+        username: Chess.com username
+        opening_repertoire: Path to directory with PGNs OR list of PGN strings
+        year: Optional year filter (e.g., "2024")
+        month: Optional month filter (e.g., "01" or ["01", "02"])
+        time_class: Optional time class filter (e.g., "blitz", "rapid")
+        color: Optional color filter ("white" or "black")
+        output_file: Optional path for the generated HTML
+        open_in_browser: Whether to automatically open the report
+        size: Board size in pixels
+
+    Returns:
+        str: Absolute path to the generated index.html
+    """
+    # Fetch games from Chess.com
+    # Use the same filter kwargs as get_user_games supports
+    games_data = get_user_games(
+        username=username,
+        year=year,
+        month=month,
+        time_class=time_class,
+        color=color
+    )
+
+    # Extract PGN strings
+    game_pgns = [game.get("pgn", "") for game in games_data if game.get("pgn")]
+
+    if not game_pgns:
+        raise ValueError(f"No games found for user '{username}' with the specified filters.")
+
+    # Pass everything to the visualization tool
+    return create_index_html(
+        games=game_pgns,
+        opening_repertoire=opening_repertoire,
+        output_file=output_file,
+        open_in_browser=open_in_browser,
+        size=size
+    )
