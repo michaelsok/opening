@@ -1,30 +1,36 @@
-# Walkthrough: Fixing Chess Display Opening Variants
+# Walkthrough: Chess Display Improvements & Variation Switching
 
-I have successfully diagnosed and resolved the issue where opening repertoire variation moves were not displaying or clickable in the chess game visualization.
+I have enhanced the chess game visualization to support multi-game opening repertoires and added a new interactive UI for switching between different variations.
 
-## Changes Made
+## New Feature: Variation Switching
 
-### 1. Robust PGN Parsing in `chess_display.py`
-The initial implementation of `_extract_opening_variant` attempted to manually iterate through games in a PGN string. This was brittle and failed on multi-game PGN files (like `black.pgn`) because it often hit partial matches or encountered parsing errors that stopped iteration.
+When a game diverges from the opening repertoire, the viewer now provides a "Variation Switcher" that allows you to toggle between two paths:
 
-I refactored this function to use the existing `PGNTree` parser from `pgn_tree_parser.py`. This parser correctly merges all games and variations from a PGN file into a single searchable tree, allowing for robust navigation to the divergence point regardless of which game contain the line.
+1.  **Opening Repertoire**: Shows the recommended moves from the opening database.
+2.  **Game Continuation**: Shows the moves that were actually played in the game after the divergence point.
 
-### 2. Data Flow Fix in `display_game_example.py`
-I identified a subtle bug in the example script where opening files were loaded using an unsorted `glob("*.pgn")` but matched against labels using a `sorted(glob("*.pgn"))`. This caused the wrong PGN content to be passed to the visualization for many games, resulting in "missing" variations that were actually just in a different file.
+### UI Enhancements
+- Added a tabbed interface in the move list container to switch between paths.
+- Variation moves are now displayed clearly in expandable containers.
+- Clicking any variation move (Repertoire or Game) correctly updates the board and highlighting.
+- Clicking a main game move automatically switches back to the main view and positions the board correctly.
 
-### 3. Board Positioning Adjustment
-Fixed a logic error where the variant viewer was pushing the board one move too far (including the diverging move itself). This made subsequent continuation moves from the repertoire "illegal" in the UI's board state.
+## Technical Improvements
 
-## Verification Results
+### 1. Robust PGN Tree Parsing
+Refactored the extraction logic to use a unified `PGNTree` structure. This ensures that opening repertoire files with multiple games (like `black.pgn`) are parsed correctly and all possible variations are searchable.
 
-I verified the fix by running the full `examples/display_game_example.py` script and inspecting the generated HTML for multiple games:
+### 2. Enhanced State Management
+Updated the browser-side JavaScript to manage three distinct view modes:
+- `main`: The primary game moves.
+- `opening`: The opening repertoire variation moves.
+- `game`: The actual game continuation moves.
 
-| Game | Opening | Result | Variation Extracted |
-| :--- | :--- | :--- | :--- |
-| Game 1 | Italian Game | **Fixed** | Yes (`["d5", "Bb5", ...]`) |
-| Game 4 | Ruy Lopez | **Fixed** | Yes (`["Bc5", "c3", ...]`) |
+The board state, move navigation, and highlighting now adapt dynamically to the active mode.
 
-All variations are now correctly populated in the `openingVariant` JavaScript array in the generated HTML, making them clickable and interactive as intended.
+## Verification
 
+Verified using `examples/display_game_example.py`. The generated `index.html` and individual game viewers (e.g., `game_0.html`) now feature the interactive switcher whenever a divergence is found.
+
+render_diffs(file:///home/msok/projects/opening/src/visualization/templates/single_game.html)
 render_diffs(file:///home/msok/projects/opening/src/visualization/chess_display.py)
-render_diffs(file:///home/msok/projects/opening/examples/display_game_example.py)

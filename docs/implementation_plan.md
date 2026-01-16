@@ -1,43 +1,28 @@
-# Improve Divergence Display
+# Implementation Plan - Variation Switching UI
 
-## Goal Description
-Update the divergence display in the chess game viewer to mimic Lichess style. This means showing the opening repertoire moves (from which the game diverged) as an inline variation within the move list, rather than as a separate block or modal.
-
-## User Review Required
-> [!NOTE]
-> This change modifies how divergence is presented. Instead of a "Choose your path" interaction, the divergence will be shown as a variation line `(move ...)` within the main text.
+The goal is to allow users to switch between the "Opening Repertoire" and "Game Continuation" paths after a divergence point is reached in the chess game.
 
 ## Proposed Changes
 
-### `src/visualization`
+### [Visualization Component]
 
-#### [MODIFY] [chess_display.py](file:///home/msok/projects/opening/src/visualization/chess_display.py)
-- Update data preparation logic to format the opening repertoire variant moves as a secondary "line" or pass them structured for inline rendering.
-- Remove logic related to the "variant selection" modal/buttons if they are no longer needed, or keep them as auxiliary controls.
-
-#### [MODIFY] [templates/single_game.html](file:///home/msok/projects/opening/src/visualization/templates/single_game.html)
-- Remove the `divergence-choice` div.
-- Update the move list rendering loop:
-    - Identify the divergence point.
-    - Insert the opening variant moves as a variation block `( ... )` immediately after the divergence point (or before/parallel to the game move depending on Lichess exact style effectively).
-    - Style the variation moves (e.g., grey color, smaller font).
-    - Ensure variation moves are clickable and update the board state.
-- Update JavaScript:
-    - Handle clicking on variation moves.
-    - Implement `showVariantMove(index)` to switch context and update board.
-    - Maintain state for "viewing main line" vs "viewing variation".
-    - Update highlighting logic to show current selected move within variation (blue highlight).
-
-#### [MODIFY] [templates/multi_game.html](file:///home/msok/projects/opening/src/visualization/templates/multi_game.html)
-- Apply similar styling changes to the multi-game viewer if consistent.
+#### [MODIFY] [single_game.html](file:///home/msok/projects/opening/src/visualization/templates/single_game.html)
+- Add CSS for a "variation-toggle" UI.
+- Add a UI element (e.g., buttons) to switch between "Opening Repertoire" and "Game Continuation" when a divergence is present.
+- Update `switchToVariant(mode)` to support `mode === 'game'` using `gameVariantBoards` and `gameVariantPositions`.
+- Display the Game Continuation moves as a clickable list when in 'game' mode, similar to how the main moves or opening variations are displayed.
+- Ensure that clicking a move in the main list correctly switches back to 'main' mode.
 
 ## Verification Plan
 
 ### Automated Tests
-- Run existing tests: `pytest tests/visualization/test_chess_display.py`
-- Verify that the HTML output contains the variation structure.
+- No automated tests for UI changes, but I will manually verify using the example script.
 
-- [x] Generate a game with known divergence.
-- [x] Open the HTML file in a browser.
-- [x] Verify that the opening moves appear as a parenthesized variation inline.
-- [x] Click variation moves to ensure the board updates correctly.
+### Manual Verification
+- Run `examples/display_game_example.py`.
+- Open a generated HTML file with a divergence (e.g., `game_4_with_divergence.html`).
+- Click on an opening variation move to switch to "Opening" mode.
+- Verify that a button or toggle exists to switch to "Game Continuation".
+- Click "Game Continuation" and verify the board updates to the moves actually played in the game.
+- Verify navigation works in both modes.
+- Verify clicking a move in the main list switches back to 'main' mode.
