@@ -282,7 +282,9 @@
         }
 
         .variation .move.current {
-            border-bottom: 2px solid #2e7d32;
+            background: #2196F3 !important;
+            color: white !important;
+            border-bottom: none;
         }
 
         ::-webkit-scrollbar {
@@ -376,7 +378,8 @@
                             <span class="move-number">{{ move_num_var }}...</span>
                             {% endif %}
 
-                            <span class="move" onclick="showVariantMove({{ loop.index }})">{{ var_move }}</span>
+                            <span class="move" data-variant-index="{{ loop.index }}"
+                                onclick="showVariantMove({{ loop.index }})">{{ var_move }}</span>
                             {% endfor %}
                             )
                         </span>
@@ -406,7 +409,8 @@
                             <span class="move-number">{{ move_num_var }}...</span>
                             {% endif %}
 
-                            <span class="move" onclick="showVariantMove({{ loop.index }})">{{ var_move }}</span>
+                            <span class="move" data-variant-index="{{ loop.index }}"
+                                onclick="showVariantMove({{ loop.index }})">{{ var_move }}</span>
                             {% endfor %}
                             )
                         </span>
@@ -489,11 +493,20 @@
                         if (currentMove > 0 && moveIdx === currentMove - 1) moveEl.classList.add('current');
                     }
                 } else if (currentViewMode === 'opening') {
-                    // logic for highlighting variation moves
-                    // This is handled by showVariantMove usually, but let's try to highlight
-                    // If we are in opening mode, we are viewing openingVariantPositions
-                    // The move indices in variation spans (onclick) are 1, 2, 3... corresponding to currentMove 1, 2, 3
-                    // I need to add data attributes to variation moves to highlight them correctly
+                    // Highlight main moves leading up to divergence
+                    if (isMainMove && !isNaN(moveIdx)) {
+                        if (divergenceMoveIndex !== null && moveIdx < divergenceMoveIndex) {
+                            moveEl.classList.add('active');
+                            // No main move is 'current' in this mode effectively, as focus is on variation
+                        }
+                    }
+
+                    // Highlight variation moves
+                    const variantIdx = parseInt(moveEl.dataset.variantIndex);
+                    if (isVariationMove && !isNaN(variantIdx)) {
+                        if (variantIdx <= currentMove) moveEl.classList.add('active');
+                        if (variantIdx === currentMove) moveEl.classList.add('current');
+                    }
                 }
             });
         }
