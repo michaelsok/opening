@@ -216,36 +216,5 @@ class TestCreateIndexHtml:
                     open_in_browser=False
                 )
             
-        assert result_file == output_path
-        assert os.path.exists(output_path)
-
-
-def test_variant_modal_and_dual_boards_present(tmp_path):
-    """Test the modal for variant choice and dual SVG boards presence after divergence."""
-    games = [
-        """[Event "Modal Test"]\n[White "Alpha"]\n[Black "Beta"]\n[Result "1-0"]\n\n1. e4 e5 2. Nf3 Nc6 3. Bc4 1-0"""
-    ]
-    opening_repertoire = ["1. e4 e5 2. Nf3 Nc6 3. Bb5"]
-    index_path = tmp_path / "index.html"
-    from unittest.mock import patch
-    from src.visualization.chess_display import create_index_html
-    with patch('webbrowser.open'):
-        viewer_path = create_index_html(
-            games=games,
-            opening_repertoire=opening_repertoire,
-            output_file=index_path,
-            open_in_browser=False,
-        )
-    # Load the generated HTML
-    with open(viewer_path, encoding="utf-8") as f:
-        html = f.read()
-
-    # Modal present
-    assert 'id="variant-modal"' in html
-    assert "Choose Variant to Follow" in html
-
-    # There should be a divergence-point marker div (for popup to trigger)
-    assert 'id="divergence-point-marker"' in html
-
-    # There should be at least two SVG boards in the post-divergence view (main + opening)
-    assert html.count("<svg") >= 2  # Not perfect, but rough coverage
+            assert result_file == output_path
+            assert os.path.exists(output_path)

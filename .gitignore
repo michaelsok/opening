@@ -3,3 +3,5 @@ __pycache__/*
 # Generated HTML visualization files
 src/visualization/*.html
 src/visualization/game_*.html
+
+openings/
