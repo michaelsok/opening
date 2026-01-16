@@ -185,9 +185,12 @@ def get_games_from_chesscom(
         # Construct API URL for the specific month
         url = f"https://api.chess.com/pub/player/{username}/games/{year}/{month_str}"
         
+        headers = {
+            "User-Agent": "ChessOpeningAnalysis/1.0 (https://github.com/michaelsok/opening; contact: msok@example.com)"
+        }
+        
         try:
-            header = requests.get('https://api.chess.com/context/Match.jsonld')
-            response = requests.get(url, timeout=10, headers=header)
+            response = requests.get(url, timeout=10, headers=headers)
             response.raise_for_status()
             
             data = response.json()
@@ -344,8 +347,12 @@ def get_all_user_games(
     # First, get the list of archive URLs
     archives_url = f"https://api.chess.com/pub/player/{username}/games/archives"
     
+    headers = {
+        "User-Agent": "ChessOpeningAnalysis/1.0 (https://github.com/michaelsok/opening; contact: msok@example.com)"
+    }
+    
     try:
-        response = requests.get(archives_url, timeout=10)
+        response = requests.get(archives_url, timeout=10, headers=headers)
         response.raise_for_status()
         
         data = response.json()
@@ -361,7 +368,7 @@ def get_all_user_games(
     
     for archive_url in archive_urls:
         try:
-            response = requests.get(archive_url, timeout=10)
+            response = requests.get(archive_url, timeout=10, headers=headers)
             response.raise_for_status()
             
             data = response.json()

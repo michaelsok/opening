@@ -200,6 +200,18 @@
             box-shadow: 0 0 0 1px rgba(33, 150, 243, 0.3), 0 0 0 2px rgba(204, 0, 0, 0.3);
         }
 
+        .move.opponent-divergence {
+            border: 2px solid #ff4444 !important;
+            background: transparent !important;
+            color: #333 !important;
+            font-weight: bold;
+        }
+
+        .move.opponent-divergence.current {
+            border: 2px solid #2196F3 !important;
+            box-shadow: 0 0 0 1px rgba(33, 150, 243, 0.3), 0 0 0 2px #ff4444;
+        }
+
         .white-move {
             background: #fff;
         }
@@ -357,7 +369,7 @@
 
                         {# Display White Move #}
                         <span
-                            class="move white-move {% if divergence_move_index is not none and i == divergence_move_index %}divergence-move{% endif %}"
+                            class="move white-move {% if divergence_move_index is not none and i == divergence_move_index %}{% if is_opponent_divergence %}opponent-divergence{% else %}divergence-move{% endif %}{% endif %}"
                             data-index="{{ i }}" data-move-type="game">
                             {{ white_move }}
                         </span>
@@ -386,7 +398,7 @@
                         {# Display Black Move #}
                         {% if black_move %}
                         <span
-                            class="move black-move {% if divergence_move_index is not none and i+1 == divergence_move_index %}divergence-move{% endif %}"
+                            class="move black-move {% if divergence_move_index is not none and i+1 == divergence_move_index %}{% if is_opponent_divergence %}opponent-divergence{% else %}divergence-move{% endif %}{% endif %}"
                             data-index="{{ i+1 }}" data-move-type="game">
                             {{ black_move }}
                         </span>
@@ -435,6 +447,9 @@
         const gameVariantPositions = {{ game_variant_positions_json| safe }};
         const gameVariant = {{ game_variant_json| safe }};
         const openingVariant = {{ opening_variant_san_json| safe }};
+        const userColor = {{ user_color | tojson if user_color else 'null' }};
+        const repertoireLength = {{ repertoire_length if repertoire_length is not none else '0' }};
+        const isOpponentDivergence = {{ 'true' if is_opponent_divergence else 'false' }};
 
         let currentMove = 0;
         let totalMoves = positions.length - 1;
@@ -470,38 +485,57 @@
                 btn.classList.toggle('active', idx === currentMove);
             });
 
-            // Update active moves in move list
-            // Logic differs by view mode
             document.querySelectorAll('.move').forEach((moveEl) => {
-                // Clear all active/current states first
                 moveEl.classList.remove('active', 'current');
 
                 const moveIdx = parseInt(moveEl.dataset.index);
-                // Check if this is a main game move
-                const isMainMove = moveEl.closest('.move-list') && !moveEl.closest('.variation');
-                const isVariationMove = !!moveEl.closest('.variation');
+                const variantIdx = parseInt(moveEl.dataset.variantIndex);
+
+                const isMainMove = !isNaN(moveIdx);
+                const isVariationMove = !isNaN(variantIdx);
 
                 if (currentViewMode === 'main') {
-                    if (isMainMove && !isNaN(moveIdx)) {
-                        // Active if played
-                        if (moveIdx < currentMove) moveEl.classList.add('active');
-                        // Current if last played
-                        if (currentMove > 0 && moveIdx === currentMove - 1) moveEl.classList.add('current');
-                    }
-                } else if (currentViewMode === 'opening') {
-                    // Highlight main moves leading up to divergence
-                    if (isMainMove && !isNaN(moveIdx)) {
-                        if (divergenceMoveIndex !== null && moveIdx < divergenceMoveIndex) {
-                            moveEl.classList.add('active');
-                            // No main move is 'current' in this mode effectively, as focus is on variation
+                    if (isMainMove) {
+                        // Highlight if move has been played
+                        if (moveIdx < currentMove) {
+                            // Only add 'active' (repertoire highlight) if it's within repertoire
+                            if (moveIdx < repertoireLength) {
+                                moveEl.classList.add('active');
+                            }
+                        }
+                        // Current move highlight
+                        if (currentMove > 0 && moveIdx === currentMove - 1) {
+                            moveEl.classList.add('current');
                         }
                     }
-
-                    // Highlight variation moves
-                    const variantIdx = parseInt(moveEl.dataset.variantIndex);
-                    if (isVariationMove && !isNaN(variantIdx)) {
-                        if (variantIdx <= currentMove) moveEl.classList.add('active');
-                        if (variantIdx === currentMove) moveEl.classList.add('current');
+                } else if (currentViewMode === 'opening') {
+                    // In opening mode, main moves before divergence are "active" (repertoire)
+                    if (isMainMove) {
+                        if (moveIdx < repertoireLength) {
+                            moveEl.classList.add('active');
+                        }
+                    }
+                    // Variation moves up to current position are active
+                    if (isVariationMove) {
+                        if (variantIdx < currentMove) {
+                            moveEl.classList.add('active');
+                        }
+                        if (currentMove > 0 && variantIdx === currentMove) {
+                            moveEl.classList.add('current');
+                        }
+                    }
+                } else if (currentViewMode === 'game') {
+                    // In game mode, main moves are active as they are played
+                    if (isMainMove) {
+                        if (moveIdx < currentMove) {
+                            // Still only show green (active) for repertoire moves
+                            if (moveIdx < repertoireLength) {
+                                moveEl.classList.add('active');
+                            }
+                        }
+                        if (currentMove > 0 && moveIdx === currentMove - 1) {
+                            moveEl.classList.add('current');
+                        }
                     }
                 }
             });
