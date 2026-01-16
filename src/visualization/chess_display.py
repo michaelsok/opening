@@ -737,7 +737,6 @@ def _generate_html_content(
         result=result,
         date=date,
         site=site,
-        move_list_html=' '.join(move_list_html),
         variant_comparison_html=variant_comparison_html,
         boards_json=boards_json,
         positions_json=positions_json,
