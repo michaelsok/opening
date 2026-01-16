@@ -37,8 +37,7 @@ Update the divergence display in the chess game viewer to mimic Lichess style. T
 - Run existing tests: `pytest tests/visualization/test_chess_display.py`
 - Verify that the HTML output contains the variation structure.
 
-### Manual Verification
-- Generate a game with known divergence.
-- Open the HTML file in a browser.
-- Verify that the opening moves appear as a parenthesized variation inline.
-- Click variation moves to ensure the board updates correctly.
+- [x] Generate a game with known divergence.
+- [x] Open the HTML file in a browser.
+- [x] Verify that the opening moves appear as a parenthesized variation inline.
+- [x] Click variation moves to ensure the board updates correctly.
