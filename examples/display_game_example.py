@@ -226,7 +226,7 @@ def example_display_with_opening_repertoire():
     opening_pgns = []
     
     print(f"Loading opening repertoire from: {openings_dir}")
-    for pgn_file in openings_dir.glob("*.pgn"):
+    for pgn_file in sorted(openings_dir.glob("*.pgn")):
         print(f"  - Loading {pgn_file.name}")
         with open(pgn_file, encoding="utf-8") as f:
             pgn_str = f.read()
@@ -372,5 +372,5 @@ if __name__ == "__main__":
     # example_display_multiple_games_from_strings()
     # example_display_multiple_games_from_file()
     # example_display_with_divergence()
-    # example_display_with_opening_repertoire()
-    example_create_index_html()
+    example_display_with_opening_repertoire()
+    # example_create_index_html()
