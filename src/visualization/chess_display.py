@@ -599,20 +599,7 @@ def _generate_html_content(
             game_variant_display = ' '.join(game_variant) if game_variant else '(game ended)'
             opening_variant_display = ' '.join(opening_variant) if opening_variant else '(no continuation)'
             
-            # Insert divergence choice section
-            move_list_html.append(f'''
-                <div class="divergence-choice">
-                    <p>Divergence! Choose your path:</p>
-                    <div class="variant-options">
-                        <div class="game-option">
-                            <button class="btn" onclick="switchToVariant('game')">Game: {game_variant_display}</button>
-                        </div>
-                        <div class="opening-option">
-                            <button class="btn" onclick="switchToVariant('opening')">Opening: <span class="opening-move">{opening_variant_display}</span></button>
-                        </div>
-                    </div>
-                </div>
-            ''')
+
         
         move_number += 1
     
