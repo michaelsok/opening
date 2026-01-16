@@ -1,28 +1,22 @@
-# Walkthrough: Fixing Chess Display Variations and Interactivity
+# Walkthrough: Implementing User Opening Analysis from Chess.com
 
-I have resolved the issues with opening repertoire variations and the board's interactivity.
+I have added a powerful new feature to the opening analysis tool: the ability to analyze your real games from Chess.com against your opening repertoire with a single function call.
 
-## Changes Made
+## New Feature: `analyze_user_openings`
 
-### 1. Robust PGN Parsing in `chess_display.py`
-The initial implementation of `_extract_opening_variant` was brittle and failed on multi-game PGN files. I refactored it to use the `PGNTree` parser, which correctly handles complex repertoires by merging all lines into a searchable tree.
+You can now use `analyze_user_openings` in `src/opening/user_opening_analysis.py` to bridge the Chess.com API with our interactive visualization logic.
 
-### 2. Restored Interactivity and JavaScript Fix
-I fixed the issue where the main game moves became non-interactive after viewing a variation.
-- **Fixed Initialization Crash**: Removed a call to a non-existent `setupMoveButtons()` that was halting script execution.
-- **Implemented Event Delegation**: Refactored move click handling to use event delegation on the `.move-list` container. This ensures that switching back and forth between the main game and variations works reliably.
-- **Improved Responsiveness**: Clicking any main game move now correctly restores the 'main' board view and position history.
+### Capabilities:
+- **Direct Integration**: Fetches games using the existing `get_user_games` API.
+- **Smart Analysis**: Automatically identifies which opening file in your repertoire best matches each game.
+- **Interactive Visualization**: Generates a complete `index.html` with all your games, highlighting where you diverged from your prep.
+- **Flexible Filters**: Filter your analysis by year, month, time class (blitz/rapid), and color played.
 
-### 3. Data Flow Fix in `display_game_example.py`
-Fixed a bug where opening files were matched against games using an inconsistent sorting method, ensuring the correct repertoire is always selected for each game.
+## Verification
 
-## Verification Results
+I verified this new feature using a specialized script (`verify_user_analysis.py`) that simulated Chess.com game data:
+- **Game 1 (Italian)**: Correctly identified as a "Ruy Lopez" divergence with the corresponding opening variation extracted.
+- **Game 2 (Ruy Lopez)**: Correctly identified as following the repertoire completely.
+- **HTML Output**: Confirmed that the `index.html` and individual game viewer files are generated correctly with interactive variation moves.
 
-I verified the fix by regenerating the example games:
-- **Game 1 (Italian)**: Variation moves are correctly extracted and clickable.
-- **Game 4 (Ruy Lopez)**: Variation moves are correctly extracted and clickable.
-- **Interactivity**: Swapping between main game moves and variation moves correctly updates the board in all scenarios.
-
-render_diffs(file:///home/msok/projects/opening/src/visualization/chess_display.py)
-render_diffs(file:///home/msok/projects/opening/src/visualization/templates/single_game.html)
-render_diffs(file:///home/msok/projects/opening/examples/display_game_example.py)
+render_diffs(file:///home/msok/projects/opening/src/opening/user_opening_analysis.py)
