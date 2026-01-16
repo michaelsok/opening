@@ -15,12 +15,22 @@ from pathlib import Path
 import webbrowser
 import tempfile
 import os
+import jinja2
 
 # Import for divergence analysis
 from src.parsers.pgn_tree_parser import (
     parse_pgn_string_to_tree,
     find_first_divergence_across_openings,
 )
+
+
+def _get_jinja_env() -> jinja2.Environment:
+    """Get the Jinja2 environment for loading templates."""
+    template_dir = Path(__file__).parent / "templates"
+    return jinja2.Environment(
+        loader=jinja2.FileSystemLoader(template_dir),
+        autoescape=jinja2.select_autoescape(['html', 'xml'])
+    )
 
 
 def display_game_from_pgn(
@@ -583,9 +593,26 @@ def _generate_html_content(
         
         move_list_html.append(''.join(move_pair_html))
         
-        # If at divergence point, trigger popup modal to choose variant (logic handled in JS)
+        # If at divergence point, insert choice prompt and display both variants
         if is_at_divergence and (game_variant or opening_variant):
-            move_list_html.append('<div id="divergence-point-marker"></div>')
+            # Format variant moves for display
+            game_variant_display = ' '.join(game_variant) if game_variant else '(game ended)'
+            opening_variant_display = ' '.join(opening_variant) if opening_variant else '(no continuation)'
+            
+            # Insert divergence choice section
+            move_list_html.append(f'''
+                <div class="divergence-choice">
+                    <p>Divergence! Choose your path:</p>
+                    <div class="variant-options">
+                        <div class="game-option">
+                            <button class="btn" onclick="switchToVariant('game')">Game: {game_variant_display}</button>
+                        </div>
+                        <div class="opening-option">
+                            <button class="btn" onclick="switchToVariant('opening')">Opening: <span class="opening-move">{opening_variant_display}</span></button>
+                        </div>
+                    </div>
+                </div>
+            ''')
         
         move_number += 1
     
@@ -700,12 +727,6 @@ def _generate_html_content(
             </div>
         '''
     
-    # Generate move navigation buttons HTML
-    move_buttons_html = ''.join([
-        f'<button class="move-btn" data-move="{i}">{i}</button>'
-        for i in range(len(positions))
-    ])
-    
     # Escape strings for JavaScript/HTML
     boards_json = json.dumps(svg_boards)
     positions_json = json.dumps(positions)
@@ -717,713 +738,33 @@ def _generate_html_content(
     game_variant_positions_json = json.dumps(game_variant_positions if game_variant_positions else [])
     game_variant_json = json.dumps(game_variant if game_variant else [])
     opening_variant_san_json = json.dumps(opening_variant if opening_variant else [])
-    event_escaped = event.replace('"', '&quot;')
-    white_escaped = white.replace('"', '&quot;')
-    black_escaped = black.replace('"', '&quot;')
     
-    css_block = """
-<style>
-    * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-    }
-    body {
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        min-height: 100vh;
-        padding: 20px;
-    }
-    /* ... rest of CSS ... */
-</style>
-"""
-
-html = f"""<!DOCTYPE html>
-<html lang='en'>
-<head>
-    <meta charset='UTF-8'>
-    <meta name='viewport' content='width=device-width, initial-scale=1.0'>
-    <title>Chess Game Viewer - {event_escaped}</title>
-    {css_block}
-"""
-
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {{
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-padding: 20px;
-}}
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-padding: 20px;
-}}
-        
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-            overflow: hidden;
-        }
-        
-        .header {
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-            color: white;
-            padding: 20px;
-            text-align: center;
-        }
-        
-        .header h1 {
-            font-size: 24px;
-            margin-bottom: 10px;
-        }
-        
-        .game-info {
-            display: flex;
-            justify-content: space-around;
-            flex-wrap: wrap;
-            margin-top: 15px;
-            font-size: 14px;
-        }
-        
-        .game-info div {
-            margin: 5px;
-        }
-        
-        .game-info strong {
-            margin-right: 5px;
-        }
-        
-        .main-content {
-            display: flex;
-            flex-direction: column;
-padding: 20px;
-}}
-        
-        @media (min-width: 768px) {
-            .main-content {
-                flex-direction: row;
-            }
-        }
-        
-        .board-container {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-padding: 20px;
-}}
-        
-        .board-wrapper {
-            position: relative;
-            margin-bottom: 20px;
-        }
-        
-        #chessboard {
-            display: block;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-            border-radius: 5px;
-        }
-        
-        .controls {
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-            flex-wrap: wrap;
-            margin-top: 20px;
-        }
-        
-        .btn {
-            padding: 10px 20px;
-            font-size: 16px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            background: #4CAF50;
-            color: white;
-            transition: background 0.3s;
-        }
-        
-        .btn:hover {
-            background: #45a049;
-        }
-        
-        .btn:disabled {
-            background: #cccccc;
-            cursor: not-allowed;
-        }
-        
-        .btn.prev {
-            background: #2196F3;
-        }
-        
-        .btn.prev:hover {
-            background: #0b7dda;
-        }
-        
-        .btn.next {
-            background: #ff9800;
-        }
-        
-        .btn.next:hover {
-            background: #e68900;
-        }
-        
-        .btn.first {
-            background: #9e9e9e;
-        }
-        
-        .btn.last {
-            background: #9e9e9e;
-        }
-        
-        .move-list-container {
-            flex: 1;
-            padding: 20px;
-            background: #f5f5f5;
-            border-radius: 5px;
-            max-height: 600px;
-            overflow-y: auto;
-        }
-        
-        .move-list-title {
-            font-size: 18px;
-            font-weight: bold;
-            margin-bottom: 15px;
-            color: #333;
-        }
-        
-        .move-list {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 5px;
-            line-height: 2;
-        }
-        
-        .move {
-            padding: 5px 10px;
-            margin: 2px;
-            border-radius: 3px;
-            cursor: pointer;
-            transition: background 0.2s;
-            display: inline-block;
-        }
-        
-        .move:hover {
-            background: #e0e0e0;
-        }
-        
-        .move.active {
-            background: #4CAF50;
-            color: white;
-            font-weight: bold;
-        }
-        
-        .move.current {
-            border: 3px solid #2196F3 !important;
-            box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.3);
-            position: relative;
-            z-index: 1;
-        }
-        
-        .move.divergence-move {
-            background: #ff4444 !important;
-            color: white !important;
-            font-weight: bold;
-            border: 2px solid #cc0000;
-        }
-        
-        .move.divergence-move.current {
-            border: 3px solid #2196F3 !important;
-            box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.3), 0 0 0 4px rgba(204, 0, 0, 0.3);
-        }
-        
-        .white-move {
-            background: #fff;
-        }
-        
-        .black-move {
-            background: #f0f0f0;
-        }
-        
-        .move-number {
-            font-weight: bold;
-            color: #666;
-            margin-right: 5px;
-        }
-        
-        .variant-comparison-container {
-            margin-top: 20px;
-            padding: 15px;
-            background: #f5f5f5;
-            border: 2px solid #ddd;
-            border-radius: 5px;
-        }
-        
-        .variant-comparison-title {
-            font-weight: bold;
-            color: #333;
-            margin-bottom: 15px;
-            font-size: 16px;
-            text-align: center;
-        }
-        
-        .variant-comparison-content {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-        
-        @media (min-width: 768px) {
-            .variant-comparison-content {
-                flex-direction: row;
-                gap: 20px;
-            }
-        }
-        
-        .game-variant-section {
-            flex: 1;
-            padding: 12px;
-            background: #ffebee;
-            border-left: 4px solid #f44336;
-            border-radius: 5px;
-        }
-        
-        .opening-variant-section {
-            flex: 1;
-            padding: 12px;
-            background: #e8f5e9;
-            border-left: 4px solid #4CAF50;
-            border-radius: 5px;
-        }
-        
-        .variant-label {
-            font-weight: bold;
-            font-size: 14px;
-            margin-bottom: 8px;
-        }
-        
-        .game-variant-section .variant-label {
-            color: #c62828;
-        }
-        
-        .opening-variant-section .variant-label {
-            color: #2e7d32;
-        }
-        
-        .variant-moves {
-            font-family: 'Courier New', monospace;
-            font-size: 14px;
-            color: #333;
-            line-height: 1.8;
-        }
-        
-        .game-variant-moves {
-            color: #b71c1c;
-        }
-        
-        .opening-variant-moves {
-            color: #1b5e20;
-        }
-        
-        .divergence-choice {
-            margin-top: 15px;
-            padding: 10px;
-            background: #fffde7;
-            border: 1px solid #ffeb3b;
-            border-radius: 5px;
-            text-align: center;
-        }
-        .divergence-choice p {
-            font-weight: bold;
-            margin-bottom: 10px;
-            color: #fbc02d;
-        }
-        .variant-options {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-        .variant-options .btn {
-            width: 100%;
-            padding: 8px 15px;
-            font-size: 14px;
-        }
-        .game-option .btn {
-            background: #ef9a9a;
-            color: #b71c1c;
-        }
-        .opening-option .btn {
-            background: #a5d6a7;
-            color: #1b5e20;
-        }
-        .opening-move {
-            font-size: 0.9em; /* Smaller font for opening repertoire in move list */
-        }
-        
-        /* Legacy class names for backwards compatibility */
-        .opening-variant-container {
-            margin-top: 20px;
-            padding: 15px;
-            background: #fff9e6;
-            border-left: 4px solid #ff9800;
-            border-radius: 5px;
-        }
-        
-        .opening-variant-title {
-            font-weight: bold;
-            color: #e65100;
-            margin-bottom: 10px;
-            font-size: 16px;
-        }
-        
-        .opening-variant-moves {
-            font-family: 'Courier New', monospace;
-            font-size: 14px;
-            color: #333;
-            line-height: 1.8;
-        }
-        
-        .position-info {
-            margin-top: 15px;
-            padding: 10px;
-            background: #e3f2fd;
-            border-radius: 5px;
-            text-align: center;
-            font-family: 'Courier New', monospace;
-            font-size: 12px;
-        }
-        
-        .move-navigation {
-            margin-top: 10px;
-            padding: 10px;
-            background: #fff3e0;
-            border-radius: 5px;
-            display: flex;
-            gap: 5px;
-            flex-wrap: wrap;
-            justify-content: center;
-            max-height: 150px;
-            overflow-y: auto;
-        }
-        
-        .move-btn {
-            padding: 5px 10px;
-            border: 1px solid #ddd;
-            border-radius: 3px;
-            cursor: pointer;
-            background: white;
-            font-size: 12px;
-        }
-        
-        .move-btn:hover {
-            background: #f0f0f0;
-        }
-        
-        .move-btn.active {
-            background: #4CAF50;
-            color: white;
-            border-color: #4CAF50;
-        }
-        
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-        
-        ::-webkit-scrollbar-track {
-            background: #f1f1f1;
-            border-radius: 5px;
-        }
-        
-        ::-webkit-scrollbar-thumb {
-            background: #888;
-            border-radius: 5px;
-        }
-        
-        ::-webkit-scrollbar-thumb:hover {
-            background: #555;
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <div class="header">
-            <h1>{event_escaped}</h1>
-            <div class="game-info">
-                <div><strong>White:</strong> {white_escaped}</div>
-                <div><strong>Black:</strong> {black_escaped}</div>
-                <div><strong>Result:</strong> {result}</div>
-                {f'<div><strong>Date:</strong> {date}</div>' if date else ''}
-                {f'<div><strong>Site:</strong> {site.replace(chr(34), "&quot;")}</div>' if site else ''}
-            </div>
-        </div>
-        
-        <div class="main-content">
-            <div class="board-container">
-                <div class="board-wrapper">
-                    <div id="chessboard"></div>
-                </div>
-                
-                <div class="controls">
-                    <button class="btn first" onclick="goToMove(0)">⏮ First</button>
-                    <button class="btn prev" onclick="previousMove()">⏪ Previous</button>
-                    <button class="btn next" onclick="nextMove()">Next ⏩</button>
-                    <button class="btn last" onclick="goToMove({len(positions) - 1})">Last ⏭</button>
-                </div>
-                
-                <div class="position-info">
-                    <div>Move: <span id="current-move">0</span> / <span id="total-moves">{len(positions) - 1}</span></div>
-                    <div>Position: <span id="position-fen"></span></div>
-                </div>
-                
-                <div class="move-navigation">
-                    {move_buttons_html}
-                </div>
-            </div>
-            
-            <div class="move-list-container">
-                <div class="move-list-title">Move List</div>
-                <div class="move-list">
-                    {' '.join(move_list_html)}
-                </div>
-            </div>
-        </div>
-    </div>
+    # Render template
+    env = _get_jinja_env()
+    template = env.get_template("single_game.html")
     
-    <!-- Variant Selection Modal -->
-    <div id="variant-modal" class="variant-modal">
-        <div class="variant-modal-content">
-            <h3>Choose Variant to Follow</h3>
-            <p>You've reached a divergence point. Which variant would you like to follow?</p>
-            <div class="variant-choice-buttons">
-                <button class="variant-choice-btn game" onclick="selectVariant('game')">Game (Played)</button>
-                <button class="variant-choice-btn opening" onclick="selectVariant('opening')">Opening Repertoire</button>
-            </div>
-        </div>
-    </div>
-    
-    <script>
-        // Store all board positions
-        const boards = {boards_json};
-        const positions = {positions_json};
-        const moves_san = {moves_san_json};
-        const moves_uci = {moves_uci_json};
-        const divergenceMoveIndex = {divergence_move_index if divergence_move_index is not None else 'null'};
-        const openingVariantBoards = {opening_variant_boards_json};
-        const openingVariantPositions = {opening_variant_positions_json};
-        const gameVariantBoards = {game_variant_boards_json};
-        const gameVariantPositions = {game_variant_positions_json};
-        const gameVariant = {game_variant_json};
-        const openingVariant = {opening_variant_san_json};
-        
-        let currentMove = 0;
-        let totalMoves = positions.length - 1;
-        let currentViewMode = 'main'; // 'main', 'game', 'opening'
-        let currentBoards = boards;
-        let currentPositions = positions;
-        let divergenceChoiceMade = false;
-        
-        // --- Modal for Variant Choice ---
-        function showVariantModal() {
-            document.getElementById('variant-modal').style.display = 'flex';
-        }
-        function hideVariantModal() {
-            document.getElementById('variant-modal').style.display = 'none';
-        }
-        function selectVariant(mode) {
-            hideVariantModal();
-            divergenceChoiceMade = true;
-            switchToVariant(mode);
-        }
-        // Initialize
-        function init() {
-            updateBoard(0);
-            setupMoveButtons();
-            setupMoveList();
-            // If at divergence, block nav and show modal
-            if (document.getElementById('divergence-point-marker') && !divergenceChoiceMade) {
-                showVariantModal();
-            }
-        }
-        
-        // Update board display
-        function updateBoard(moveIndex) {
-            if (moveIndex < 0 || moveIndex >= currentPositions.length) return;
-            
-            currentMove = moveIndex;
-            document.getElementById('chessboard').innerHTML = currentBoards[moveIndex];
-            document.getElementById('current-move').textContent = currentMove;
-            document.getElementById('total-moves').textContent = totalMoves;
-            document.getElementById('position-fen').textContent = currentPositions[moveIndex];
-            
-            // Update button states
-            document.querySelector('.btn.first').disabled = currentMove === 0;
-            document.querySelector('.btn.prev').disabled = currentMove === 0;
-            document.querySelector('.btn.next').disabled = currentMove === totalMoves;
-            document.querySelector('.btn.last').disabled = currentMove === totalMoves;
-            
-            // Update active move buttons
-            document.querySelectorAll('.move-btn').forEach((btn, idx) => {
-                btn.classList.toggle('active', idx === currentMove);
-            });
-            
-            // Update active moves in move list only if viewing main game
-            if (currentViewMode === 'main') {
-                document.querySelectorAll('.move').forEach((moveEl) => {
-                    const moveIdx = parseInt(moveEl.dataset.index);
-                    if (!isNaN(moveIdx)) {
-                        // Only apply green highlight if:
-                        // 1. The move has been played (moveIdx < currentMove), AND
-                        // 2. Either there's no divergence, or the move is before the divergence point
-                        const shouldHighlight = moveIdx < currentMove && 
-                                              (divergenceMoveIndex === null || moveIdx < divergenceMoveIndex);
-                        moveEl.classList.toggle('active', shouldHighlight);
-                        
-                        // Add border highlight for the current move (the move that leads to the current position)
-                        // Position 0 = initial position (no move), Position 1 = after move 0, Position 2 = after move 1, etc.
-                        const isCurrentMove = currentMove > 0 && moveIdx === currentMove - 1;
-                        moveEl.classList.toggle('current', isCurrentMove);
-                    }
-                });
-            }
-        }
-        
-        // Navigation functions
-        function goToMove(moveIndex) {
-            if (moveIndex >= 0 && moveIndex < currentPositions.length) {
-                updateBoard(moveIndex);
-            }
-        }
-        
-        function previousMove() {
-            if (currentMove > 0) {
-                updateBoard(currentMove - 1);
-            }
-        }
-        
-        function nextMove() {
-            if (currentMove < totalMoves) {
-                updateBoard(currentMove + 1);
-            }
-        }
-        
-        // Keyboard navigation
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'ArrowLeft') {
-                previousMove();
-            } else if (e.key === 'ArrowRight') {
-                nextMove();
-            } else if (e.key === 'Home') {
-                goToMove(0);
-            } else if (e.key === 'End') {
-                goToMove(totalMoves);
-            }
-        });
-        
-        // Setup move buttons
-        function setupMoveButtons() {
-            document.querySelectorAll('.move-btn').forEach((btn, idx) => {
-                btn.addEventListener('click', () => goToMove(idx));
-            });
-        }
-        
-        // Setup move list clicks
-        function setupMoveList() {
-            document.querySelectorAll('.move').forEach((moveEl) => {
-                const moveIdx = parseInt(moveEl.dataset.index);
-                if (!isNaN(moveIdx) && moveIdx < positions.length - 1) {
-                    moveEl.addEventListener('click', () => {
-                        // Go to position after this move
-                        goToMove(moveIdx + 1);
-                    });
-                }
-            });
-        }
-        
-        // Switch variant view mode
-        function switchToVariant(mode) {
-            if (divergenceMoveIndex === null) return; // No divergence, can't switch
-            
-            currentViewMode = mode;
-            
-            if (mode === 'main') {
-                // Switch back to main game
-                currentBoards = boards;
-                currentPositions = positions;
-                totalMoves = positions.length - 1;
-            } else if (mode === 'game' && gameVariantBoards.length > 0) {
-                // Switch to game variant - show continuation from divergence point
-                currentBoards = gameVariantBoards;
-                currentPositions = gameVariantPositions;
-                totalMoves = gameVariantPositions.length - 1;
-            } else if (mode === 'opening' && openingVariantBoards.length > 0) {
-                // Switch to opening variant
-                currentBoards = openingVariantBoards;
-                currentPositions = openingVariantPositions;
-                totalMoves = openingVariantPositions.length - 1;
-            } else {
-                return; // Invalid mode or no variant available
-            }
-            
-            // Reset to start of variant view
-            currentMove = divergenceMoveIndex !== null && mode !== 'main' ? 0 : 0;
-            
-            // Update move navigation buttons
-            updateMoveNavigation();
-            
-            // Update board display
-            updateBoard(currentMove);
-        }
-        
-        // Update move navigation buttons
-        function updateMoveNavigation() {
-            const moveNav = document.querySelector('.move-navigation');
-            if (!moveNav) return;
-            
-            moveNav.innerHTML = '';
-            for (let i = 0; i < currentPositions.length; i++) {
-                const btn = document.createElement('button');
-                btn.className = 'move-btn';
-                btn.setAttribute('data-move', i);
-                btn.textContent = i;
-                btn.addEventListener('click', () => goToMove(i));
-                moveNav.appendChild(btn);
-            }
-            
-            // Update last button onclick
-            const lastBtn = document.querySelector('.btn.last');
-            if (lastBtn) {
-                lastBtn.setAttribute('onclick', `goToMove(${totalMoves})`);
-            }
-        }
-        
-        
-        // --- Modal for Variant Choice ---
-        function showVariantModal() {
-            document.getElementById('variant-modal').style.display = 'flex';
-        }
-        function hideVariantModal() {
-            document.getElementById('variant-modal').style.display = 'none';
-        }
-        function selectVariant(mode) {
-            hideVariantModal();
-            divergenceChoiceMade = true;
-            switchToVariant(mode);
-        }
-        // Initialize on load
-        window.addEventListener('load', init);
-    </script>
-</body>
-</html>"""
-    
-    return html
+    return template.render(
+        event=event,
+        white=white,
+        black=black,
+        result=result,
+        date=date,
+        site=site,
+        move_list_html=' '.join(move_list_html),
+        variant_comparison_html=variant_comparison_html,
+        boards_json=boards_json,
+        positions_json=positions_json,
+        moves_san_json=moves_san_json,
+        moves_uci_json=moves_uci_json,
+        divergence_move_index=divergence_move_index,
+        opening_variant_boards_json=opening_variant_boards_json,
+        opening_variant_positions_json=opening_variant_positions_json,
+        game_variant_boards_json=game_variant_boards_json,
+        game_variant_positions_json=game_variant_positions_json,
+        game_variant_json=game_variant_json,
+        opening_variant_san_json=opening_variant_san_json,
+        positions=positions 
+    )
 
 
 def create_index_html(
@@ -1563,8 +904,8 @@ def _generate_index_html_content(game_data_list: List[dict], size: int) -> str:
     """Generate HTML content for the games index page."""
     num_games = len(game_data_list)
     
-    # Build game list HTML
-    game_list_items = []
+    # Prepare data for template
+    game_list = []
     for game_data in game_data_list:
         headers = game_data['headers']
         event = headers.get('Event', f"Game {game_data['index'] + 1}")
@@ -1574,236 +915,34 @@ def _generate_index_html_content(game_data_list: List[dict], size: int) -> str:
         date = headers.get('Date', '')
         
         # Format divergence info
-        # Only show the actual diverging move (last move in divergence path)
         divergence = game_data['divergence_point']
         if divergence:
-            # Get the last move from the divergence path - this is the actual diverging move
             diverging_move = divergence[-1]
             divergence_html = f'<span class="divergence-info">Diverges at: {diverging_move}</span>'
         else:
             divergence_html = '<span class="divergence-info no-divergence">✓ Follows opening repertoire</span>'
         
-        viewer_file = f"game_{game_data['index']}.html"
-        event_escaped = event.replace('"', '&quot;').replace("'", "&#39;")
-        white_escaped = white.replace('"', '&quot;').replace("'", "&#39;")
-        black_escaped = black.replace('"', '&quot;').replace("'", "&#39;")
+        game_img = {
+            'index': game_data['index'] + 1,
+            'viewer_file': f"game_{game_data['index']}.html",
+            'event': event,
+            'result': result,
+            'white': white,
+            'black': black,
+            'date': date,
+            'divergence_html': divergence_html
+        }
+        game_list.append(game_img)
         
-        game_list_items.append(f'''
-            <div class="game-item" onclick="window.open('{viewer_file}', '_blank')">
-                <div class="game-header">
-                    <span class="game-number">#{game_data['index'] + 1}</span>
-                    <span class="game-title">{event_escaped}</span>
-                    <span class="game-result">{result}</span>
-                </div>
-                <div class="game-players">{white_escaped} vs {black_escaped}{f" - {date}" if date else ""}</div>
-                <div class="game-divergence">{divergence_html}</div>
-            </div>
-        ''')
+    env = _get_jinja_env()
+    template = env.get_template("index.html")
     
-    games_list_html = '\n'.join(game_list_items)
-    
-    css_block = """
-    {css_block}
-    """
-    html = f'''<!DOCTYPE html>
-'''
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chess Games Index - {num_games} Games</title>
-    {css_block}
+    return template.render(
+        num_games=num_games,
+        game_list=game_list
+    )
 
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {{
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-padding: 20px;
-}}
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-padding: 20px;
-}}
-        
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-            overflow: hidden;
-        }
-        
-        .header {
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-            color: white;
-            padding: 30px;
-            text-align: center;
-        }
-        
-        .header h1 {
-            font-size: 28px;
-            margin-bottom: 10px;
-        }
-        
-        .header .subtitle {
-            font-size: 16px;
-            opacity: 0.9;
-        }
-        
-        .games-list {
-            padding: 30px;
-            max-height: calc(100vh - 200px);
-            overflow-y: auto;
-        }
-        
-        .games-list h2 {
-            color: #333;
-            margin-bottom: 20px;
-            font-size: 20px;
-        }
-        
-        .game-item {
-            background: #f9f9f9;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            padding: 20px;
-            margin-bottom: 15px;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        
-        .game-item:hover {
-            background: #f0f0f0;
-            border-color: #667eea;
-            transform: translateX(5px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-        }
-        
-        .game-header {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            margin-bottom: 10px;
-        }
-        
-        .game-number {
-            background: #667eea;
-            color: white;
-            padding: 5px 12px;
-            border-radius: 20px;
-            font-weight: bold;
-            font-size: 14px;
-        }
-        
-        .game-title {
-            flex: 1;
-            font-size: 18px;
-            font-weight: bold;
-            color: #333;
-        }
-        
-        .game-result {
-            background: #4CAF50;
-            color: white;
-            padding: 5px 12px;
-            border-radius: 5px;
-            font-weight: bold;
-            font-size: 14px;
-        }
-        
-        .game-players {
-            color: #666;
-            margin-bottom: 10px;
-            font-size: 14px;
-        }
-        
-        .game-divergence {
-            margin-top: 10px;
-            padding: 10px;
-            background: #fff3e0;
-            border-left: 4px solid #ff9800;
-            border-radius: 5px;
-            font-size: 13px;
-        }
-        
-        .divergence-info {
-            color: #e65100;
-            font-weight: 600;
-        }
-        
-        .divergence-info.no-divergence {
-            color: #2e7d32;
-        }
-        
-        .info-box {
-            background: #e3f2fd;
-            border-left: 4px solid #2196F3;
-            padding: 15px;
-            margin: 20px 30px;
-            border-radius: 5px;
-        }
-        
-        .info-box h3 {
-            margin-bottom: 10px;
-            color: #1976D2;
-        }
-        
-        .info-box p {
-            margin-bottom: 5px;
-            color: #555;
-            font-size: 14px;
-        }
-        
-        ::-webkit-scrollbar {
-            width: 10px;
-        }
-        
-        ::-webkit-scrollbar-track {
-            background: #f1f1f1;
-        }
-        
-        ::-webkit-scrollbar-thumb {
-            background: #888;
-            border-radius: 5px;
-        }
-        
-        ::-webkit-scrollbar-thumb:hover {
-            background: #555;
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <div class="header">
-            <h1>♟️ Chess Games Index</h1>
-            <p class="subtitle">Click on any game to view it with divergence analysis</p>
-        </div>
-        
-        <div class="info-box">
-            <h3>About This Index</h3>
-            <p>This page shows all games analyzed against the opening repertoire.</p>
-            <p>Games that diverge from the repertoire are highlighted in orange.</p>
-            <p>Click any game to open its interactive viewer with divergence highlighting.</p>
-        </div>
-        
-        <div class="games-list">
-            <h2>Games ({num_games})</h2>
-            {games_list_html}
-        </div>
-    </div>
-</body>
-</html>"""
-    
-    return html
-
-
-def _process_game(game: chess.pgn.Game, size: int) -> dict:
+def _process_game(game, size: int) -> dict:
     """Process a single game and extract all data needed for display."""
     board = game.board()
     positions = []
@@ -1840,8 +979,8 @@ def _process_game(game: chess.pgn.Game, size: int) -> dict:
 
 
 def _create_multi_game_html_viewer(
-    games: List[chess.pgn.Game],
-    output_file: Optional[Union[str, Path]],
+    games,
+    output_file,
     open_in_browser: bool,
     size: int
 ) -> str:
@@ -1873,7 +1012,7 @@ def _create_multi_game_html_viewer(
     return str(output_file)
 
 
-def _generate_multi_game_html_content(games_data: List[dict], size: int) -> str:
+def _generate_multi_game_html_content(games_data, size: int) -> str:
     """Generate HTML content for multiple games viewer."""
     num_games = len(games_data)
     
@@ -1930,10 +1069,6 @@ def _generate_multi_game_html_content(games_data: List[dict], size: int) -> str:
         })
     
     games_json = json.dumps(all_games_data)
-    event_escaped = event.replace('"', '&quot;').replace("'", "&#39;")
-    white_escaped = white.replace('"', '&quot;').replace("'", "&#39;")
-    black_escaped = black.replace('"', '&quot;').replace("'", "&#39;")
-    site_escaped = site.replace('"', '&quot;').replace("'", "&#39;") if site else ''
     
     # Generate move navigation buttons for first game
     first_game_positions = games_data[0]['positions']
@@ -1942,668 +1077,19 @@ def _generate_multi_game_html_content(games_data: List[dict], size: int) -> str:
         for i in range(len(first_game_positions))
     ])
     
-    css_block = """
-    {css_block}
-    """
-    html = f'''<!DOCTYPE html>
-'''
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chess Games Viewer - {num_games} Games</title>
-    {css_block}
-
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {{
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-padding: 20px;
-}}
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-padding: 20px;
-}}
-        
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-            overflow: hidden;
-        }
-        
-        .header {
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-            color: white;
-            padding: 20px;
-            text-align: center;
-        }
-        
-        .header h1 {
-            font-size: 24px;
-            margin-bottom: 10px;
-        }
-        
-        .game-info {
-            display: flex;
-            justify-content: space-around;
-            flex-wrap: wrap;
-            margin-top: 15px;
-            font-size: 14px;
-        }
-        
-        .game-info div {
-            margin: 5px;
-        }
-        
-        .game-info strong {
-            margin-right: 5px;
-        }
-        
-        .game-navigation {
-            background: #f0f0f0;
-            padding: 15px;
-            border-bottom: 2px solid #ddd;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-        
-        .game-nav-controls {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-        }
-        
-        .game-nav-btn {
-            padding: 8px 16px;
-            font-size: 14px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            background: #4CAF50;
-            color: white;
-            transition: background 0.3s;
-        }
-        
-        .game-nav-btn:hover {
-            background: #45a049;
-        }
-        
-        .game-nav-btn:disabled {
-            background: #cccccc;
-            cursor: not-allowed;
-        }
-        
-        .game-nav-btn.prev {
-            background: #2196F3;
-        }
-        
-        .game-nav-btn.prev:hover {
-            background: #0b7dda;
-        }
-        
-        .game-nav-btn.next {
-            background: #ff9800;
-        }
-        
-        .game-nav-btn.next:hover {
-            background: #e68900;
-        }
-        
-        .game-list-container {
-            position: relative;
-            max-width: 300px;
-        }
-        
-        .game-list-toggle {
-            padding: 8px 16px;
-            background: #9e9e9e;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 14px;
-        }
-        
-        .game-list-dropdown {
-            position: absolute;
-            top: 100%;
-            left: 0;
-            right: 0;
-            background: white;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-            max-height: 300px;
-            overflow-y: auto;
-            display: none;
-            z-index: 1000;
-            margin-top: 5px;
-        }
-        
-        .game-list-dropdown.show {
-            display: block;
-        }
-        
-        .game-item {
-            padding: 10px;
-            cursor: pointer;
-            border-bottom: 1px solid #eee;
-            font-size: 13px;
-        }
-        
-        .game-item:hover {
-            background: #f0f0f0;
-        }
-        
-        .game-item.active {
-            background: #e3f2fd;
-            font-weight: bold;
-        }
-        
-        .main-content {
-            display: flex;
-            flex-direction: column;
-padding: 20px;
-}}
-        
-        @media (min-width: 768px) {
-            .main-content {
-                flex-direction: row;
-            }
-        }
-        
-        .board-container {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-padding: 20px;
-}}
-        
-        .board-wrapper {
-            position: relative;
-            margin-bottom: 20px;
-        }
-        
-        #chessboard {
-            display: block;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-            border-radius: 5px;
-        }
-        
-        .controls {
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-            flex-wrap: wrap;
-            margin-top: 20px;
-        }
-        
-        .btn {
-            padding: 10px 20px;
-            font-size: 16px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            background: #4CAF50;
-            color: white;
-            transition: background 0.3s;
-        }
-        
-        .btn:hover {
-            background: #45a049;
-        }
-        
-        .btn:disabled {
-            background: #cccccc;
-            cursor: not-allowed;
-        }
-        
-        .btn.prev {
-            background: #2196F3;
-        }
-        
-        .btn.prev:hover {
-            background: #0b7dda;
-        }
-        
-        .btn.next {
-            background: #ff9800;
-        }
-        
-        .btn.next:hover {
-            background: #e68900;
-        }
-        
-        .btn.first {
-            background: #9e9e9e;
-        }
-        
-        .btn.last {
-            background: #9e9e9e;
-        }
-        
-        .move-list-container {
-            flex: 1;
-            padding: 20px;
-            background: #f5f5f5;
-            border-radius: 5px;
-            max-height: 600px;
-            overflow-y: auto;
-        }
-        
-        .move-list-title {
-            font-size: 18px;
-            font-weight: bold;
-            margin-bottom: 15px;
-            color: #333;
-        }
-        
-        .move-list {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 5px;
-            line-height: 2;
-        }
-        
-        .move {
-            padding: 5px 10px;
-            margin: 2px;
-            border-radius: 3px;
-            cursor: pointer;
-            transition: background 0.2s;
-            display: inline-block;
-        }
-        
-        .move:hover {
-            background: #e0e0e0;
-        }
-        
-        .move.active {
-            background: #4CAF50;
-            color: white;
-            font-weight: bold;
-        }
-        
-        .white-move {
-            background: #fff;
-        }
-        
-        .black-move {
-            background: #f0f0f0;
-        }
-        
-        .move-number {
-            font-weight: bold;
-            color: #666;
-            margin-right: 5px;
-        }
-        
-        .position-info {
-            margin-top: 15px;
-            padding: 10px;
-            background: #e3f2fd;
-            border-radius: 5px;
-            text-align: center;
-            font-family: 'Courier New', monospace;
-            font-size: 12px;
-        }
-        
-        .move-navigation {
-            margin-top: 10px;
-            padding: 10px;
-            background: #fff3e0;
-            border-radius: 5px;
-            display: flex;
-            gap: 5px;
-            flex-wrap: wrap;
-            justify-content: center;
-            max-height: 150px;
-            overflow-y: auto;
-        }
-        
-        .move-btn {
-            padding: 5px 10px;
-            border: 1px solid #ddd;
-            border-radius: 3px;
-            cursor: pointer;
-            background: white;
-            font-size: 12px;
-        }
-        
-        .move-btn:hover {
-            background: #f0f0f0;
-        }
-        
-        .move-btn.active {
-            background: #4CAF50;
-            color: white;
-            border-color: #4CAF50;
-        }
-        
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-        
-        ::-webkit-scrollbar-track {
-            background: #f1f1f1;
-            border-radius: 5px;
-        }
-        
-        ::-webkit-scrollbar-thumb {
-            background: #888;
-            border-radius: 5px;
-        }
-        
-        ::-webkit-scrollbar-thumb:hover {
-            background: #555;
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <div class="header">
-            <h1>Chess Games Viewer - {num_games} Games</h1>
-            <div class="game-info" id="current-game-info">
-                <div><strong>White:</strong> {white_escaped}</div>
-                <div><strong>Black:</strong> {black_escaped}</div>
-                <div><strong>Result:</strong> {result}</div>
-                {f'<div><strong>Date:</strong> {date}</div>' if date else ''}
-                {f'<div><strong>Site:</strong> {site_escaped}</div>' if site else ''}
-            </div>
-        </div>
-        
-        <div class="game-navigation">
-            <div class="game-nav-controls">
-                <button class="game-nav-btn prev" onclick="previousGame()" id="prev-game-btn">⏮ Previous Game</button>
-                <span id="game-counter">Game <span id="current-game-num">1</span> / {num_games}</span>
-                <button class="game-nav-btn next" onclick="nextGame()" id="next-game-btn">Next Game ⏭</button>
-            </div>
-            <div class="game-list-container">
-                <button class="game-list-toggle" onclick="toggleGameList()">Select Game ▼</button>
-                <div class="game-list-dropdown" id="game-list-dropdown">
-                    {''.join(game_list_html)}
-                </div>
-            </div>
-        </div>
-        
-        <div class="main-content">
-            <div class="board-container">
-                <div class="board-wrapper">
-                    <div id="chessboard"></div>
-                </div>
-                
-                <div class="controls">
-                    <button class="btn first" onclick="goToMove(0)">⏮ First</button>
-                    <button class="btn prev" onclick="previousMove()">⏪ Previous</button>
-                    <button class="btn next" onclick="nextMove()">Next ⏩</button>
-                    <button class="btn last" onclick="goToMove({len(first_game_positions) - 1})" id="last-move-btn">Last ⏭</button>
-                </div>
-                
-                <div class="position-info">
-                    <div>Move: <span id="current-move">0</span> / <span id="total-moves">0</span></div>
-                    <div>Position: <span id="position-fen"></span></div>
-                </div>
-                
-                <div class="move-navigation" id="move-navigation">
-                    {move_buttons_html}
-                </div>
-            </div>
-            
-            <div class="move-list-container">
-                <div class="move-list-title">Move List</div>
-                <div class="move-list" id="move-list">
-                    {' '.join(move_list_html)}
-                </div>
-            </div>
-        </div>
-    </div>
+    env = _get_jinja_env()
+    template = env.get_template("multi_game.html")
     
-    <script>
-        // Store all games data
-        const gamesData = {games_json};
-        let currentGameIndex = 0;
-        let currentMove = 0;
-        let totalMoves = 0;
-        
-        // --- Modal for Variant Choice ---
-        function showVariantModal() {
-            document.getElementById('variant-modal').style.display = 'flex';
-        }
-        function hideVariantModal() {
-            document.getElementById('variant-modal').style.display = 'none';
-        }
-        function selectVariant(mode) {
-            hideVariantModal();
-            divergenceChoiceMade = true;
-            switchToVariant(mode);
-        }
-        // Initialize
-        function init() {
-            switchToGame(0);
-        }
-        
-        // Switch to a specific game
-        function switchToGame(gameIndex) {
-            if (gameIndex < 0 || gameIndex >= gamesData.length) return;
-            
-            currentGameIndex = gameIndex;
-            currentMove = 0;
-            
-            const game = gamesData[currentGameIndex];
-            totalMoves = game.positions.length - 1;
-            
-            // Update game info header
-            const headers = game.headers;
-            const white = headers.White || 'Unknown';
-            const black = headers.Black || 'Unknown';
-            const result = headers.Result || '*';
-            const date = headers.Date || '';
-            const site = headers.Site || '';
-            
-            document.getElementById('current-game-info').innerHTML = `
-                <div><strong>White:</strong> ${white}</div>
-                <div><strong>Black:</strong> ${black}</div>
-                <div><strong>Result:</strong> ${{result}}</div>
-                ${date ? `<div><strong>Date:</strong> ${{date}}</div>` : ''}
-                ${site ? `<div><strong>Site:</strong> ${{site}}</div>` : ''}
-            `;
-            
-            // Update game counter
-            document.getElementById('current-game-num').textContent = currentGameIndex + 1;
-            
-            // Update game navigation buttons
-            document.getElementById('prev-game-btn').disabled = currentGameIndex === 0;
-            document.getElementById('next-game-btn').disabled = currentGameIndex === gamesData.length - 1;
-            
-            // Update active game in list
-            document.querySelectorAll('.game-item').forEach((item, idx) => {
-                item.classList.toggle('active', idx === currentGameIndex);
-            });
-            
-            // Hide game list dropdown
-            document.getElementById('game-list-dropdown').classList.remove('show');
-            
-            // Regenerate move list
-            updateMoveList();
-            
-            // Reset to first move
-            updateBoard(0);
-        }
-        
-        // Update move list for current game
-        function updateMoveList() {
-            const game = gamesData[currentGameIndex];
-            const moves_san = game.moves_san;
-            const moveListHtml = [];
-            let moveNumber = 1;
-            
-            for (let i = 0; i < moves_san.length; i += 2) {
-                const whiteMove = moves_san[i] || '';
-                const blackMove = moves_san[i + 1] || '';
-                moveListHtml.push(
-                    `<span class="move-number">${moveNumber}.</span> ` +
-                    `<span class="move white-move" data-index="${i}">${whiteMove}</span> ` +
-                    `<span class="move black-move" data-index="${i + 1}">${blackMove}</span>`
-                );
-                moveNumber++;
-            }
-            
-            document.getElementById('move-list').innerHTML = moveListHtml.join(' ');
-            setupMoveList();
-            
-            // Update move navigation buttons
-            const positions = game.positions;
-            const moveNavHtml = positions.map((_, idx) => 
-                `<button class="move-btn" data-move="${idx}">${idx}</button>`
-            ).join('');
-            document.getElementById('move-navigation').innerHTML = moveNavHtml;
-            setupMoveButtons();
-            
-            // Update last move button
-            document.getElementById('last-move-btn').setAttribute('onclick', `goToMove(${positions.length - 1})`);
-        }
-        
-        // Update board display
-        function updateBoard(moveIndex) {
-            const game = gamesData[currentGameIndex];
-            if (moveIndex < 0 || moveIndex >= game.positions.length) return;
-            
-            currentMove = moveIndex;
-            document.getElementById('chessboard').innerHTML = game.boards[moveIndex];
-            document.getElementById('current-move').textContent = currentMove;
-            document.getElementById('total-moves').textContent = totalMoves;
-            document.getElementById('position-fen').textContent = game.positions[moveIndex];
-            
-            // Update button states
-            document.querySelector('.btn.first').disabled = currentMove === 0;
-            document.querySelector('.btn.prev').disabled = currentMove === 0;
-            document.querySelector('.btn.next').disabled = currentMove === totalMoves;
-            document.querySelector('.btn.last').disabled = currentMove === totalMoves;
-            
-            // Update active move buttons
-            document.querySelectorAll('.move-btn').forEach((btn, idx) => {
-                btn.classList.toggle('active', idx === currentMove);
-            });
-            
-            // Update active moves in move list
-            document.querySelectorAll('.move').forEach((moveEl) => {
-                const moveIdx = parseInt(moveEl.dataset.index);
-                if (!isNaN(moveIdx)) {
-                    moveEl.classList.toggle('active', moveIdx < currentMove);
-                }
-            });
-        }
-        
-        // Game navigation functions
-        function previousGame() {
-            if (currentGameIndex > 0) {
-                switchToGame(currentGameIndex - 1);
-            }
-        }
-        
-        function nextGame() {
-            if (currentGameIndex < gamesData.length - 1) {
-                switchToGame(currentGameIndex + 1);
-            }
-        }
-        
-        function toggleGameList() {
-            const dropdown = document.getElementById('game-list-dropdown');
-            dropdown.classList.toggle('show');
-        }
-        
-        // Move navigation functions
-        function goToMove(moveIndex) {
-            const game = gamesData[currentGameIndex];
-            if (moveIndex >= 0 && moveIndex < game.positions.length) {
-                updateBoard(moveIndex);
-            }
-        }
-        
-        function previousMove() {
-            if (currentMove > 0) {
-                updateBoard(currentMove - 1);
-            }
-        }
-        
-        function nextMove() {
-            if (currentMove < totalMoves) {
-                updateBoard(currentMove + 1);
-            }
-        }
-        
-        // Keyboard navigation
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'ArrowLeft' && !e.shiftKey) {
-                previousMove();
-            } else if (e.key === 'ArrowRight' && !e.shiftKey) {
-                nextMove();
-            } else if (e.key === 'ArrowLeft' && e.shiftKey) {
-                previousGame();
-            } else if (e.key === 'ArrowRight' && e.shiftKey) {
-                nextGame();
-            } else if (e.key === 'Home') {
-                goToMove(0);
-            } else if (e.key === 'End') {
-                goToMove(totalMoves);
-            }
-        });
-        
-        // Setup move buttons
-        function setupMoveButtons() {
-            document.querySelectorAll('.move-btn').forEach((btn, idx) => {
-                btn.addEventListener('click', () => goToMove(idx));
-            });
-        }
-        
-        // Setup move list clicks
-        function setupMoveList() {
-            document.querySelectorAll('.move').forEach((moveEl) => {
-                const moveIdx = parseInt(moveEl.dataset.index);
-                if (!isNaN(moveIdx) && moveIdx < gamesData[currentGameIndex].positions.length - 1) {
-                    moveEl.addEventListener('click', () => {
-                        goToMove(moveIdx + 1);
-                    });
-                }
-            });
-        }
-        
-        // Close game list when clicking outside
-        document.addEventListener('click', function(e) {
-            const container = document.querySelector('.game-list-container');
-            if (container && !container.contains(e.target)) {
-                document.getElementById('game-list-dropdown').classList.remove('show');
-            }
-        });
-        
-        // --- Modal for Variant Choice ---
-        function showVariantModal() {
-            document.getElementById('variant-modal').style.display = 'flex';
-        }
-        function hideVariantModal() {
-            document.getElementById('variant-modal').style.display = 'none';
-        }
-        function selectVariant(mode) {
-            hideVariantModal();
-            divergenceChoiceMade = true;
-            switchToVariant(mode);
-        }
-        // Initialize on load
-        window.addEventListener('load', init);
-    </script>
-</body>
-</html>"""
-    
-    return html
+    return template.render(
+        num_games=num_games,
+        white=white,
+        black=black,
+        result=result,
+        date=date,
+        site=site,
+        game_list_html=''.join(game_list_html),
+        move_buttons_html=move_buttons_html,
+        move_list_html=' '.join(move_list_html),
+        games_json=games_json,
+        first_game_moves_count=len(first_game_positions)
+    )

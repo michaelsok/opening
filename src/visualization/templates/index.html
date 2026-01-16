@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chess Games Index - {{ num_games }} Games</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .header .subtitle {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+
+        .games-list {
+            padding: 30px;
+            max-height: calc(100vh - 200px);
+            overflow-y: auto;
+        }
+
+        .games-list h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 20px;
+        }
+
+        .game-item {
+            background: #f9f9f9;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .game-item:hover {
+            background: #f0f0f0;
+            border-color: #667eea;
+            transform: translateX(5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .game-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 10px;
+        }
+
+        .game-number {
+            background: #667eea;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .game-title {
+            flex: 1;
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .game-result {
+            background: #4CAF50;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 5px;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .game-players {
+            color: #666;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .game-divergence {
+            margin-top: 10px;
+            padding: 10px;
+            background: #fff3e0;
+            border-left: 4px solid #ff9800;
+            border-radius: 5px;
+            font-size: 13px;
+        }
+
+        .divergence-info {
+            color: #e65100;
+            font-weight: 600;
+        }
+
+        .divergence-info.no-divergence {
+            color: #2e7d32;
+        }
+
+        .info-box {
+            background: #e3f2fd;
+            border-left: 4px solid #2196F3;
+            padding: 15px;
+            margin: 20px 30px;
+            border-radius: 5px;
+        }
+
+        .info-box h3 {
+            margin-bottom: 10px;
+            color: #1976D2;
+        }
+
+        .info-box p {
+            margin-bottom: 5px;
+            color: #555;
+            font-size: 14px;
+        }
+
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 5px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>♟️ Chess Games Index</h1>
+            <p class="subtitle">Click on any game to view it with divergence analysis</p>
+        </div>
+
+        <div class="info-box">
+            <h3>About This Index</h3>
+            <p>This page shows all games analyzed against the opening repertoire.</p>
+            <p>Games that diverge from the repertoire are highlighted in orange.</p>
+            <p>Click any game to open its interactive viewer with divergence highlighting.</p>
+        </div>
+
+        <div class="games-list">
+            <h2>Games ({{ num_games }})</h2>
+            {% for game in game_list %}
+            <div class="game-item" onclick="window.open('{{ game.viewer_file }}', '_blank')">
+                <div class="game-header">
+                    <span class="game-number">#{{ game.index }}</span>
+                    <span class="game-title">{{ game.event }}</span>
+                    <span class="game-result">{{ game.result }}</span>
+                </div>
+                <div class="game-players">{{ game.white }} vs {{ game.black }}{% if game.date %} - {{ game.date }}{%
+                    endif %}</div>
+                <div class="game-divergence">{{ game.divergence_html|safe }}</div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</body>
+
+</html>
