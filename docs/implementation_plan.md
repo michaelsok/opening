@@ -1,21 +1,50 @@
-# Plan: Implement User Opening Analysis
+# Plan: Refine Opening Analysis and Visualization
 
-This plan outlines the creation of a new module to analyze a user's Chess.com games against an opening repertoire and visualize the results.
+This plan covers three main improvements:
+1. Color-based repertoire matching (White vs Black).
+2. UI: Stop repertoire highlighting (green) at the end of the matched repertoire.
+3. UI: Add a red border around the divergence move if it was made by the opponent.
+
+## User Review Required
+
+> [!IMPORTANT]
+> - The tool will now expect `white.pgn` and `black.pgn` in the openings directory for color-specific matching. If they don't exist, it falls back to matching against all PGNs in the directory.
+> - The highlighting behavior in the board viewer is changing: moves after the repertoire ends will no longer be highlighted in green.
 
 ## Proposed Changes
 
 ### [Component Name] Opening Analysis
 
 #### [MODIFY] [user_opening_analysis.py](file:///home/msok/projects/opening/src/opening/user_opening_analysis.py)
-- Implement `analyze_user_openings(username, opening_repertoire, ...)` function.
-- It will fetch games using `get_user_games`.
-- It will then use `create_index_html` from `src.visualization.chess_display` to generate the interactive visualization.
-- This function builds upon the logic of `analyze_user_games_divergence` but focuses on generating the final visualization.
+- Pass `username` as `target_username` to `create_index_html`.
+
+### [Component Name] Visualization Logic
+
+#### [MODIFY] [chess_display.py](file:///home/msok/projects/opening/src/visualization/chess_display.py)
+- **`create_index_html`**:
+    - Add `target_username` parameter.
+    - Implement logic to select `white.pgn` or `black.pgn` from the opening directory based on the user's color in each game.
+    - Pass `user_color` to `display_game_from_string`.
+- **`display_game_from_string`**:
+    - Add `user_color` parameter.
+    - Calculate `repertoire_length` (number of matching moves before divergence).
+    - Pass `user_color` and `repertoire_length` to `_generate_html_content`.
+- **`_create_html_viewer`** (internal name for the display function):
+    - Update signature and data passing.
+
+### [Component Name] Visualization Templates
+
+#### [MODIFY] [single_game.html](file:///home/msok/projects/opening/src/visualization/templates/single_game.html)
+- **CSS**:
+    - Add `.move.opponent-divergence` class with `border: 2px solid red !important`.
+- **JS**:
+    - Store `userColor` and `repertoireLength` in the global state.
+    - Update `goToMove(index)` to only apply the `active` class if `index <= repertoireLength`.
+- **HTML**:
+    - Add logic to apply `opponent-divergence` class to the divergence move if it matches the opponent's turn.
 
 ## Verification Plan
 
 ### Automated Tests
-- Create a test script `verify_user_analysis.py` that mocks the Chess.com API or uses a known user to verify the flow.
-
-### Manual Verification
-- Run the script with a real Chess.com username and a sample repertoire to ensure the `index.html` is generated correctly.
+- Create a test script `verify_color_analysis.py` that uses `white.pgn` and `black.pgn` and verifies that the correct repertoire is used.
+- Manually inspect generated HTML files to verify the new highlighting and border styling.
