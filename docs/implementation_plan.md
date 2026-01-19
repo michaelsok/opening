@@ -1,28 +1,26 @@
-# Goal: Add Navigation Buttons to Individual Game Pages
+# Goal: Optimize Chess.com API Fetching
 
-Enhance user experience by adding buttons to navigate between games and back to the index page directly from the game viewer.
+Minimize API calls to Chess.com by filtering monthly archive URLs based on the provided `start_date` and `end_date` before fetching game data.
 
 ## Proposed Changes
 
-### Visualization [MODIFY]
+### API Integration [MODIFY]
 
-#### [MODIFY] [chess_display.py](file:///home/msok/projects/opening/src/visualization/chess_display.py)
-- **`create_index_html`**: Pass `game_index` and `total_games` to `display_game_from_string`.
-- **`display_game_from_string`**: Accept `game_index` and `total_games` and pass them to `_create_html_viewer`.
-- **`_create_html_viewer`**: Pass `game_index` and `total_games` to `_generate_html_content`.
-- **`_generate_html_content`**: Pass `game_index` and `total_games` to the Jinja2 template.
-
-#### [MODIFY] [single_game.html](file:///home/msok/projects/opening/src/visualization/templates/single_game.html)
-- Add a new CSS class for navigation buttons.
-- Add a navigation bar at the top of the container.
-- Implement "Back to Index", "Previous Game", and "Next Game" buttons using Jinja2 conditional logic.
+#### [MODIFY] [chesscom_api.py](file:///home/msok/projects/opening/src/api/chesscom_api.py)
+- **`get_all_user_games`**:
+  - Extract year and month from each archive URL.
+  - Filter `archive_urls` to only include those that could contain games within the `[start_date, end_date]` range.
+  - Fetch games only from the filtered archives.
 
 ## Verification Plan
 
 ### Automated Tests
-- Run `run_final_mdb_analysis.py` to generate the report.
-- Verify the navigation buttons exist in the generated HTML and link to the correct pages.
+- Create a new unit test in `tests/api/test_chesscom_api_optimization.py`:
+  - Mock the archives response with multiple months.
+  - Call `get_all_user_games` with a specific date range (e.g., last 7 days).
+  - Assert that `requests.get` is only called for the relevant archives.
+  - Assert that the final result is correctly filtered.
+- Run existing tests to ensure no regressions.
 
 ### Manual Verification
-- Open the generated `reports/chessmdb_refined_analysis.html`.
-- Click on several games and verify that the navigation buttons work as expected.
+- Run `run_final_mdb_analysis.py` and observe that it behaves correctly and (if logging were added) shows fewer requests.

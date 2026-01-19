@@ -46,13 +46,18 @@ Individual game pages now feature a navigation bar at the top, allowing you to:
 ### 9. Bug Fixes
 - **First-Move Divergence**: Fixed a bug where divergence at the very first move (move 1) was not displayed in the individual game viewers if no repertoire opening was matched. The tool now correctly identifies and highlights the divergence regardless of repertoire matching.
 
-### 9. Test Suite Expansion
+### 10. Chess.com API Optimization
+- **Intelligent Archive Filtering**: Optimized `get_all_user_games` to filter monthly archive URLs based on `start_date` and `end_date`.
+- **Reduced Latency**: This significantly reduces API calls and data transfer by only fetching games from months that overlap the requested date range.
+- **Verification**: Verified with a new suite `tests/api/test_chesscom_api_optimization.py` ensuring exact overlap logic works across multiple years.
+
+### 11. Test Suite Expansion
 - **Automated Verification**: Migrated all ad-hoc verification and reproduction scripts to a structured `pytest` suite in the `tests/` directory.
 - **New Tests**: Added `test_divergence.py`, `test_orientation.py`, `test_repertoire_loading.py`, and `test_index_labels.py`.
 - **Regression Fixes**: Fixed several regressions in the existing `test_chesscom_api.py` to ensure total test suite health.
 - **Total Coverage**: The project now has 94 passing unit tests covering API, parsing, visualization, and repertoire logic.
 
-### 10. Development Workflow Improvements
+### 12. Development Workflow Improvements
 - Resolved a merge conflict in `src/api/chesscom_api.py`.
 - Cleaned up git history by removing `reports/*.html` and added them to `.gitignore`.
 

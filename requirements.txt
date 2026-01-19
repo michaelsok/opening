@@ -1,3 +1,4 @@
 python-chess>=1.999
 pytest>=7.0.0
 requests>=2.28.0
+ipdb>=0.13.13

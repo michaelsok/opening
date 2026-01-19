@@ -363,6 +363,43 @@ def get_all_user_games(
     except (KeyError, ValueError) as e:
         raise Exception(f"Error parsing archives response: {e}")
     
+    # Filter archives by date if start_date or end_date is provided
+    if start_date is not None or end_date is not None:
+        filtered_archives = []
+        for archive_url in archive_urls:
+            # URL format: .../games/YYYY/MM
+            parts = archive_url.split('/')
+            try:
+                year = int(parts[-2])
+                month = int(parts[-1])
+                
+                # Create a date representing the first day of the archive month
+                archive_start = datetime(year, month, 1)
+                
+                # Create a date representing the last day of the archive month
+                if month == 12:
+                    archive_end = datetime(year + 1, 1, 1)
+                else:
+                    archive_end = datetime(year, month + 1, 1)
+                
+                # Check if archive month overlaps with [start_date, end_date]
+                is_after_start = True
+                if start_date is not None:
+                    # Archive is relevant if its end is after the start_date
+                    is_after_start = archive_end > start_date
+                
+                is_before_end = True
+                if end_date is not None:
+                    # Archive is relevant if its start is before or on the end_date
+                    is_before_end = archive_start <= end_date
+                
+                if is_after_start and is_before_end:
+                    filtered_archives.append(archive_url)
+            except (ValueError, IndexError):
+                # If we can't parse the URL, include it to be safe
+                filtered_archives.append(archive_url)
+        archive_urls = filtered_archives
+
     # Fetch games from each archive
     all_games = []
     
