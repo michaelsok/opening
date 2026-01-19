@@ -348,11 +348,7 @@ def get_all_user_games(
     archives_url = f"https://api.chess.com/pub/player/{username}/games/archives"
     
     headers = {
-<<<<<<< HEAD
         "User-Agent": "ChessOpeningAnalysis/1.0"
-=======
-        "User-Agent": "ChessOpeningAnalysis/1.0 (https://github.com/michaelsok/opening; contact: msok@example.com)"
->>>>>>> bb0e4cbfd2347605d331d3a09d6d3b56a47db891
     }
     
     try:
