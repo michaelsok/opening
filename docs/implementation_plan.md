@@ -43,6 +43,19 @@ This plan covers three main improvements:
 - **HTML**:
     - Add logic to apply `opponent-divergence` class to the divergence move if it matches the opponent's turn.
 
+### [Component Name] Git and API Maintenance
+
+#### [MODIFY] [chesscom_api.py](file:///home/msok/projects/opening/src/api/chesscom_api.py)
+- Resolved merge conflict in headers (minimal `User-Agent`).
+- Ensure `User-Agent` complies with Chess.com requirements without exposing personal info.
+
+#### [MODIFY] [.gitignore](file:///home/msok/projects/opening/.gitignore)
+- Add `reports/*.html` to ensure newly generated reports are not tracked by git.
+
+#### [CLEANUP] Git History
+- Remove all `reports/*.html` files from the entire git history using `git filter-branch`.
+- Prune git objects to reduce repo size.
+
 ## Verification Plan
 
 ### Automated Tests

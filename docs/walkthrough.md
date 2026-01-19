@@ -21,6 +21,10 @@ Divergence moves are now styled differently based on who made them:
 ### 4. Chess.com API Reliability
 Fixed a `403 Forbidden` error by adding a descriptive User-Agent header to all Chess.com API requests, ensuring reliable game fetching.
 
+### 5. Development Workflow Improvements
+- Resolved a merge conflict in `src/api/chesscom_api.py`.
+- Cleaned up git history by removing `reports/*.html` and added them to `.gitignore`.
+
 ## Verification Results
 
 I verified the changes using a custom test suite (`verify_refined_analysis.py`) covering multiple scenarios:
