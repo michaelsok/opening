@@ -1,95 +1,85 @@
-# Chess PGN Tree Parser
+# Chess Opening Analysis & Repertoire Tracker
 
-A Python module for reading chess PGN (Portable Game Notation) files and parsing moves into a tree structure.
+A powerful tool to analyze your chess games against a personal opening repertoire. It fetches games from Chess.com, identifies where they diverge from your repertoire, and generates beautiful interactive HTML reports.
 
-## Features
+## Key Features
 
-- Reads PGN files and parses chess moves into a tree structure
-- Handles multiple games in a single PGN file
-- Supports variations (alternative moves) in the tree
-- Provides utilities to navigate and query the move tree
-
-## Installation
-
-Install the required dependency:
-
-```bash
-pip install -r requirements.txt
-```
+- **Automated Game Fetching**: Fetch games directly from Chess.com for any user with date and time-class filters.
+- **Smart Repertoire Matching**: 
+  - Matches games against a personal repertoire stored as PGN files.
+  - Supports color-specific matching: uses `white.pgn` for games as White and `black.pgn` for games as Black.
+  - Automatically handles variations and identifies the first point of divergence.
+- **Interactive Visualizations**:
+  - Generates interactive HTML reports for individual games and an index page for a series of games.
+  - Dynamic SVG chessboards with move-by-move navigation.
+  - Highlights repertoire moves (green) and divergence points (red).
+  - **Opponent Divergence Detection**: Specifically highlights when an opponent leaves your known repertoire with a unique styling (red border, transparent background).
 
 ## Project Structure
 
 ```
 opening/
 ├── src/
-│   └── parsers/
-│       ├── __init__.py
-│       └── pgn_tree_parser.py
-├── tests/
-│   ├── __init__.py
-│   └── test_pgn_tree_parser.py
-├── requirements.txt
-└── README.md
+│   ├── api/                   # Chess.com API integration
+│   ├── parsers/               # PGN tree parsing logic
+│   ├── opening/               # Core analysis coordination
+│   └── visualization/         # Interactive HTML report generation
+├── openings/                  # Your repertoire files (white.pgn, black.pgn)
+├── reports/                   # Generated analysis reports (git-ignored)
+├── docs/                      # Implementation plans and walkthroughs
+├── run_final_mdb_analysis.py  # Example script for ChessMDB analysis
+└── requirements.txt
+```
+
+## Installation
+
+1. Clone the repository.
+2. Install the required dependencies:
+
+```bash
+pip install -r requirements.txt
 ```
 
 ## Usage
 
-### Basic Usage
+### Analyzing Your Games
+
+You can analyze games for a specific user using the `analyze_user_openings` function:
 
 ```python
-from src.parsers.pgn_tree_parser import parse_pgn_to_tree
+from src.opening.user_opening_analysis import analyze_user_openings
+from datetime import datetime, timedelta
 
-# Parse a PGN file
-tree = parse_pgn_to_tree("games.pgn")
-
-# Access the root node (starting position)
-root = tree.root
-
-# Get all unique paths through the tree
-paths = tree.get_all_paths()
-
-# Get a specific node at a path of moves
-node = tree.get_node_at_path(["e4", "e5", "Nf3"])
-if node:
-    print(f"Possible moves: {list(node.children.keys())}")
+# Analyze last 7 days of blitz games
+analyze_user_openings(
+    username="YourUsername",
+    opening_repertoire="openings",
+    time_class="blitz",
+    start_date=datetime.now() - timedelta(days=7),
+    output_file="reports/analysis.html"
+)
 ```
 
-### Parse from String
+### Repertoire Setup
 
-```python
-from src.parsers.pgn_tree_parser import parse_pgn_string_to_tree
+Place your opening repertoire in the `openings/` directory:
+- `white.pgn`: Your repertoire for playing as White.
+- `black.pgn`: Your repertoire for playing as Black.
+- Other PGN files can also be placed here; the tool will fall back to using all files if color-specific files are not found.
 
-pgn_content = """
-[Event "Test Game"]
-[White "Player1"]
-[Black "Player2"]
-[Result "1-0"]
+## Features in Detail
 
-1. e4 e5 2. Nf3 Nc6 3. Bb5 1-0
-"""
+### Interactive Move Lists
+The generated reports feature a move list where:
+- Moves within your repertoire are highlighted in **green**.
+- The highlight stops exactly at the last matched move.
+- The move that diverges from the repertoire is highlighted in **red**.
+- If the **opponent** diverged, the move has a **red border** with a transparent background.
 
-tree = parse_pgn_string_to_tree(pgn_content)
-```
-
-### Tree Structure
-
-The tree is built using `MoveNode` objects:
-- Each node represents a chess position
-- Edges represent moves
-- The root node represents the starting position
-- Children are stored as a dictionary mapping move notation (SAN) to child nodes
-
-### Accessing Game Information
-
-```python
-tree = parse_pgn_to_tree("games.pgn")
-
-# Access game metadata
-for game_info in tree.games:
-    print(f"Event: {game_info.get('Event')}")
-    print(f"White: {game_info.get('White')}")
-    print(f"Black: {game_info.get('Black')}")
-```
+### Navigation
+- Click on any move to jump to that position on the board.
+- Use keyboard arrows (Left/Right) to navigate through the game.
+- View alternative variations from your repertoire directly in the move list.
 
 ## Running Tests
 
@@ -99,6 +89,6 @@ Run the test suite with pytest:
 pytest tests/
 ```
 
-## Example
+## License
 
-See the `__main__` section in `src/parsers/pgn_tree_parser.py` for a complete example.
+MIT
