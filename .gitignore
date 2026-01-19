@@ -5,3 +5,5 @@ src/visualization/*.html
 src/visualization/game_*.html
 
 openings/
+
+reports/*.html
