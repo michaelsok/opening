@@ -93,7 +93,8 @@ def display_game_from_string(
     divergence_point: Optional[List[str]] = None,
     user_color: Optional[str] = None,
     game_index: Optional[int] = None,
-    total_games: Optional[int] = None
+    total_games: Optional[int] = None,
+    index_filename: str = "index.html"
 ) -> str:
     """
     Display a chess game from a PGN string with an interactive board viewer.
@@ -129,7 +130,8 @@ def display_game_from_string(
         opening_pgn=opening_pgn, divergence_point=divergence_point,
         user_color=user_color,
         game_index=game_index,
-        total_games=total_games
+        total_games=total_games,
+        index_filename=index_filename
     )
 
 
@@ -340,7 +342,8 @@ def _create_html_viewer(
     divergence_point: Optional[List[str]] = None,
     user_color: Optional[str] = None,
     game_index: Optional[int] = None,
-    total_games: Optional[int] = None
+    total_games: Optional[int] = None,
+    index_filename: str = "index.html"
 ) -> str:
     """Create an HTML viewer for a chess game."""
     # Collect all moves and positions
@@ -548,7 +551,8 @@ def _create_html_viewer(
         is_opponent_divergence=is_opponent_divergence,
         user_color=user_color,
         game_index=game_index,
-        total_games=total_games
+        total_games=total_games,
+        index_filename=index_filename
     )
     
     # Write HTML file
@@ -585,6 +589,7 @@ def _generate_html_content(
     game_variant_positions: Optional[List[str]] = None,
     game_index: Optional[int] = None,
     total_games: Optional[int] = None,
+    index_filename: str = "index.html",
     **kwargs
 ) -> str:
     """Generate HTML content for the chess game viewer."""
@@ -620,6 +625,7 @@ def _generate_html_content(
         size=size,
         game_index=game_index,
         total_games=total_games,
+        index_filename=index_filename,
         boards_json=boards_json,
         positions_json=positions_json,
         moves_san_json=moves_san_json,
@@ -785,8 +791,11 @@ def create_index_html(
     
     # Set default output location
     if output_file is None:
-        visualization_dir = Path(__file__).parent
-        output_file = visualization_dir / "index.html"
+        if target_username:
+            output_file = Path("reports") / f"{target_username.lower()}_refined_analysis.html"
+        else:
+            visualization_dir = Path(__file__).parent
+            output_file = visualization_dir / "index.html"
     else:
         output_file = Path(output_file)
     
@@ -812,7 +821,8 @@ def create_index_html(
                 divergence_point=game_data['divergence_point'] if game_data['divergence_point'] else None,
                 user_color=game_data.get('user_color'),
                 game_index=game_data['index'],
-                total_games=len(game_data_list)
+                total_games=len(game_data_list),
+                index_filename=output_file.name
             )
             game_viewer_files.append(str(viewer_file.name))
         except Exception as e:

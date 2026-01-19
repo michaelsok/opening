@@ -46,6 +46,10 @@ Individual game pages now feature a navigation bar at the top, allowing you to:
 ### 9. Bug Fixes
 - **First-Move Divergence**: Fixed a bug where divergence at the very first move (move 1) was not displayed in the individual game viewers if no repertoire opening was matched. The tool now correctly identifies and highlights the divergence regardless of repertoire matching.
 
+### 9. Dynamic Index Page Navigation
+- **Fixed Back-to-Index Link**: The "Home / Index" button on individual game pages now dynamically links to the actual index filename (e.g., `chessmdb_refined_analysis.html`) instead of the hardcoded `index.html`.
+- **Improved Defaults**: The tool now automatically defaults the index filename to `[username]_refined_analysis.html` when a target username is provided.
+
 ### 10. Chess.com API Optimization
 - **Intelligent Archive Filtering**: Optimized `get_all_user_games` to filter monthly archive URLs based on `start_date` and `end_date`.
 - **Reduced Latency**: This significantly reduces API calls and data transfer by only fetching games from months that overlap the requested date range.

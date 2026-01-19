@@ -384,7 +384,7 @@
             {% endif %}
 
             <div style="display: flex; align-items: center; gap: 15px;">
-                <a href="index.html" class="nav-btn primary">Home / Index</a>
+                <a href="{{ index_filename }}" class="nav-btn primary">Home / Index</a>
                 {% if game_index is not none and total_games is not none %}
                 <span class="game-counter">Game {{ game_index + 1 }} of {{ total_games }}</span>
                 {% endif %}
