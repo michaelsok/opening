@@ -316,11 +316,87 @@
         ::-webkit-scrollbar-thumb:hover {
             background: #555;
         }
+
+        .game-navigation-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 10px;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .nav-btn {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            color: #495057;
+            padding: 8px 16px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 14px;
+            font-weight: 500;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .nav-btn:hover {
+            background-color: #e2e6ea;
+            border-color: #dae0e5;
+            color: #212529;
+        }
+
+        .nav-btn.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        .nav-btn.primary {
+            background-color: #2196F3;
+            color: white;
+            border-color: #1e88e5;
+        }
+
+        .nav-btn.primary:hover {
+            background-color: #1e88e5;
+            border-color: #1976d2;
+        }
+
+        .game-counter {
+            font-size: 14px;
+            color: #666;
+            font-weight: 500;
+        }
     </style>
 </head>
 
 <body>
     <div class="container">
+        <div class="game-navigation-bar">
+            {% if game_index is not none and game_index > 0 %}
+            <a href="game_{{ game_index - 1 }}.html" class="nav-btn">← Previous Game</a>
+            {% else %}
+            <span class="nav-btn disabled">← Previous Game</span>
+            {% endif %}
+
+            <div style="display: flex; align-items: center; gap: 15px;">
+                <a href="index.html" class="nav-btn primary">Home / Index</a>
+                {% if game_index is not none and total_games is not none %}
+                <span class="game-counter">Game {{ game_index + 1 }} of {{ total_games }}</span>
+                {% endif %}
+            </div>
+
+            {% if game_index is not none and total_games is not none and game_index < total_games - 1 %} <a
+                href="game_{{ game_index + 1 }}.html" class="nav-btn">Next Game →</a>
+                {% else %}
+                <span class="nav-btn disabled">Next Game →</span>
+                {% endif %}
+        </div>
+
         <div class="header">
             <h1>{{ event }}</h1>
             <div class="game-info">

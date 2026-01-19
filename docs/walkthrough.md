@@ -37,7 +37,13 @@ The interactive chessboard now automatically adjusts its orientation:
 - **White Perspective**: If you played as White, the board is oriented from White's side.
 - **Black Perspective**: If you played as Black, the board is flipped to show your perspective.
 
-### 8. Bug Fixes
+### 8. Game Navigation Buttons
+Individual game pages now feature a navigation bar at the top, allowing you to:
+- **Go Back**: Quickly return to the main index page.
+- **Previous/Next**: Navigate directly between games in the sequence without going back to the index.
+- **Game Counter**: See your current position (e.g., "Game 5 of 20").
+
+### 9. Bug Fixes
 - **First-Move Divergence**: Fixed a bug where divergence at the very first move (move 1) was not displayed in the individual game viewers if no repertoire opening was matched. The tool now correctly identifies and highlights the divergence regardless of repertoire matching.
 
 ### 9. Test Suite Expansion

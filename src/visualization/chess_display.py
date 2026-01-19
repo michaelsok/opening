@@ -91,7 +91,9 @@ def display_game_from_string(
     size: int = 400,
     opening_pgn: Optional[str] = None,
     divergence_point: Optional[List[str]] = None,
-    user_color: Optional[str] = None
+    user_color: Optional[str] = None,
+    game_index: Optional[int] = None,
+    total_games: Optional[int] = None
 ) -> str:
     """
     Display a chess game from a PGN string with an interactive board viewer.
@@ -125,7 +127,9 @@ def display_game_from_string(
     return _create_html_viewer(
         game, output_file, open_in_browser, size,
         opening_pgn=opening_pgn, divergence_point=divergence_point,
-        user_color=user_color
+        user_color=user_color,
+        game_index=game_index,
+        total_games=total_games
     )
 
 
@@ -334,7 +338,9 @@ def _create_html_viewer(
     size: int,
     opening_pgn: Optional[str] = None,
     divergence_point: Optional[List[str]] = None,
-    user_color: Optional[str] = None
+    user_color: Optional[str] = None,
+    game_index: Optional[int] = None,
+    total_games: Optional[int] = None
 ) -> str:
     """Create an HTML viewer for a chess game."""
     # Collect all moves and positions
@@ -540,7 +546,9 @@ def _create_html_viewer(
         game_variant_positions=game_variant_positions,
         repertoire_length=repertoire_length,
         is_opponent_divergence=is_opponent_divergence,
-        user_color=user_color
+        user_color=user_color,
+        game_index=game_index,
+        total_games=total_games
     )
     
     # Write HTML file
@@ -575,6 +583,8 @@ def _generate_html_content(
     opening_variant_moves_uci: Optional[List[str]] = None,
     game_variant_boards: Optional[List[str]] = None,
     game_variant_positions: Optional[List[str]] = None,
+    game_index: Optional[int] = None,
+    total_games: Optional[int] = None,
     **kwargs
 ) -> str:
     """Generate HTML content for the chess game viewer."""
@@ -607,6 +617,9 @@ def _generate_html_content(
         result=result,
         date=date,
         site=site,
+        size=size,
+        game_index=game_index,
+        total_games=total_games,
         boards_json=boards_json,
         positions_json=positions_json,
         moves_san_json=moves_san_json,
@@ -797,7 +810,9 @@ def create_index_html(
                 size=size,
                 opening_pgn=game_data['opening_pgn'],
                 divergence_point=game_data['divergence_point'] if game_data['divergence_point'] else None,
-                user_color=game_data.get('user_color')
+                user_color=game_data.get('user_color'),
+                game_index=game_data['index'],
+                total_games=len(game_data_list)
             )
             game_viewer_files.append(str(viewer_file.name))
         except Exception as e:

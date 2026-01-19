@@ -1,36 +1,28 @@
-# Goal: Convert Verification Scripts to Unit Tests
+# Goal: Add Navigation Buttons to Individual Game Pages
 
-Convert existing ad-hoc verification scripts into a proper `pytest` test suite to ensure long-term maintainability and automated verification.
+Enhance user experience by adding buttons to navigate between games and back to the index page directly from the game viewer.
 
 ## Proposed Changes
 
-### Tests [NEW]
+### Visualization [MODIFY]
 
-#### [NEW] [test_divergence.py](file:///home/msok/projects/opening/tests/test_divergence.py)
-- Convert `reproduce_divergence_bug.py` logic into a pytest test case.
-- Assert correct `divergenceMoveIndex` in the generated HTML.
+#### [MODIFY] [chess_display.py](file:///home/msok/projects/opening/src/visualization/chess_display.py)
+- **`create_index_html`**: Pass `game_index` and `total_games` to `display_game_from_string`.
+- **`display_game_from_string`**: Accept `game_index` and `total_games` and pass them to `_create_html_viewer`.
+- **`_create_html_viewer`**: Pass `game_index` and `total_games` to `_generate_html_content`.
+- **`_generate_html_content`**: Pass `game_index` and `total_games` to the Jinja2 template.
 
-#### [NEW] [test_orientation.py](file:///home/msok/projects/opening/tests/test_orientation.py)
-- Convert `verify_board_orientation.py` logic into pytest test cases for White and Black orientations.
-- Assert that HTML content differs as expected.
-
-#### [NEW] [test_repertoire_loading.py](file:///home/msok/projects/opening/tests/test_repertoire_loading.py)
-- Convert `verify_directory_repertoire.py` logic into pytest test cases using temporary directories for test PGNs.
-- Assert correct repertoire matching for multiple PGNs in subdirectories.
-
-#### [NEW] [test_index_labels.py](file:///home/msok/projects/opening/tests/test_index_labels.py)
-- Convert `verify_index_labels.py` logic into pytest test cases.
-- Assert correct labels ("Opponent diverges at:", etc.) and green styling.
-
-### Cleanup
-
-#### [DELETE] [reproduce_divergence_bug.py](file:///home/msok/projects/opening/reproduce_divergence_bug.py)
-#### [DELETE] [verify_board_orientation.py](file:///home/msok/projects/opening/verify_board_orientation.py)
-#### [DELETE] [verify_directory_repertoire.py](file:///home/msok/projects/opening/verify_directory_repertoire.py)
-#### [DELETE] [verify_index_labels.py](file:///home/msok/projects/opening/verify_index_labels.py)
+#### [MODIFY] [single_game.html](file:///home/msok/projects/opening/src/visualization/templates/single_game.html)
+- Add a new CSS class for navigation buttons.
+- Add a navigation bar at the top of the container.
+- Implement "Back to Index", "Previous Game", and "Next Game" buttons using Jinja2 conditional logic.
 
 ## Verification Plan
 
 ### Automated Tests
-- Run `pytest` and ensure all tests pass.
-- Example: `pytest tests/`
+- Run `run_final_mdb_analysis.py` to generate the report.
+- Verify the navigation buttons exist in the generated HTML and link to the correct pages.
+
+### Manual Verification
+- Open the generated `reports/chessmdb_refined_analysis.html`.
+- Click on several games and verify that the navigation buttons work as expected.
