@@ -1,24 +1,15 @@
 
 import os
-import sys
-import shutil
 from pathlib import Path
-
-# Add src to path
-sys.path.append(str(Path(__file__).parent))
-
 from src.visualization.chess_display import create_index_html
 
-def test_directory_repertoire():
+def test_directory_repertoire_matching(tmp_path):
     # Setup repertoire structure
-    opening_base = Path("test_openings")
-    if opening_base.exists():
-        shutil.rmtree(opening_base)
-    
+    opening_base = tmp_path / "openings"
     white_dir = opening_base / "white"
     black_dir = opening_base / "black"
-    os.makedirs(white_dir, exist_ok=True)
-    os.makedirs(black_dir, exist_ok=True)
+    white_dir.mkdir(parents=True)
+    black_dir.mkdir(parents=True)
     
     # White repertoire 1: Ruy Lopez (1. e4 e5 2. Nf3 Nc6 3. Bb5)
     with open(white_dir / "ruy_lopez.pgn", "w") as f:
@@ -54,10 +45,9 @@ def test_directory_repertoire():
         '[Event "User Divergence"]\n[White "ChessMDB"]\n[Black "Opponent"]\n\n1. d4 *'
     ]
 
-    output_file = "reports/test_directory_repertoire.html"
-    os.makedirs("reports", exist_ok=True)
+    output_file = tmp_path / "index.html"
     
-    print("Generating index HTML with directory-based repertoire...")
+    # Generate index HTML
     create_index_html(
         games=games,
         opening_repertoire=opening_base,
@@ -66,22 +56,12 @@ def test_directory_repertoire():
         open_in_browser=False
     )
     
-    print(f"Index generated at: {output_file}")
+    assert output_file.exists()
     
     with open(output_file, 'r') as f:
         content = f.read()
         
-    # Verification
-    expected_count = content.count("Follows opening repertoire")
-    print(f"Games following repertoire: {expected_count}/5")
-    
-    if expected_count == 4:
-        print("\nPASSED: All 4 repertoire games correctly matched multiple PGNs in subdirectories!")
-    else:
-        print(f"\nFAILED: Expected 4 matches, found {expected_count}")
-
-    # Clean up test directories
-    # shutil.rmtree(opening_base)
-
-if __name__ == "__main__":
-    test_directory_repertoire()
+    # Verification: 4 games should follow repertoire, 1 should diverge
+    assert content.count("Follows opening repertoire") == 4
+    assert "✓ Follows opening repertoire" in content
+    assert "Player diverges at: 1. d4" in content

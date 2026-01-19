@@ -49,7 +49,7 @@ class TestGetGamesFromChesscom:
         assert len(games) == 1
         assert games[0]["pgn"] is not None
         assert "e4" in games[0]["pgn"]
-        mock_get.call_count == 2
+        assert mock_get.call_count == 1
     
     @patch('requests.get')
     def test_get_games_empty_response(self, mock_get):
@@ -115,12 +115,12 @@ class TestGetGamesFromChesscom:
         }
         mock_response2.raise_for_status = Mock()
         
-        mock_get.side_effect = [mock_header1, mock_response1, mock_header2, mock_response2]
+        mock_get.side_effect = [mock_response1, mock_response2]
         
         games = get_games_from_chesscom("testuser", "2024", ["01", "02"])
         
         assert len(games) == 2
-        assert mock_get.call_count == 4
+        assert mock_get.call_count == 2
 
 
 class TestGetUserGames:
@@ -250,7 +250,7 @@ class TestFiltering:
             ]
         }
         mock_response.raise_for_status = Mock()
-        mock_get.side_effect = [mock_header, mock_response]
+        mock_get.return_value = mock_response
         
         games = get_games_from_chesscom("testuser", "2024", "01", time_control="600+0")
         
@@ -294,7 +294,7 @@ class TestFiltering:
             ]
         }
         mock_response.raise_for_status = Mock()
-        mock_get.side_effect = [mock_header, mock_response]
+        mock_get.return_value = mock_response
         
         games = get_games_from_chesscom("testuser", "2024", "01", time_class="blitz")
         
@@ -338,7 +338,7 @@ class TestFiltering:
             ]
         }
         mock_response.raise_for_status = Mock()
-        mock_get.side_effect = [mock_header, mock_response]
+        mock_get.return_value = mock_response
         
         games = get_games_from_chesscom("testuser", "2024", "01", color="white")
         
@@ -382,7 +382,7 @@ class TestFiltering:
             ]
         }
         mock_response.raise_for_status = Mock()
-        mock_get.side_effect = [mock_header, mock_response]
+        mock_get.return_value = mock_response
         
         games = get_games_from_chesscom("testuser", "2024", "01", color="black")
         
@@ -442,7 +442,7 @@ class TestFiltering:
             ]
         }
         mock_response.raise_for_status = Mock()
-        mock_get.side_effect = [mock_header, mock_response]
+        mock_get.return_value = mock_response
         
         games = get_games_from_chesscom(
             "testuser", "2024", "01",
@@ -490,7 +490,7 @@ class TestFiltering:
             ]
         }
         mock_response.raise_for_status = Mock()
-        mock_get.side_effect = [mock_header, mock_response]
+        mock_get.return_value = mock_response
         
         games = get_games_from_chesscom("testuser", "2024", "01", rated=True)
         
@@ -534,7 +534,7 @@ class TestFiltering:
             ]
         }
         mock_response.raise_for_status = Mock()
-        mock_get.side_effect = [mock_header, mock_response]
+        mock_get.return_value = mock_response
         
         games = get_games_from_chesscom("testuser", "2024", "01", rules="chess")
         
@@ -589,7 +589,7 @@ class TestFiltering:
             ]
         }
         mock_response.raise_for_status = Mock()
-        mock_get.side_effect = [mock_header, mock_response]
+        mock_get.return_value = mock_response
         
         games = get_games_from_chesscom(
             "testuser", "2024", "01",

@@ -40,7 +40,13 @@ The interactive chessboard now automatically adjusts its orientation:
 ### 8. Bug Fixes
 - **First-Move Divergence**: Fixed a bug where divergence at the very first move (move 1) was not displayed in the individual game viewers if no repertoire opening was matched. The tool now correctly identifies and highlights the divergence regardless of repertoire matching.
 
-### 9. Development Workflow Improvements
+### 9. Test Suite Expansion
+- **Automated Verification**: Migrated all ad-hoc verification and reproduction scripts to a structured `pytest` suite in the `tests/` directory.
+- **New Tests**: Added `test_divergence.py`, `test_orientation.py`, `test_repertoire_loading.py`, and `test_index_labels.py`.
+- **Regression Fixes**: Fixed several regressions in the existing `test_chesscom_api.py` to ensure total test suite health.
+- **Total Coverage**: The project now has 94 passing unit tests covering API, parsing, visualization, and repertoire logic.
+
+### 10. Development Workflow Improvements
 - Resolved a merge conflict in `src/api/chesscom_api.py`.
 - Cleaned up git history by removing `reports/*.html` and added them to `.gitignore`.
 
