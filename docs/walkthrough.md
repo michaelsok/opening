@@ -32,7 +32,12 @@ The tool now supports a more flexible repertoire organization:
 - **Multiple PGN Files**: All `.pgn` files within these subdirectories are automatically loaded and matched against your games.
 - **Migration**: Existing `white.pgn` and `black.pgn` files have been successfully migrated to their respective color-specific folders.
 
-### 7. Development Workflow Improvements
+### 7. Automatic Board Orientation
+The interactive chessboard now automatically adjusts its orientation:
+- **White Perspective**: If you played as White, the board is oriented from White's side.
+- **Black Perspective**: If you played as Black, the board is flipped to show your perspective.
+
+### 8. Development Workflow Improvements
 - Resolved a merge conflict in `src/api/chesscom_api.py`.
 - Cleaned up git history by removing `reports/*.html` and added them to `.gitignore`.
 

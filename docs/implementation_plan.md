@@ -4,6 +4,7 @@ This plan covers three main improvements:
 1. Directory-based repertoire matching (white/ and black/ folders).
 2. UI: Stop repertoire highlighting (green) at the end of the matched repertoire.
 3. UI: Add a red border around the divergence move if it was made by the opponent.
+4. UI: Automatically orient the chessboard based on the user's color.
 
 ## User Review Required
 
@@ -11,6 +12,7 @@ This plan covers three main improvements:
 > - The tool will now expect `white/` and `black/` directories within the openings directory. It will load all `.pgn` files within these directories for color-specific matching.
 > - If these directories don't exist, it falls back to matching against all PGNs in the root openings directory.
 > - The highlighting behavior in the board viewer is changing: moves after the repertoire ends will no longer be highlighted in green.
+> - The chessboard orientation in the interactive viewer will now automatically flip to show the perspective of the user (e.g., Black perspective if the user played as Black).
 
 ## Proposed Changes
 
@@ -79,8 +81,15 @@ This plan covers three main improvements:
     - Load and concatenate (or handle as a list) all `.pgn` files from these subdirectories.
     - Maintain fallback logic for the root directory.
 
+### [Component Name] Board Orientation [NEW]
+
+#### [MODIFY] [chess_display.py](file:///home/msok/projects/opening/src/visualization/chess_display.py)
+- **`_create_html_viewer`**:
+    - Determine `orientation` based on `user_color`.
+    - Pass `orientation` to all `chess.svg.board` calls.
+
 ## Verification Plan
 
 ### Automated Tests
-- Create a test script `verify_directory_repertoire.py` that sets up `white/` and `black/` folders with multiple PGNs and verifies they are all used for matching.
-- Manually check the results for a user with games in both colors.
+- Create a test script `verify_board_orientation.py` that generates a report for a game where the user plays as Black and manually/automatically checks the SVG for orientation (e.g., checking if the first square is 'a8' instead of 'a1').
+- Manually inspect generated reports to confirm perspective.

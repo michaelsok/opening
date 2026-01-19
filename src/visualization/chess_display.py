@@ -366,6 +366,11 @@ def _create_html_viewer(
     # New metadata for highlighting
     repertoire_length = len(moves_san)
     is_opponent_divergence = False
+    
+    # Determine board orientation
+    orientation = chess.WHITE
+    if user_color and user_color.lower() == 'black':
+        orientation = chess.BLACK
 
     if opening_pgn and divergence_point:
         divergence_move_index = _find_divergence_move_index(divergence_point, moves_san)
@@ -398,7 +403,7 @@ def _create_html_viewer(
             
             # Store the divergence position (starting point for game variant)
             game_variant_positions.append(variant_board.fen())
-            game_variant_boards.append(chess.svg.board(variant_board, size=size))
+            game_variant_boards.append(chess.svg.board(variant_board, size=size, orientation=orientation))
             
             # Play through the game variant moves
             for idx, move_san in enumerate(game_variant):
@@ -408,7 +413,7 @@ def _create_html_viewer(
                     
                     # Generate SVG showing the move
                     board_before = chess.Board(variant_board.fen())
-                    svg = chess.svg.board(board_before, size=size, lastmove=move)
+                    svg = chess.svg.board(board_before, size=size, lastmove=move, orientation=orientation)
                     game_variant_boards.append(svg)
                     
                     # Push the move to get position after
@@ -420,7 +425,7 @@ def _create_html_viewer(
             # Add final position if we have moves
             if game_variant_positions:
                 final_board = chess.Board(game_variant_positions[-1])
-                game_variant_boards.append(chess.svg.board(final_board, size=size))
+                game_variant_boards.append(chess.svg.board(final_board, size=size, orientation=orientation))
         
         # Generate board positions for opening variant if it exists
         if opening_variant and divergence_move_index is not None:
@@ -437,7 +442,7 @@ def _create_html_viewer(
             # Store the position BEFORE the divergence (starting point for variants)
             opening_variant_positions.append(variant_board.fen())
             # First board shows the position at divergence (before any variant moves)
-            opening_variant_boards.append(chess.svg.board(variant_board, size=size))
+            opening_variant_boards.append(chess.svg.board(variant_board, size=size, orientation=orientation))
             
             # Play through the opening variant moves
             for idx, move_san in enumerate(opening_variant):
@@ -449,7 +454,7 @@ def _create_html_viewer(
                     
                     # Generate SVG showing the move (position before move with arrow)
                     board_before = chess.Board(variant_board.fen())
-                    svg = chess.svg.board(board_before, size=size, lastmove=move)
+                    svg = chess.svg.board(board_before, size=size, lastmove=move, orientation=orientation)
                     opening_variant_boards.append(svg)
                     
                     # Now push the move to get the position after
@@ -462,7 +467,7 @@ def _create_html_viewer(
             # Add final position board if we have moves
             if opening_variant_positions:
                 final_board = chess.Board(opening_variant_positions[-1])
-                opening_variant_boards.append(chess.svg.board(final_board, size=size))
+                opening_variant_boards.append(chess.svg.board(final_board, size=size, orientation=orientation))
     
     # Get game headers
     headers = dict(game.headers)
@@ -492,7 +497,8 @@ def _create_html_viewer(
         svg = chess.svg.board(
             board,
             size=size,
-            lastmove=lastmove
+            lastmove=lastmove,
+            orientation=orientation
         )
         
         # If this is the divergence move position, add red styling
