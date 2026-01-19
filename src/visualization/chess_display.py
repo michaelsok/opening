@@ -781,9 +781,21 @@ def _generate_index_html_content(game_data_list: List[dict], size: int) -> str:
         
         # Format divergence info
         divergence = game_data['divergence_point']
+        is_opponent_divergence = False
         if divergence:
-            diverging_move = divergence[-1]
-            divergence_html = f'<span class="divergence-info">Diverges at: {diverging_move}</span>'
+            diverging_move_str = divergence[-1]
+            # Determine if white or black move (black moves have "...")
+            is_black_move = "..." in diverging_move_str
+            divergence_color = 'black' if is_black_move else 'white'
+            
+            user_color = game_data.get('user_color')
+            if user_color:
+                is_opponent_divergence = (user_color != divergence_color)
+                label = "Opponent diverges at:" if is_opponent_divergence else "Player diverges at:"
+            else:
+                label = "Diverges at:"
+                
+            divergence_html = f'<span class="divergence-info">{label} {diverging_move_str}</span>'
         else:
             divergence_html = '<span class="divergence-info no-divergence">✓ Follows opening repertoire</span>'
         
@@ -795,7 +807,8 @@ def _generate_index_html_content(game_data_list: List[dict], size: int) -> str:
             'white': white,
             'black': black,
             'date': date,
-            'divergence_html': divergence_html
+            'divergence_html': divergence_html,
+            'is_opponent_divergence': is_opponent_divergence
         }
         game_list.append(game_img)
         

@@ -56,8 +56,22 @@ This plan covers three main improvements:
 - Remove all `reports/*.html` files from the entire git history using `git filter-branch`.
 - Prune git objects to reduce repo size.
 
+### [Component Name] Index Page Refinement [NEW]
+
+#### [MODIFY] [chess_display.py](file:///home/msok/projects/opening/src/visualization/chess_display.py)
+- **`_generate_index_html_content`**:
+    - Calculate `is_opponent_divergence` using `user_color` and `divergence_point`.
+    - Update `divergence_html` to use "Player diverges at:" or "Opponent diverges at:".
+    - Pass an `is_opponent` flag or use a specific CSS class in the generated HTML.
+
+#### [MODIFY] [index.html](file:///home/msok/projects/opening/src/visualization/templates/index.html)
+- **CSS**:
+    - Add `.game-divergence.opponent-divergence` style with green background and green left border.
+- **HTML**:
+    - Add conditional class `opponent-divergence` to the game divergence div.
+
 ## Verification Plan
 
 ### Automated Tests
-- Create a test script `verify_color_analysis.py` that uses `white.pgn` and `black.pgn` and verifies that the correct repertoire is used.
-- Manually inspect generated HTML files to verify the new highlighting and border styling.
+- Create a test script `verify_index_labels.py` that generates the index and checks for "Player" vs "Opponent" strings and CSS classes.
+- Manually inspect generated `reports/chessmdb_refined_analysis.html`.

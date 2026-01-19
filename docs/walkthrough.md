@@ -21,7 +21,12 @@ Divergence moves are now styled differently based on who made them:
 ### 4. Chess.com API Reliability
 Fixed a `403 Forbidden` error by adding a descriptive User-Agent header to all Chess.com API requests, ensuring reliable game fetching.
 
-### 5. Development Workflow Improvements
+### 5. Index Report Refinement
+The central index report (`reports/chessmdb_refined_analysis.html`) now provides clearer insights:
+- **Explicit Labels**: Each game entry now explicitly states "Player diverges at: [move]" or "Opponent diverges at: [move]".
+- **Contextual Styling**: When an opponent diverges, the divergence box is highlighted in **green** (with a green border), matching the theme that the user followed the repertoire correctly. User divergences remain in the standard orange/red theme.
+
+### 6. Development Workflow Improvements
 - Resolved a merge conflict in `src/api/chesscom_api.py`.
 - Cleaned up git history by removing `reports/*.html` and added them to `.gitignore`.
 

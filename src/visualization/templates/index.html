@@ -121,9 +121,18 @@
             font-size: 13px;
         }
 
+        .game-divergence.opponent-divergence {
+            background: #e8f5e9;
+            border-left-color: #4caf50;
+        }
+
         .divergence-info {
             color: #e65100;
             font-weight: 600;
+        }
+
+        .game-divergence.opponent-divergence .divergence-info {
+            color: #2e7d32;
         }
 
         .divergence-info.no-divergence {
@@ -193,7 +202,8 @@
                 </div>
                 <div class="game-players">{{ game.white }} vs {{ game.black }}{% if game.date %} - {{ game.date }}{%
                     endif %}</div>
-                <div class="game-divergence">{{ game.divergence_html|safe }}</div>
+                <div class="game-divergence{% if game.is_opponent_divergence %} opponent-divergence{% endif %}">{{
+                    game.divergence_html|safe }}</div>
             </div>
             {% endfor %}
         </div>
