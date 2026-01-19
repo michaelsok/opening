@@ -1,14 +1,15 @@
 # Plan: Refine Opening Analysis and Visualization
 
 This plan covers three main improvements:
-1. Color-based repertoire matching (White vs Black).
+1. Directory-based repertoire matching (white/ and black/ folders).
 2. UI: Stop repertoire highlighting (green) at the end of the matched repertoire.
 3. UI: Add a red border around the divergence move if it was made by the opponent.
 
 ## User Review Required
 
 > [!IMPORTANT]
-> - The tool will now expect `white.pgn` and `black.pgn` in the openings directory for color-specific matching. If they don't exist, it falls back to matching against all PGNs in the directory.
+> - The tool will now expect `white/` and `black/` directories within the openings directory. It will load all `.pgn` files within these directories for color-specific matching.
+> - If these directories don't exist, it falls back to matching against all PGNs in the root openings directory.
 > - The highlighting behavior in the board viewer is changing: moves after the repertoire ends will no longer be highlighted in green.
 
 ## Proposed Changes
@@ -70,8 +71,16 @@ This plan covers three main improvements:
 - **HTML**:
     - Add conditional class `opponent-divergence` to the game divergence div.
 
+### [Component Name] Directory-Based Repertoire [NEW]
+
+#### [MODIFY] [chess_display.py](file:///home/msok/projects/opening/src/visualization/chess_display.py)
+- **`create_index_html`**:
+    - Update logic to search for `white/` and `black/` subdirectories.
+    - Load and concatenate (or handle as a list) all `.pgn` files from these subdirectories.
+    - Maintain fallback logic for the root directory.
+
 ## Verification Plan
 
 ### Automated Tests
-- Create a test script `verify_index_labels.py` that generates the index and checks for "Player" vs "Opponent" strings and CSS classes.
-- Manually inspect generated `reports/chessmdb_refined_analysis.html`.
+- Create a test script `verify_directory_repertoire.py` that sets up `white/` and `black/` folders with multiple PGNs and verifies they are all used for matching.
+- Manually check the results for a user with games in both colors.

@@ -25,6 +25,8 @@ opening/
 │   ├── opening/               # Core analysis coordination
 │   └── visualization/         # Interactive HTML report generation
 ├── openings/                  # Your repertoire files (white.pgn, black.pgn)
+│   ├── white/                 # PGN files for games as White
+│   └── black/                 # PGN files for games as Black
 ├── reports/                   # Generated analysis reports (git-ignored)
 ├── docs/                      # Implementation plans and walkthroughs
 ├── run_final_mdb_analysis.py  # Example script for ChessMDB analysis
@@ -62,10 +64,13 @@ analyze_user_openings(
 
 ### Repertoire Setup
 
-Place your opening repertoire in the `openings/` directory:
-- `white.pgn`: Your repertoire for playing as White.
-- `black.pgn`: Your repertoire for playing as Black.
-- Other PGN files can also be placed here; the tool will fall back to using all files if color-specific files are not found.
+Place your opening repertoire in the `openings/` directory using the following structure:
+- `openings/white/`: Put all your PGN files for playing as White here.
+- `openings/black/`: Put all your PGN files for playing as Black here.
+
+The tool will load all `.pgn` files within these subdirectories and use them to match your games based on your color.
+
+**Backward Compatibility**: The tool still supports single `white.pgn` and `black.pgn` files in the root `openings/` directory if the subdirectories are missing or empty.
 
 ## Features in Detail
 

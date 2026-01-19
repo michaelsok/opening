@@ -650,27 +650,65 @@ def create_index_html(
     
     # Pre-parse opening directory PGNs for color matching if directory provided
     all_opening_pgns = []
-    white_repertoire_pgn = None
-    black_repertoire_pgn = None
+    white_opening_pgns = []
+    black_opening_pgns = []
     
     if isinstance(opening_repertoire, (str, Path)):
         opening_dir = Path(opening_repertoire)
         if opening_dir.is_dir():
+            # 1. Search for subdirectories white/ and black/
+            white_dir = opening_dir / "white"
+            black_dir = opening_dir / "black"
+            
+            if white_dir.is_dir():
+                for pgn_file in white_dir.glob("*.pgn"):
+                    with open(pgn_file, encoding="utf-8") as f:
+                        pgn_str = f.read()
+                        white_opening_pgns.append(pgn_str)
+                        all_opening_pgns.append(pgn_str)
+            
+            if black_dir.is_dir():
+                for pgn_file in black_dir.glob("*.pgn"):
+                    with open(pgn_file, encoding="utf-8") as f:
+                        pgn_str = f.read()
+                        black_opening_pgns.append(pgn_str)
+                        all_opening_pgns.append(pgn_str)
+                        
+            # 2. Fallback to white.pgn and black.pgn if subdirectories didn't provide any
+            if not white_opening_pgns:
+                white_pgn_file = opening_dir / "white.pgn"
+                if white_pgn_file.exists():
+                    with open(white_pgn_file, encoding="utf-8") as f:
+                        pgn_str = f.read()
+                        white_opening_pgns.append(pgn_str)
+                        if pgn_str not in all_opening_pgns:
+                            all_opening_pgns.append(pgn_str)
+
+            if not black_opening_pgns:
+                black_pgn_file = opening_dir / "black.pgn"
+                if black_pgn_file.exists():
+                    with open(black_pgn_file, encoding="utf-8") as f:
+                        pgn_str = f.read()
+                        black_opening_pgns.append(pgn_str)
+                        if pgn_str not in all_opening_pgns:
+                            all_opening_pgns.append(pgn_str)
+
+            # 3. Add any other PGN files from the root directory
             for pgn_file in opening_dir.glob("*.pgn"):
-                with open(pgn_file, encoding="utf-8") as f:
-                    pgn_str = f.read()
-                    all_opening_pgns.append(pgn_str)
-                    if pgn_file.name.lower() == "white.pgn":
-                        white_repertoire_pgn = pgn_str
-                    elif pgn_file.name.lower() == "black.pgn":
-                        black_repertoire_pgn = pgn_str
+                if pgn_file.name.lower() not in ["white.pgn", "black.pgn"]:
+                    with open(pgn_file, encoding="utf-8") as f:
+                        pgn_str = f.read()
+                        if pgn_str not in all_opening_pgns:
+                            all_opening_pgns.append(pgn_str)
         else:
             raise ValueError(f"Opening repertoire path is not a directory: {opening_repertoire}")
     else:
         all_opening_pgns = opening_repertoire
 
-    # Pre-build trees for all_opening_pgns if no color logic needed
+    # Pre-build trees
     all_opening_trees = [parse_pgn_string_to_tree(pgn) for pgn in all_opening_pgns]
+    white_opening_trees = [parse_pgn_string_to_tree(pgn) for pgn in white_opening_pgns]
+    black_opening_trees = [parse_pgn_string_to_tree(pgn) for pgn in black_opening_pgns]
     
     # Results container
     game_data_list = []
@@ -694,12 +732,12 @@ def create_index_html(
             current_opening_pgns = all_opening_pgns
             current_opening_trees = all_opening_trees
             
-            if user_color == 'white' and white_repertoire_pgn:
-                current_opening_pgns = [white_repertoire_pgn]
-                current_opening_trees = [parse_pgn_string_to_tree(white_repertoire_pgn)]
-            elif user_color == 'black' and black_repertoire_pgn:
-                current_opening_pgns = [black_repertoire_pgn]
-                current_opening_trees = [parse_pgn_string_to_tree(black_repertoire_pgn)]
+            if user_color == 'white' and white_opening_trees:
+                current_opening_pgns = white_opening_pgns
+                current_opening_trees = white_opening_trees
+            elif user_color == 'black' and black_opening_trees:
+                current_opening_pgns = black_opening_pgns
+                current_opening_trees = black_opening_trees
 
             # Find divergence point
             game_tree = parse_pgn_string_to_tree(game_pgn)

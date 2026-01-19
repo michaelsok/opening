@@ -26,7 +26,13 @@ The central index report (`reports/chessmdb_refined_analysis.html`) now provides
 - **Explicit Labels**: Each game entry now explicitly states "Player diverges at: [move]" or "Opponent diverges at: [move]".
 - **Contextual Styling**: When an opponent diverges, the divergence box is highlighted in **green** (with a green border), matching the theme that the user followed the repertoire correctly. User divergences remain in the standard orange/red theme.
 
-### 6. Development Workflow Improvements
+### 6. Directory-Based Repertoire Structure
+The tool now supports a more flexible repertoire organization:
+- **Color-Specific Folders**: Repertoires are now stored in `openings/white/` and `openings/black/`.
+- **Multiple PGN Files**: All `.pgn` files within these subdirectories are automatically loaded and matched against your games.
+- **Migration**: Existing `white.pgn` and `black.pgn` files have been successfully migrated to their respective color-specific folders.
+
+### 7. Development Workflow Improvements
 - Resolved a merge conflict in `src/api/chesscom_api.py`.
 - Cleaned up git history by removing `reports/*.html` and added them to `.gitignore`.
 
