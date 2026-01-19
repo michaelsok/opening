@@ -37,7 +37,10 @@ The interactive chessboard now automatically adjusts its orientation:
 - **White Perspective**: If you played as White, the board is oriented from White's side.
 - **Black Perspective**: If you played as Black, the board is flipped to show your perspective.
 
-### 8. Development Workflow Improvements
+### 8. Bug Fixes
+- **First-Move Divergence**: Fixed a bug where divergence at the very first move (move 1) was not displayed in the individual game viewers if no repertoire opening was matched. The tool now correctly identifies and highlights the divergence regardless of repertoire matching.
+
+### 9. Development Workflow Improvements
 - Resolved a merge conflict in `src/api/chesscom_api.py`.
 - Cleaned up git history by removing `reports/*.html` and added them to `.gitignore`.
 

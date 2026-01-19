@@ -5,6 +5,7 @@ This plan covers three main improvements:
 2. UI: Stop repertoire highlighting (green) at the end of the matched repertoire.
 3. UI: Add a red border around the divergence move if it was made by the opponent.
 4. UI: Automatically orient the chessboard based on the user's color.
+5. BUG: Fix divergence display when the first move (index 0) diverges and no opening matches.
 
 ## User Review Required
 
@@ -87,9 +88,11 @@ This plan covers three main improvements:
 - **`_create_html_viewer`**:
     - Determine `orientation` based on `user_color`.
     - Pass `orientation` to all `chess.svg.board` calls.
+    - **Fix**: Handle `divergence_point` even if `opening_pgn` is `None`. This ensures first-move divergences are displayed even when no repertoire opening is matched.
 
 ## Verification Plan
 
 ### Automated Tests
 - Create a test script `verify_board_orientation.py` that generates a report for a game where the user plays as Black and manually/automatically checks the SVG for orientation (e.g., checking if the first square is 'a8' instead of 'a1').
+- Create a test script `reproduce_divergence_bug.py` (already done) to verify the fix for first-move divergence.
 - Manually inspect generated reports to confirm perspective.

@@ -372,9 +372,11 @@ def _create_html_viewer(
     if user_color and user_color.lower() == 'black':
         orientation = chess.BLACK
 
-    if opening_pgn and divergence_point:
+    if divergence_point:
         divergence_move_index = _find_divergence_move_index(divergence_point, moves_san)
-        opening_variant = _extract_opening_variant(opening_pgn, divergence_point)
+        
+        if opening_pgn:
+            opening_variant = _extract_opening_variant(opening_pgn, divergence_point)
         
         # Calculate repertoire length (moves that matched before the divergence)
         if divergence_move_index is not None:
