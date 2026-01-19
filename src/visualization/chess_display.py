@@ -737,6 +737,11 @@ def create_index_html(
     white_opening_trees = [parse_pgn_string_to_tree(pgn) for pgn in white_opening_pgns]
     black_opening_trees = [parse_pgn_string_to_tree(pgn) for pgn in black_opening_pgns]
     
+    # Pre-join repertoires for individual game viewers
+    white_full_repertoire_pgn = "\n\n".join(white_opening_pgns) if white_opening_pgns else None
+    black_full_repertoire_pgn = "\n\n".join(black_opening_pgns) if black_opening_pgns else None
+    all_full_repertoire_pgn = "\n\n".join(all_opening_pgns) if all_opening_pgns else None
+    
     # Results container
     game_data_list = []
     
@@ -773,6 +778,13 @@ def create_index_html(
             # Get matching opening PGN
             matching_opening_pgn = current_opening_pgns[opening_idx] if opening_idx is not None else None
             
+            # Get appropriate full repertoire PGN
+            full_repertoire_pgn = all_full_repertoire_pgn
+            if user_color == 'white' and white_full_repertoire_pgn:
+                full_repertoire_pgn = white_full_repertoire_pgn
+            elif user_color == 'black' and black_full_repertoire_pgn:
+                full_repertoire_pgn = black_full_repertoire_pgn
+
             game_data_list.append({
                 'index': idx,
                 'pgn': game_pgn,
@@ -780,6 +792,7 @@ def create_index_html(
                 'headers': headers,
                 'divergence_point': divergence_point,
                 'opening_pgn': matching_opening_pgn,
+                'full_repertoire_pgn': full_repertoire_pgn,
                 'opening_idx': opening_idx,
                 'user_color': user_color
             })
@@ -817,7 +830,7 @@ def create_index_html(
                 output_file=str(viewer_file),
                 open_in_browser=False,
                 size=size,
-                opening_pgn=game_data['opening_pgn'],
+                opening_pgn=game_data.get('full_repertoire_pgn', game_data['opening_pgn']),
                 divergence_point=game_data['divergence_point'] if game_data['divergence_point'] else None,
                 user_color=game_data.get('user_color'),
                 game_index=game_data['index'],

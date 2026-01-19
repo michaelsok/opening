@@ -50,7 +50,12 @@ Individual game pages now feature a navigation bar at the top, allowing you to:
 - **Fixed Back-to-Index Link**: The "Home / Index" button on individual game pages now dynamically links to the actual index filename (e.g., `chessmdb_refined_analysis.html`) instead of the hardcoded `index.html`.
 - **Improved Defaults**: The tool now automatically defaults the index filename to `[username]_refined_analysis.html` when a target username is provided.
 
-### 10. Chess.com API Optimization
+### 10. Robust Opening Variation Extraction
+- **Combined Repertoire Knowledge**: Fixed a bug where individual game reports sometimes missed variations when a divergence occurred. The tool now merges all relevant PGNs for each color before searching for variations.
+- **Improved Coverage**: This ensures that even if you have multiple PGN files covering different lines, the "best" recommended continuation is always found and displayed in parentheses.
+- **Verification**: Verified using ChessMDB's real games where variations were previously empty but are now correctly populated.
+
+### 11. Chess.com API Optimization
 - **Intelligent Archive Filtering**: Optimized `get_all_user_games` to filter monthly archive URLs based on `start_date` and `end_date`.
 - **Reduced Latency**: This significantly reduces API calls and data transfer by only fetching games from months that overlap the requested date range.
 - **Verification**: Verified with a new suite `tests/api/test_chesscom_api_optimization.py` ensuring exact overlap logic works across multiple years.
