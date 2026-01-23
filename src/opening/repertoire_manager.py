@@ -1,9 +1,9 @@
-import chess
-import chess.pgn
-import io
 import os
+import logging
 from pathlib import Path
 from typing import List, Dict, Tuple, Optional
+
+logger = logging.getLogger(__name__)
 from src.opening.definitions import classify_opening, get_filename_from_category
 
 def _get_all_paths(node: chess.pgn.GameNode, current_path: List[str]) -> List[List[str]]:
@@ -83,11 +83,12 @@ def split_repertoire_by_opening(pgn_file_path: str, output_dir_path: str):
         with open(out_file, "w", encoding="utf-8") as out_f:
             print(new_game, file=out_f, end="\n\n")
             
-    print(f"Split completed. Categorized files created in {output_dir}")
+    logger.info(f"Split completed. Categorized files created in {output_dir}")
     return list(categorized_paths.keys())
 
 if __name__ == "__main__":
     import sys
+    logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
     if len(sys.argv) > 2:
         split_repertoire_by_opening(sys.argv[1], sys.argv[2])
     else:

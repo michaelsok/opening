@@ -1,10 +1,9 @@
-"""
-Chess.com API integration for fetching games.
-"""
-
 import requests
+import logging
 from typing import List, Dict, Optional, Union
 from datetime import datetime
+
+logger = logging.getLogger(__name__)
 
 
 def _filter_game(
@@ -414,10 +413,10 @@ def get_all_user_games(
             
         except requests.exceptions.RequestException as e:
             # Log error but continue with other archives
-            print(f"Warning: Error fetching games from {archive_url}: {e}")
+            logger.warning(f"Error fetching games from {archive_url}: {e}")
             continue
         except (KeyError, ValueError) as e:
-            print(f"Warning: Error parsing games from {archive_url}: {e}")
+            logger.warning(f"Error parsing games from {archive_url}: {e}")
             continue
     
     # Apply filters (only include non-None values)

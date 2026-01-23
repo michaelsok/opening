@@ -15,7 +15,10 @@ from pathlib import Path
 import webbrowser
 import tempfile
 import os
+import logging
 import jinja2
+
+logger = logging.getLogger(__name__)
 
 # Import for divergence analysis
 from src.parsers.pgn_tree_parser import (
@@ -780,7 +783,7 @@ def create_index_html(
                 'category': category
             })
         except Exception as e:
-            print(f"Error processing game {idx}: {e}")
+            logger.error(f"Error processing game {idx}: {e}")
             continue
     
     if not game_data_list:
@@ -823,7 +826,7 @@ def create_index_html(
             )
             game_viewer_files.append(str(viewer_file.name))
         except Exception as e:
-            print(f"Warning: Failed to generate viewer for game {game_data['index']}: {e}")
+            logger.warning(f"Failed to generate viewer for game {game_data['index']}: {e}")
             game_viewer_files.append(None)
     
     # Open in browser if requested

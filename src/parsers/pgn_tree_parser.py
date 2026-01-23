@@ -8,8 +8,11 @@ into a tree structure where each node represents a position, and edges represent
 import chess
 import chess.pgn
 import io
+import logging
 from typing import Optional, Dict, List, Tuple
 from collections import defaultdict
+
+logger = logging.getLogger(__name__)
 
 
 class MoveNode:
@@ -342,16 +345,16 @@ if __name__ == "__main__":
     # Parse from string
     tree = parse_pgn_string_to_tree(sample_pgn)
     
-    print(f"Number of games: {len(tree.games)}")
-    print(f"\nGame headers: {tree.games[0]}")
+    logger.info(f"Number of games: {len(tree.games)}")
+    logger.info(f"Game headers: {tree.games[0]}")
     
     # Get some paths
     paths = tree.get_all_paths()
-    print(f"\nNumber of unique paths: {len(paths)}")
-    print(f"\nFirst 5 moves of main line: {paths[0][:5] if paths else 'No paths'}")
+    logger.info(f"Number of unique paths: {len(paths)}")
+    logger.info(f"First 5 moves of main line: {paths[0][:5] if paths else 'No paths'}")
     
     # Get a specific node
     node = tree.get_node_at_path(["e4", "e5", "Nf3"])
     if node:
-        print(f"\nNode at ['e4', 'e5', 'Nf3']: {node}")
-        print(f"Possible moves from this position: {list(node.children.keys())}")
+        logger.info(f"Node at ['e4', 'e5', 'Nf3']: {node}")
+        logger.info(f"Possible moves from this position: {list(node.children.keys())}")
