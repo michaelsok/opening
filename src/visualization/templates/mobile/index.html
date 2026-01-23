@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Chess Openings - {{ num_games }} Games</title>
+    <style>
+        :root {
+            --primary: #1a237e;
+            --secondary: #303f9f;
+            --accent: #ff9800;
+            --success: #4caf50;
+            --bg: #f5f5f5;
+            --text: #212121;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            padding: 24px 16px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header h1 {
+            font-size: 22px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        .header .stats {
+            font-size: 14px;
+            opacity: 0.9;
+            margin-top: 4px;
+        }
+
+        .container {
+            padding: 16px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .game-card {
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            display: block;
+            text-decoration: none;
+            color: inherit;
+            transition: transform 0.1s ease, box-shadow 0.1s ease;
+        }
+
+        .game-card:active {
+            transform: scale(0.98);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            background-color: #fafafa;
+        }
+
+        .game-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .game-id {
+            background: var(--primary);
+            color: white;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 4px;
+            text-transform: uppercase;
+        }
+
+        .game-result {
+            font-size: 12px;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 4px;
+            background: #e0e0e0;
+        }
+
+        .game-result.win {
+            background: #c8e6c9;
+            color: #2e7d32;
+        }
+
+        .game-result.loss {
+            background: #ffcdd2;
+            color: #c62828;
+        }
+
+        .game-event {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 4px;
+            color: var(--primary);
+        }
+
+        .game-players {
+            font-size: 14px;
+            color: #616161;
+            margin-bottom: 12px;
+        }
+
+        .divergence-tag {
+            font-size: 12px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            padding: 6px 12px;
+            border-radius: 20px;
+            width: 100%;
+        }
+
+        .divergence-tag.player {
+            background: #fff3e0;
+            color: #e65100;
+            border: 1px solid #ffe0b2;
+        }
+
+        .divergence-tag.opponent {
+            background: #e8f5e9;
+            color: #2e7d32;
+            border: 1px solid #c8e6c9;
+        }
+
+        .divergence-tag.none {
+            background: #f3f4f6;
+            color: #4b5563;
+            border: 1px solid #e5e7eb;
+        }
+
+        .info-section {
+            background: #e3f2fd;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 20px;
+            font-size: 13px;
+            color: #1565c0;
+            border-left: 4px solid #2196f3;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <h1>♟️ Opening Analysis</h1>
+        <div class="stats">{{ num_games }} Games Parsed</div>
+    </div>
+
+    <div class="container">
+        <div class="info-section">
+            Tapping a game details your divergence from the opening repertoire.
+        </div>
+
+        {% for game in game_list %}
+        <a href="{{ game.viewer_file }}" class="game-card">
+            <div class="game-meta">
+                <span class="game-id">#{{ game.index }}</span>
+                <span class="game-result">{{ game.result }}</span>
+            </div>
+            <div class="game-event">{{ game.event }}</div>
+            <div class="game-players">{{ game.white }} vs {{ game.black }}</div>
+
+            <div
+                class="divergence-tag {% if 'Follows' in game.divergence_html %}none{% elif game.is_opponent_divergence %}opponent{% else %}player{% endif %}">
+                {% if 'Follows' in game.divergence_html %}
+                ✓ Follows Repertoire
+                {% elif game.is_opponent_divergence %}
+                Opponent Diverged: {{ game.divergence_html|striptags|replace('Opponent diverges at:',
+                '')|replace('Player diverges at:', '')|replace('Diverges at:', '')|trim }}
+                {% else %}
+                You Diverged: {{ game.divergence_html|striptags|replace('Opponent diverges at:', '')|replace('Player
+                diverges at:', '')|replace('Diverges at:', '')|trim }}
+                {% endif %}
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+</body>
+
+</html>

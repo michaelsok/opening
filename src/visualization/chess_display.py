@@ -29,14 +29,14 @@ from src.parsers.pgn_tree_parser import (
 from src.opening.definitions import classify_opening, get_filename_from_category
 
 
-def _get_jinja_env() -> jinja2.Environment:
+def _get_jinja_env(variant: Optional[str] = None) -> jinja2.Environment:
     """Get the Jinja2 environment for loading templates."""
-    template_dir = Path(__file__).parent / "templates"
+    base_dir = Path(__file__).parent / "templates"
+    template_dir = base_dir / variant if variant and variant != "standard" else base_dir
     return jinja2.Environment(
         loader=jinja2.FileSystemLoader(template_dir),
         autoescape=jinja2.select_autoescape(['html', 'xml'])
     )
-
 
 def display_game_from_pgn(
     pgn_file_path: Union[str, Path],
@@ -44,7 +44,8 @@ def display_game_from_pgn(
     open_in_browser: bool = True,
     size: int = 400,
     opening_pgn: Optional[str] = None,
-    divergence_point: Optional[List[str]] = None
+    divergence_point: Optional[List[str]] = None,
+    template_variant: str = "standard"
 ) -> str:
     """
     Display a chess game from a PGN file with an interactive board viewer.
@@ -85,7 +86,8 @@ def display_game_from_pgn(
     
     return _create_html_viewer(
         game, output_file, open_in_browser, size,
-        opening_pgn=opening_pgn, divergence_point=divergence_point
+        opening_pgn=opening_pgn, divergence_point=divergence_point,
+        template_variant=template_variant
     )
 
 
@@ -99,7 +101,8 @@ def display_game_from_string(
     user_color: Optional[str] = None,
     game_index: Optional[int] = None,
     total_games: Optional[int] = None,
-    index_filename: str = "index.html"
+    index_filename: str = "index.html",
+    template_variant: str = "standard"
 ) -> str:
     """
     Display a chess game from a PGN string with an interactive board viewer.
@@ -136,7 +139,8 @@ def display_game_from_string(
         user_color=user_color,
         game_index=game_index,
         total_games=total_games,
-        index_filename=index_filename
+        index_filename=index_filename,
+        template_variant=template_variant
     )
 
 
@@ -348,7 +352,8 @@ def _create_html_viewer(
     user_color: Optional[str] = None,
     game_index: Optional[int] = None,
     total_games: Optional[int] = None,
-    index_filename: str = "index.html"
+    index_filename: str = "index.html",
+    template_variant: str = "standard"
 ) -> str:
     """Create an HTML viewer for a chess game."""
     # Collect all moves and positions
@@ -557,7 +562,8 @@ def _create_html_viewer(
         user_color=user_color,
         game_index=game_index,
         total_games=total_games,
-        index_filename=index_filename
+        index_filename=index_filename,
+        template_variant=template_variant
     )
     
     # Write HTML file
@@ -595,6 +601,7 @@ def _generate_html_content(
     game_index: Optional[int] = None,
     total_games: Optional[int] = None,
     index_filename: str = "index.html",
+    template_variant: str = "standard",
     **kwargs
 ) -> str:
     """Generate HTML content for the chess game viewer."""
@@ -617,7 +624,7 @@ def _generate_html_content(
     user_color = kwargs.get('user_color', None)
     
     # Render template
-    env = _get_jinja_env()
+    env = _get_jinja_env(variant=template_variant)
     template = env.get_template("single_game.html")
     
     return template.render(
@@ -657,7 +664,8 @@ def create_index_html(
     target_username: Optional[str] = None,
     output_file: Optional[Union[str, Path]] = None,
     open_in_browser: bool = True,
-    size: int = 400
+    size: int = 400,
+    template_variant: str = "standard"
 ) -> str:
     """
     Create an index.html file with a list of chess games and their divergence points.
@@ -800,7 +808,7 @@ def create_index_html(
         output_file = Path(output_file)
     
     # Generate HTML content for index page with game list
-    html_content = _generate_index_html_content(game_data_list, size)
+    html_content = _generate_index_html_content(game_data_list, size, template_variant=template_variant)
     
     # Write HTML file
     output_file.parent.mkdir(parents=True, exist_ok=True)
@@ -822,7 +830,8 @@ def create_index_html(
                 user_color=game_data.get('user_color'),
                 game_index=game_data['index'],
                 total_games=len(game_data_list),
-                index_filename=output_file.name
+                index_filename=output_file.name,
+                template_variant=template_variant
             )
             game_viewer_files.append(str(viewer_file.name))
         except Exception as e:
@@ -836,7 +845,7 @@ def create_index_html(
     return str(output_file.absolute())
 
 
-def _generate_index_html_content(game_data_list: List[dict], size: int) -> str:
+def _generate_index_html_content(game_data_list: List[dict], size: int, template_variant: str = "standard") -> str:
     """Generate HTML content for the games index page."""
     num_games = len(game_data_list)
     
@@ -883,7 +892,7 @@ def _generate_index_html_content(game_data_list: List[dict], size: int) -> str:
         }
         game_list.append(game_img)
         
-    env = _get_jinja_env()
+    env = _get_jinja_env(variant=template_variant)
     template = env.get_template("index.html")
     
     return template.render(
@@ -931,7 +940,8 @@ def _create_multi_game_html_viewer(
     games,
     output_file,
     open_in_browser: bool,
-    size: int
+    size: int,
+    template_variant: str = "standard"
 ) -> str:
     """Create an HTML viewer for multiple chess games."""
     # Process all games
@@ -948,7 +958,7 @@ def _create_multi_game_html_viewer(
         output_file = Path(output_file)
     
     # Generate HTML content
-    html_content = _generate_multi_game_html_content(games_data, size)
+    html_content = _generate_multi_game_html_content(games_data, size, template_variant=template_variant)
     
     # Write HTML file
     with open(output_file, 'w', encoding='utf-8') as f:
@@ -961,7 +971,7 @@ def _create_multi_game_html_viewer(
     return str(output_file)
 
 
-def _generate_multi_game_html_content(games_data, size: int) -> str:
+def _generate_multi_game_html_content(games_data, size: int, template_variant: str = "standard") -> str:
     """Generate HTML content for multiple games viewer."""
     num_games = len(games_data)
     
@@ -1026,7 +1036,7 @@ def _generate_multi_game_html_content(games_data, size: int) -> str:
         for i in range(len(first_game_positions))
     ])
     
-    env = _get_jinja_env()
+    env = _get_jinja_env(variant=template_variant)
     template = env.get_template("multi_game.html")
     
     return template.render(

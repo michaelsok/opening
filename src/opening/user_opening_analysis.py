@@ -63,7 +63,8 @@ def analyze_user_openings(
     end_date: 'datetime' = None,
     output_file: Union[str, Path] = None,
     open_in_browser: bool = True,
-    size: int = 400
+    size: int = 400,
+    template_variant: str = "standard"
 ) -> str:
     """
     Fetch games from Chess.com and generate an interactive HTML report comparing them
@@ -109,5 +110,6 @@ def analyze_user_openings(
         target_username=username,
         output_file=output_file,
         open_in_browser=open_in_browser,
-        size=size
+        size=size,
+        template_variant=template_variant
     )
