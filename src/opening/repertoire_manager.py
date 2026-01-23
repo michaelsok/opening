@@ -1,3 +1,5 @@
+import chess
+import chess.pgn
 import os
 import logging
 from pathlib import Path
