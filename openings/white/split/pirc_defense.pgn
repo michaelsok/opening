@@ -1,0 +1,10 @@
+[Event "Pirc Defense Repertoire"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "?"]
+[White "?"]
+[Black "?"]
+[Result "*"]
+
+1. e4 d6 2. d4 Nf6 3. Nc3 g6 ( 3... c6 4. f4 Qa5 5. Bd3 ) ( 3... Nbd7 4. g4 h6 ( 4... e5 5. g5 Ng8 6. Nf3 ) 5. h3 e5 6. Nge2 ) 4. Be3 Bg7 ( 4... c6 5. h3 b5 ( 5... Nbd7 6. f4 Qb6 7. a3 Bg7 ( 7... Qxb2 8. Na4 ) 8. Nf3 ) ( 5... Bg7 6. f4 O-O 7. Nf3 Nbd7 8. e5 ) ( 5... Qa5 6. Bd3 Nbd7 ( 6... e5 7. Qd2 exd4 8. Bxd4 Bg7 9. f4 c5 10. Bf2 ) 7. f4 e5 8. Nf3 exf4 ( 8... exd4 9. Bxd4 ) ( 8... Nh5 9. fxe5 dxe5 10. g4 Nf4 11. Bxf4 exf4 12. Qd2 ) 9. Bxf4 ) 6. a3 ) ( 4... Ng4 5. Bg5 h6 6. Bh4 Bg7 7. Qd2 g5 8. Bg3 ) ( 4... a6 5. f4 b5 ( 5... Bg7 6. h3 e6 7. Nf3 ) 6. e5 b4 7. Qf3 c6 8. Na4 Bg4 9. Qf2 ) ( 4... e5 5. dxe5 dxe5 6. Qxd8+ ) ( 4... Bg4 5. f3 Bd7 6. Qd2 ) 5. Qd2 O-O ( 5... c6 6. a4 Nbd7 ( 6... O-O 7. h3 ) 7. f3 ) ( 5... Ng4 6. Bg5 h6 7. Bh4 g5 8. Bg3 ) ( 5... Nc6 6. f3 e5 7. d5 Nd4 8. Nge2 ) 6. O-O-O c6 ( 6... Nc6 7. f3 ) ( 6... Nbd7 7. f3 ) ( 6... Ng4 7. Bg5 h6 8. Bh4 c6 9. f4 b5 10. e5 b4 11. Nb1 ) 7. f3 *
+
