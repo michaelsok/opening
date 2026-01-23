@@ -1,5 +1,6 @@
 import os
 import logging
+import re
 from pathlib import Path
 from src.opening.repertoire_manager import split_repertoire_by_opening
 
@@ -11,10 +12,17 @@ UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 def handle_repertoire_upload(username: str, file_content: bytes, filename: str):
     """
     Saves the uploaded PGN and splits it into categorized openings.
+    Ensures the username is sanitized to prevent directory traversal.
     """
-    user_upload_dir = UPLOAD_DIR / username
+    # Sanitize username (alphanumeric, underscores, hyphens only)
+    safe_username = re.sub(r'[^a-zA-Z0-9_\-]', '', username)
+    if not safe_username:
+        return {"status": "error", "message": "Invalid username"}
+
+    user_upload_dir = UPLOAD_DIR / safe_username
     user_upload_dir.mkdir(parents=True, exist_ok=True)
     
+    # Use a fixed filename instead of user-provided filename to prevent path traversal
     source_pgn_path = user_upload_dir / "full_repertoire.pgn"
     with open(source_pgn_path, "wb") as f:
         f.write(file_content)

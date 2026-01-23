@@ -57,13 +57,25 @@ document.addEventListener('DOMContentLoaded', () => {
             currentUser = data;
 
             // Setup Dashboard
-            userDisplay.innerHTML = `
-                <img src="${data.profile.avatar || 'https://www.chess.com/bundles/web/images/noavatar_l.84a92b24.gif'}" alt="Avatar">
-                <div class="user-info">
-                    <h3>${data.profile.name || data.username}</h3>
-                    <p>${data.profile.location || 'Chess Enthusiast'}</p>
-                </div>
-            `;
+            userDisplay.innerHTML = '';
+
+            const avatarImg = document.createElement('img');
+            avatarImg.src = data.profile.avatar || 'https://www.chess.com/bundles/web/images/noavatar_l.84a92b24.gif';
+            avatarImg.alt = 'Avatar';
+
+            const infoDiv = document.createElement('div');
+            infoDiv.className = 'user-info';
+
+            const nameH3 = document.createElement('h3');
+            nameH3.textContent = data.profile.name || data.username;
+
+            const locP = document.createElement('p');
+            locP.textContent = data.profile.location || 'Chess Enthusiast';
+
+            infoDiv.appendChild(nameH3);
+            infoDiv.appendChild(locP);
+            userDisplay.appendChild(avatarImg);
+            userDisplay.appendChild(infoDiv);
 
             showStep(dashboardStep);
         } catch (err) {
@@ -146,11 +158,17 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = await response.json();
 
             // Show Success
-            categoryLabels.innerHTML = data.categories.map(cat => `
-                <span style="background: rgba(129, 140, 248, 0.2); border: 1px solid var(--primary); padding: 4px 12px; border-radius: 20px; font-size: 0.75rem;">
-                    ${cat}
-                </span>
-            `).join('');
+            categoryLabels.innerHTML = '';
+            data.categories.forEach(cat => {
+                const badge = document.createElement('span');
+                badge.style.background = 'rgba(129, 140, 248, 0.2)';
+                badge.style.border = '1px solid var(--primary)';
+                badge.style.padding = '4px 12px';
+                badge.style.borderRadius = '20px';
+                badge.style.fontSize = '0.75rem';
+                badge.textContent = cat;
+                categoryLabels.appendChild(badge);
+            });
 
             showStep(successStep);
         } catch (err) {
