@@ -21,7 +21,9 @@ import jinja2
 from src.parsers.pgn_tree_parser import (
     parse_pgn_string_to_tree,
     find_first_divergence_across_openings,
+    find_divergence_point,
 )
+from src.opening.definitions import classify_opening, get_filename_from_category
 
 
 def _get_jinja_env() -> jinja2.Environment:
@@ -675,72 +677,47 @@ def create_index_html(
     if not games:
         raise ValueError("games list cannot be empty")
     
-    # Pre-parse opening directory PGNs for color matching if directory provided
-    all_opening_pgns = []
-    white_opening_pgns = []
-    black_opening_pgns = []
+    # Map categories to PGN files if we have a directory
+    category_to_path = {}
     
     if isinstance(opening_repertoire, (str, Path)):
-        opening_dir = Path(opening_repertoire)
-        if opening_dir.is_dir():
-            # 1. Search for subdirectories white/ and black/
-            white_dir = opening_dir / "white"
-            black_dir = opening_dir / "black"
-            
-            if white_dir.is_dir():
-                for pgn_file in white_dir.glob("*.pgn"):
-                    with open(pgn_file, encoding="utf-8") as f:
-                        pgn_str = f.read()
-                        white_opening_pgns.append(pgn_str)
-                        all_opening_pgns.append(pgn_str)
-            
-            if black_dir.is_dir():
-                for pgn_file in black_dir.glob("*.pgn"):
-                    with open(pgn_file, encoding="utf-8") as f:
-                        pgn_str = f.read()
-                        black_opening_pgns.append(pgn_str)
-                        all_opening_pgns.append(pgn_str)
+        repertoire_root = Path(opening_repertoire)
+        if repertoire_root.is_dir():
+            # Index all split files
+            for color in ["white", "black"]:
+                color_dir = repertoire_root / color / "split"
+                if color_dir.is_dir():
+                    for pgn_file in color_dir.glob("*.pgn"):
+                        # We use the filename (without .pgn) as a key
+                        category_to_path[(color, pgn_file.stem)] = pgn_file
                         
-            # 2. Fallback to white.pgn and black.pgn if subdirectories didn't provide any
-            if not white_opening_pgns:
-                white_pgn_file = opening_dir / "white.pgn"
-                if white_pgn_file.exists():
-                    with open(white_pgn_file, encoding="utf-8") as f:
-                        pgn_str = f.read()
-                        white_opening_pgns.append(pgn_str)
-                        if pgn_str not in all_opening_pgns:
-                            all_opening_pgns.append(pgn_str)
-
-            if not black_opening_pgns:
-                black_pgn_file = opening_dir / "black.pgn"
-                if black_pgn_file.exists():
-                    with open(black_pgn_file, encoding="utf-8") as f:
-                        pgn_str = f.read()
-                        black_opening_pgns.append(pgn_str)
-                        if pgn_str not in all_opening_pgns:
-                            all_opening_pgns.append(pgn_str)
-
-            # 3. Add any other PGN files from the root directory
-            for pgn_file in opening_dir.glob("*.pgn"):
-                if pgn_file.name.lower() not in ["white.pgn", "black.pgn"]:
-                    with open(pgn_file, encoding="utf-8") as f:
-                        pgn_str = f.read()
-                        if pgn_str not in all_opening_pgns:
-                            all_opening_pgns.append(pgn_str)
+            # Also check base color dirs just in case
+            for color in ["white", "black"]:
+                color_dir = repertoire_root / color
+                if color_dir.is_dir():
+                    for pgn_file in color_dir.glob("*.pgn"):
+                        stem = pgn_file.stem
+                        if (color, stem) not in category_to_path:
+                            category_to_path[(color, stem)] = pgn_file
         else:
             raise ValueError(f"Opening repertoire path is not a directory: {opening_repertoire}")
-    else:
-        all_opening_pgns = opening_repertoire
 
-    # Pre-build trees
-    all_opening_trees = [parse_pgn_string_to_tree(pgn) for pgn in all_opening_pgns]
-    white_opening_trees = [parse_pgn_string_to_tree(pgn) for pgn in white_opening_pgns]
-    black_opening_trees = [parse_pgn_string_to_tree(pgn) for pgn in black_opening_pgns]
+    # Cache for parsed trees: (color, category_stem) -> PGNTree
+    tree_cache = {}
     
-    # Pre-join repertoires for individual game viewers
-    white_full_repertoire_pgn = "\n\n".join(white_opening_pgns) if white_opening_pgns else None
-    black_full_repertoire_pgn = "\n\n".join(black_opening_pgns) if black_opening_pgns else None
-    all_full_repertoire_pgn = "\n\n".join(all_opening_pgns) if all_opening_pgns else None
+    def get_cached_tree(color: str, category: str):
+        stem = category.lower().replace(" ", "_").replace("'", "")
+        key = (color, stem)
+        if key in tree_cache:
+            return tree_cache[key]
+        
+        path = category_to_path.get(key)
+        if path and path.exists():
+            with open(path, encoding="utf-8") as f:
+                tree = parse_pgn_string_to_tree(f.read())
+                tree_cache[key] = tree
+                return tree
+        return None
     
     # Results container
     game_data_list = []
@@ -760,43 +737,50 @@ def create_index_html(
                 elif headers.get('Black', '').lower() == target_username_lower:
                     user_color = 'black'
 
-            # Decide which trees to use
-            current_opening_pgns = all_opening_pgns
-            current_opening_trees = all_opening_trees
+            # Extract moves for classification
+            board = game_obj.board()
+            moves_san_list = []
+            for move in game_obj.mainline_moves():
+                moves_san_list.append(board.san(move))
+                board.push(move)
             
-            if user_color == 'white' and white_opening_trees:
-                current_opening_pgns = white_opening_pgns
-                current_opening_trees = white_opening_trees
-            elif user_color == 'black' and black_opening_trees:
-                current_opening_pgns = black_opening_pgns
-                current_opening_trees = black_opening_trees
-
-            # Find divergence point
+            # Step 1: Classify the opening
+            category = classify_opening(moves_san_list)
+            
+            # Step 2: Load the specific repertoire tree and find divergence
             game_tree = parse_pgn_string_to_tree(game_pgn)
-            divergence_point, opening_idx = find_first_divergence_across_openings(game_tree, current_opening_trees)
+            divergence_point = None
+            matching_opening_pgn = None
+            full_repertoire_pgn_str = None
             
-            # Get matching opening PGN
-            matching_opening_pgn = current_opening_pgns[opening_idx] if opening_idx is not None else None
+            if user_color:
+                specific_tree = get_cached_tree(user_color, category)
+                if specific_tree:
+                    divergence_point = find_divergence_point(game_tree, specific_tree)
+                    
+                    # Store the repertoire PGN content for the viewer
+                    stem = category.lower().replace(" ", "_").replace("'", "")
+                    path = category_to_path.get((user_color, stem))
+                    if path:
+                        with open(path, encoding="utf-8") as f:
+                            full_repertoire_pgn_str = f.read()
+                            matching_opening_pgn = full_repertoire_pgn_str
             
-            # Get appropriate full repertoire PGN
-            full_repertoire_pgn = all_full_repertoire_pgn
-            if user_color == 'white' and white_full_repertoire_pgn:
-                full_repertoire_pgn = white_full_repertoire_pgn
-            elif user_color == 'black' and black_full_repertoire_pgn:
-                full_repertoire_pgn = black_full_repertoire_pgn
-
+            # Final data entry
             game_data_list.append({
                 'index': idx,
                 'pgn': game_pgn,
                 'game': game_obj,
                 'headers': headers,
-                'divergence_point': divergence_point,
+                'divergence_point': divergence_point if divergence_point else [],
                 'opening_pgn': matching_opening_pgn,
-                'full_repertoire_pgn': full_repertoire_pgn,
-                'opening_idx': opening_idx,
-                'user_color': user_color
+                'full_repertoire_pgn': full_repertoire_pgn_str,
+                'opening_idx': None, 
+                'user_color': user_color,
+                'category': category
             })
-        except Exception:
+        except Exception as e:
+            print(f"Error processing game {idx}: {e}")
             continue
     
     if not game_data_list:
