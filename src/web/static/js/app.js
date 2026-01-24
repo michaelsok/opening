@@ -2,6 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // State
     let currentUser = null;
     let selectedFile = null;
+    let selectedColor = 'white';
 
     // Elements
     const authStep = document.getElementById('auth-step');
@@ -23,6 +24,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const userDisplay = document.getElementById('user-display');
     const categoryLabels = document.getElementById('category-labels');
+
+    const colorWhiteBtn = document.getElementById('color-white');
+    const colorBlackBtn = document.getElementById('color-black');
+    const resetBtn = document.getElementById('reset-btn');
 
     // API URL (same host in production, localhost for dev)
     const API_BASE = '';
@@ -70,7 +75,25 @@ document.addEventListener('DOMContentLoaded', () => {
             userDisplay.innerHTML = '';
 
             const avatarImg = document.createElement('img');
-            avatarImg.src = data.profile.avatar || 'https://www.chess.com/bundles/web/images/noavatar_l.84a92b24.gif';
+            const avatarUrl = data.profile.avatar;
+
+            // Handle profile picture with fallback to chess piece icon
+            if (avatarUrl) {
+                avatarImg.src = avatarUrl;
+                avatarImg.onerror = () => {
+                    avatarImg.classList.add('hidden');
+                    const iconP = document.createElement('div');
+                    iconP.className = 'avatar-placeholder';
+                    iconP.textContent = '♟️';
+                    userDisplay.insertBefore(iconP, userDisplay.firstChild);
+                };
+            } else {
+                const iconP = document.createElement('div');
+                iconP.className = 'avatar-placeholder';
+                iconP.textContent = '♟️';
+                userDisplay.appendChild(iconP);
+                avatarImg.classList.add('hidden');
+            }
             avatarImg.alt = 'Avatar';
 
             const infoDiv = document.createElement('div');
@@ -96,6 +119,16 @@ document.addEventListener('DOMContentLoaded', () => {
             connectBtn.innerHTML = '<span>Connect with Chess.com</span><i data-lucide="chevron-right"></i>';
             lucide.createIcons();
         }
+    });
+
+    // --- Color Toggle ---
+    [colorWhiteBtn, colorBlackBtn].forEach(btn => {
+        btn.addEventListener('click', () => {
+            colorWhiteBtn.classList.remove('active');
+            colorBlackBtn.classList.remove('active');
+            btn.classList.add('active');
+            selectedColor = btn.dataset.color;
+        });
     });
 
     // --- Upload Logic ---
@@ -155,6 +188,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const formData = new FormData();
             formData.append('username', currentUser.username);
             formData.append('file', selectedFile);
+            formData.append('color', selectedColor);
 
             const response = await fetch(`${API_BASE}/repertoire/upload`, {
                 method: 'POST',
@@ -188,5 +222,15 @@ document.addEventListener('DOMContentLoaded', () => {
             uploadError.classList.remove('hidden');
             showStep(dashboardStep);
         }
+    });
+
+    // --- Reset Flow ---
+    resetBtn.addEventListener('click', () => {
+        selectedFile = null;
+        fileInput.value = '';
+        fileInfo.classList.add('hidden');
+        uploadZone.classList.remove('hidden');
+        analyzeBtn.disabled = true;
+        showStep(dashboardStep);
     });
 });

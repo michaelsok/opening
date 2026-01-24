@@ -45,6 +45,15 @@
                 <!-- Injected via JS -->
             </div>
 
+            <div class="color-toggle">
+                <button type="button" class="toggle-btn active" data-color="white" id="color-white">
+                    <span>⚪ White</span>
+                </button>
+                <button type="button" class="toggle-btn" data-color="black" id="color-black">
+                    <span>⚫ Black</span>
+                </button>
+            </div>
+
             <div id="upload-zone" class="upload-area">
                 <i data-lucide="upload-cloud"
                     style="width: 48px; height: 48px; color: var(--primary); margin-bottom: 1rem;"></i>
@@ -95,7 +104,7 @@
                 <!-- Injected via JS -->
             </div>
 
-            <button onclick="location.reload()" class="btn" style="background: rgba(255,255,255,0.1);">
+            <button id="reset-btn" class="btn" style="background: rgba(255,255,255,0.1);">
                 <span>Add Another Repertoire</span>
             </button>
         </div>

@@ -9,7 +9,7 @@ logger = logging.getLogger(__name__)
 UPLOAD_DIR = Path("src/web/uploads")
 UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 
-def handle_repertoire_upload(username: str, file_content: bytes, filename: str):
+def handle_repertoire_upload(username: str, file_content: bytes, filename: str, color: str = 'white'):
     """
     Saves the uploaded PGN and splits it into categorized openings.
     Ensures the username is sanitized to prevent directory traversal.
@@ -19,11 +19,12 @@ def handle_repertoire_upload(username: str, file_content: bytes, filename: str):
     if not safe_username:
         return {"status": "error", "message": "Invalid username"}
 
-    user_upload_dir = UPLOAD_DIR / safe_username
+    # Use color-specific directory
+    user_upload_dir = UPLOAD_DIR / safe_username / color.lower()
     user_upload_dir.mkdir(parents=True, exist_ok=True)
     
     # Use a fixed filename instead of user-provided filename to prevent path traversal
-    source_pgn_path = user_upload_dir / "full_repertoire.pgn"
+    source_pgn_path = user_upload_dir / f"repertoire_{color.lower()}.pgn"
     with open(source_pgn_path, "wb") as f:
         f.write(file_content)
     

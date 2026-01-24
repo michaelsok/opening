@@ -227,3 +227,49 @@ input[type="text"]:focus {
     margin-top: 0.5rem;
     text-align: center;
 }
+
+/* Color Toggle */
+.color-toggle {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 2rem;
+    background: rgba(15, 23, 42, 0.5);
+    padding: 0.25rem;
+    border-radius: 12px;
+    border: 1px solid var(--glass-border);
+}
+
+.toggle-btn {
+    flex: 1;
+    padding: 0.5rem;
+    border-radius: 8px;
+    border: none;
+    background: transparent;
+    color: var(--text-muted);
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.toggle-btn.active {
+    background: var(--primary);
+    color: white;
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+}
+
+.user-profile .avatar-placeholder {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    border: 2px solid var(--primary);
+    background: rgba(255, 255, 255, 0.05);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+}

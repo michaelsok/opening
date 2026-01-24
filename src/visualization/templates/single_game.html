@@ -6,431 +6,228 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chess Game Viewer - {{ event }}</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-            overflow: hidden;
-        }
-
-        .header {
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-            color: white;
-            padding: 20px;
-            text-align: center;
-        }
-
-        .header h1 {
-            font-size: 24px;
-            margin-bottom: 10px;
-        }
-
-        .game-info {
-            display: flex;
-            justify-content: space-around;
-            flex-wrap: wrap;
-            margin-top: 15px;
-            font-size: 14px;
-        }
-
-        .game-info div {
-            margin: 5px;
-        }
-
-        .game-info strong {
-            margin-right: 5px;
-        }
-
-        .main-content {
-            display: flex;
-            flex-direction: column;
-            padding: 20px;
-        }
-
-        @media (min-width: 768px) {
-            .main-content {
-                flex-direction: row;
+        {
+                {
+                'reports.css' | load_css | safe
             }
-        }
-
-        .board-container {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 20px;
-        }
-
-        .board-wrapper {
-            position: relative;
-            margin-bottom: 20px;
-        }
-
-        #chessboard {
-            display: block;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-            border-radius: 5px;
-        }
-
-        .controls {
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-            flex-wrap: wrap;
-            margin-top: 20px;
-        }
-
-        .btn {
-            padding: 10px 20px;
-            font-size: 16px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            background: #4CAF50;
-            color: white;
-            transition: background 0.3s;
-        }
-
-        .btn:hover {
-            background: #45a049;
-        }
-
-        .btn:disabled {
-            background: #cccccc;
-            cursor: not-allowed;
-        }
-
-        .btn.prev {
-            background: #2196F3;
-        }
-
-        .btn.prev:hover {
-            background: #0b7dda;
-        }
-
-        .btn.next {
-            background: #ff9800;
-        }
-
-        .btn.next:hover {
-            background: #e68900;
-        }
-
-        .btn.first {
-            background: #9e9e9e;
-        }
-
-        .btn.last {
-            background: #9e9e9e;
-        }
-
-        .move-list-container {
-            flex: 1;
-            padding: 20px;
-            background: #f5f5f5;
-            border-radius: 5px;
-            max-height: 600px;
-            overflow-y: auto;
-        }
-
-        .move-list-title {
-            font-size: 18px;
-            font-weight: bold;
-            margin-bottom: 15px;
-            color: #333;
-        }
-
-        .move-list {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 5px;
-            line-height: 2;
-        }
-
-        .move {
-            padding: 2px 5px;
-            margin: 1px;
-            border-radius: 3px;
-            cursor: pointer;
-            transition: background 0.2s;
-            display: inline-block;
-        }
-
-        .move:hover {
-            background: #e0e0e0;
-        }
-
-        .move.active {
-            background: #4CAF50;
-            color: white;
-            font-weight: bold;
-        }
-
-        .move.current {
-            border: 2px solid #2196F3 !important;
-            box-shadow: 0 0 0 1px rgba(33, 150, 243, 0.3);
-            position: relative;
-            z-index: 1;
-        }
-
-        .move.divergence-move {
-            background: #ff4444 !important;
-            color: white !important;
-            font-weight: bold;
-            border: 1px solid #cc0000;
-        }
-
-        .move.divergence-move.current {
-            border: 2px solid #2196F3 !important;
-            box-shadow: 0 0 0 1px rgba(33, 150, 243, 0.3), 0 0 0 2px rgba(204, 0, 0, 0.3);
-        }
-
-        .move.opponent-divergence {
-            border: 2px solid #ff4444 !important;
-            background: transparent !important;
-            color: #333 !important;
-            font-weight: bold;
-        }
-
-        .move.opponent-divergence.current {
-            border: 2px solid #2196F3 !important;
-            box-shadow: 0 0 0 1px rgba(33, 150, 243, 0.3), 0 0 0 2px #ff4444;
-        }
-
-        .white-move {
-            background: #fff;
-        }
-
-        .black-move {
-            background: #f0f0f0;
-        }
-
-        .move-number {
-            font-weight: bold;
-            color: #666;
-            margin-right: 5px;
-        }
-
-        .position-info {
-            margin-top: 15px;
-            padding: 10px;
-            background: #e3f2fd;
-            border-radius: 5px;
-            text-align: center;
-            font-family: 'Courier New', monospace;
-            font-size: 12px;
-        }
-
-        .move-navigation {
-            margin-top: 10px;
-            padding: 10px;
-            background: #fff3e0;
-            border-radius: 5px;
-            display: flex;
-            gap: 5px;
-            flex-wrap: wrap;
-            justify-content: center;
-            max-height: 150px;
-            overflow-y: auto;
-        }
-
-        .move-btn {
-            padding: 5px 10px;
-            border: 1px solid #ddd;
-            border-radius: 3px;
-            cursor: pointer;
-            background: white;
-            font-size: 12px;
-        }
-
-        .move-btn:hover {
-            background: #f0f0f0;
-        }
-
-        .move-btn.active {
-            background: #4CAF50;
-            color: white;
-            border-color: #4CAF50;
-        }
-
-        /* Variation styles (Lichess style) */
-        .variation {
-            color: #888;
-            font-size: 0.9em;
-            margin-left: 5px;
-            margin-right: 5px;
-        }
-
-        .variation .move {
-            color: #555;
-            background: transparent;
-            padding: 1px 3px;
-        }
-
-        .variation .move:hover {
-            background: #e0e0e0;
-            color: #333;
-        }
-
-        .variation .move.active {
-            background: #a5d6a7;
-            /* Light green */
-            color: #1b5e20;
-        }
-
-        .variation .move.current {
-            background: #2196F3 !important;
-            color: white !important;
-            border-bottom: none;
-        }
-
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: #f1f1f1;
-            border-radius: 5px;
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: #888;
-            border-radius: 5px;
-        }
-
-        ::-webkit-scrollbar-thumb:hover {
-            background: #555;
         }
 
         .game-navigation-bar {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
-            padding: 10px;
-            background: #fff;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--glass-border);
         }
 
-        .nav-btn {
-            background-color: #f8f9fa;
-            border: 1px solid #dee2e6;
-            color: #495057;
-            padding: 8px 16px;
-            text-align: center;
-            text-decoration: none;
-            display: inline-block;
-            font-size: 14px;
-            font-weight: 500;
-            border-radius: 5px;
+        .main-content {
+            display: flex;
+            flex-direction: column;
+        }
+
+        @media (min-width: 992px) {
+            .main-content {
+                flex-direction: row;
+            }
+        }
+
+        .board-container {
+            flex: 1.2;
+            padding: 2.5rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        #chessboard {
+            box-shadow: var(--shadow-xl);
+            border-radius: 8px;
+            border: 1px solid var(--glass-border);
+        }
+
+        .controls {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: center;
+            margin-top: 2rem;
+        }
+
+        .btn-nav {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--glass-border);
+            color: var(--text-main);
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
             cursor: pointer;
             transition: all 0.2s;
+            font-size: 0.875rem;
         }
 
-        .nav-btn:hover {
-            background-color: #e2e6ea;
-            border-color: #dae0e5;
-            color: #212529;
+        .btn-nav:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--primary);
         }
 
-        .nav-btn.disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            pointer-events: none;
+        .move-list-container {
+            flex: 1;
+            padding: 2rem;
+            background: rgba(0, 0, 0, 0.2);
+            border-left: 1px solid var(--glass-border);
+            max-height: 800px;
+            overflow-y: auto;
         }
 
-        .nav-btn.primary {
-            background-color: #2196F3;
-            color: white;
-            border-color: #1e88e5;
+        .move-list-title {
+            font-size: 1.125rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
         }
 
-        .nav-btn.primary:hover {
-            background-color: #1e88e5;
-            border-color: #1976d2;
+        .move-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.25rem 0.5rem;
+            line-height: 1.8;
         }
 
-        .game-counter {
-            font-size: 14px;
-            color: #666;
-            font-weight: 500;
+        .move {
+            padding: 2px 6px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.9375rem;
+        }
+
+        .move:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .move.active {
+            color: #10b981;
+            font-weight: 600;
+        }
+
+        .move.current {
+            background: var(--primary);
+            color: white !important;
+        }
+
+        .move.divergence-move {
+            background: rgba(239, 68, 68, 0.2);
+            border: 1px solid #ef4444;
+            color: #f87171 !important;
+        }
+
+        .move.opponent-divergence {
+            background: rgba(16, 185, 129, 0.15);
+            border: 1px solid #10b981;
+            color: #34d399 !important;
+        }
+
+        .move-number {
+            color: var(--text-muted);
+            font-weight: 700;
+            user-select: none;
+        }
+
+        .variation {
+            color: var(--text-muted);
+            font-style: italic;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 4px;
+            padding: 0 4px;
+        }
+
+        .position-info {
+            margin-top: 1.5rem;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            background: rgba(0, 0, 0, 0.1);
+            padding: 0.75rem;
+            border-radius: 8px;
+            width: 100%;
+            text-align: center;
         }
     </style>
+    <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 
 <body>
     <div class="container">
         <div class="game-navigation-bar">
             {% if game_index is not none and game_index > 0 %}
-            <a href="game_{{ game_index - 1 }}.html" class="nav-btn">← Previous Game</a>
+            <a href="game_{{ game_index - 1 }}.html" class="btn-nav">
+                <i data-lucide="chevron-left"></i>
+                <span>Previous Game</span>
+            </a>
             {% else %}
-            <span class="nav-btn disabled">← Previous Game</span>
+            <span class="btn-nav disabled">
+                <i data-lucide="chevron-left"></i>
+                <span>Previous Game</span>
+            </span>
             {% endif %}
 
-            <div style="display: flex; align-items: center; gap: 15px;">
-                <a href="{{ index_filename }}" class="nav-btn primary">Home / Index</a>
+            <div style="display: flex; align-items: center; gap: 1rem;">
+                <a href="{{ index_filename }}" class="btn">
+                    <i data-lucide="home"></i>
+                    <span>Index</span>
+                </a>
                 {% if game_index is not none and total_games is not none %}
-                <span class="game-counter">Game {{ game_index + 1 }} of {{ total_games }}</span>
+                <span class="subtitle">Game {{ game_index + 1 }} of {{ total_games }}</span>
                 {% endif %}
             </div>
 
             {% if game_index is not none and total_games is not none and game_index < total_games - 1 %} <a
-                href="game_{{ game_index + 1 }}.html" class="nav-btn">Next Game →</a>
+                href="game_{{ game_index + 1 }}.html" class="btn-nav">
+                <span>Next Game</span>
+                <i data-lucide="chevron-right"></i>
+                </a>
                 {% else %}
-                <span class="nav-btn disabled">Next Game →</span>
+                <span class="btn-nav disabled">
+                    <span>Next Game</span>
+                    <i data-lucide="chevron-right"></i>
+                </span>
                 {% endif %}
         </div>
 
         <div class="header">
             <h1>{{ event }}</h1>
-            <div class="game-info">
-                <div><strong>White:</strong> {{ white }}</div>
-                <div><strong>Black:</strong> {{ black }}</div>
-                <div><strong>Result:</strong> {{ result }}</div>
-                {% if date %}<div><strong>Date:</strong> {{ date }}</div>{% endif %}
-                {% if site %}<div><strong>Site:</strong> {{ site }}</div>{% endif %}
-            </div>
+            <p class="subtitle" style="display: flex; justify-content: center; gap: 1.5rem; flex-wrap: wrap;">
+                <span><strong>W:</strong> {{ white }}</span>
+                <span><strong>B:</strong> {{ black }}</span>
+                <span><strong>Res:</strong> {{ result }}</span>
+                {% if date %}<span><strong>Date:</strong> {{ date }}</span>{% endif %}
+            </p>
         </div>
 
         <div class="main-content">
             <div class="board-container">
-                <div class="board-wrapper">
-                    <div id="chessboard"></div>
-                </div>
+                <div id="chessboard"></div>
 
                 <div class="controls">
-                    <button class="btn first" onclick="goToMove(0)">⏮ First</button>
-                    <button class="btn prev" onclick="previousMove()">⏪ Previous</button>
-                    <button class="btn next" onclick="nextMove()">Next ⏩</button>
-                    <button class="btn last" onclick="goToMove({{ positions|length - 1 }})">Last ⏭</button>
+                    <button class="btn-nav first" onclick="goToMove(0)" title="First">
+                        <i data-lucide="chevrons-left"></i>
+                    </button>
+                    <button class="btn-nav prev" onclick="previousMove()" title="Previous">
+                        <i data-lucide="chevron-left"></i>
+                    </button>
+                    <button class="btn-nav next" onclick="nextMove()" title="Next">
+                        <i data-lucide="chevron-right"></i>
+                    </button>
+                    <button class="btn-nav last" onclick="goToMove({{ positions|length - 1 }})" title="Last">
+                        <i data-lucide="chevrons-right"></i>
+                    </button>
                 </div>
 
                 <div class="position-info">
-                    <div>Move: <span id="current-move">0</span> / <span id="total-moves">{{ positions|length - 1
-                            }}</span></div>
-                    <div>Position: <span id="position-fen"></span></div>
-                </div>
-
-                <div class="move-navigation">
-                    {% for i in range(positions|length) %}
-                    <button class="move-btn" data-move="{{ i }}">{{ i }}</button>
-                    {% endfor %}
+                    <strong>Move:</strong> <span id="current-move">0</span> / <span id="total-moves">{{ positions|length
+                        - 1 }}</span>
+                    <div style="margin-top: 5px; opacity: 0.8; font-size: 0.65rem;" id="position-fen"></div>
                 </div>
             </div>
 
@@ -736,6 +533,7 @@
         });
 
         window.addEventListener('load', init);
+        lucide.createIcons();
     </script>
 </body>
 

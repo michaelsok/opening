@@ -78,6 +78,7 @@ MAX_FILE_SIZE = 2 * 1024 * 1024  # 2MB
 async def upload_repertoire(
     request: Request,
     username: str = Form(...),
+    color: str = Form('white'),
     file: UploadFile = File(...)
 ):
     """
@@ -100,7 +101,7 @@ async def upload_repertoire(
     if b"[" not in content:
         raise HTTPException(status_code=400, detail="Invalid PGN format")
 
-    result = handle_repertoire_upload(username, content, file.filename)
+    result = handle_repertoire_upload(username, content, file.filename, color=color)
     
     if result["status"] == "error":
         raise HTTPException(status_code=500, detail="Failed to process repertoire")

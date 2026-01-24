@@ -33,10 +33,21 @@ def _get_jinja_env(variant: Optional[str] = None) -> jinja2.Environment:
     """Get the Jinja2 environment for loading templates."""
     base_dir = Path(__file__).parent / "templates"
     template_dir = base_dir / variant if variant and variant != "standard" else base_dir
-    return jinja2.Environment(
+    
+    env = jinja2.Environment(
         loader=jinja2.FileSystemLoader(template_dir),
         autoescape=jinja2.select_autoescape(['html', 'xml'])
     )
+    
+    def load_css(filename):
+        css_path = base_dir / "css" / filename
+        if css_path.exists():
+            with open(css_path, "r", encoding="utf-8") as f:
+                return f.read()
+        return ""
+    
+    env.filters['load_css'] = load_css
+    return env
 
 def display_game_from_pgn(
     pgn_file_path: Union[str, Path],
@@ -715,6 +726,25 @@ def create_index_html(
 
     # Cache for parsed trees: (color, category_stem) -> PGNTree
     tree_cache = {}
+    
+    # If starting with a list of PGNs, pre-populate the tree cache
+    if isinstance(opening_repertoire, list):
+        for rep_pgn in opening_repertoire:
+            rep_tree = parse_pgn_string_to_tree(rep_pgn)
+            # Find which opening this repository matches
+            temp_game = chess.pgn.read_game(io.StringIO(rep_pgn))
+            if temp_game:
+                rep_moves = []
+                temp_board = temp_game.board()
+                for m in temp_game.mainline_moves():
+                    rep_moves.append(temp_board.san(m))
+                    temp_board.push(m)
+                
+                rep_category = classify_opening(rep_moves)
+                stem = rep_category.lower().replace(" ", "_").replace("'", "")
+                # Store for both colors if unknown, or just use it as a generic match
+                tree_cache[('white', stem)] = rep_tree
+                tree_cache[('black', stem)] = rep_tree
     
     def get_cached_tree(color: str, category: str):
         stem = category.lower().replace(" ", "_").replace("'", "")
