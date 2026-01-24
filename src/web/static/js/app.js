@@ -231,6 +231,80 @@ document.addEventListener('DOMContentLoaded', () => {
         fileInfo.classList.add('hidden');
         uploadZone.classList.remove('hidden');
         analyzeBtn.disabled = true;
+        analysisResult.classList.add('hidden');
         showStep(dashboardStep);
+    });
+
+    // --- Analysis Filters & Trigger ---
+    const runAnalysisBtn = document.getElementById('run-analysis-btn');
+    const analysisYear = document.getElementById('analysis-year');
+    const analysisMonth = document.getElementById('analysis-month');
+    const analysisResult = document.getElementById('analysis-result');
+    const analysisInfo = document.getElementById('analysis-info');
+    const viewReportLink = document.getElementById('view-report-link');
+
+    // Set default month to current
+    const now = new Date();
+    analysisYear.value = now.getFullYear().toString();
+    analysisMonth.value = (now.getMonth() + 1).toString().padStart(2, '0');
+
+    let analysisColor = ''; // empty string means "All Games"
+
+    document.querySelectorAll('[data-analysis-color]').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('[data-analysis-color]').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            analysisColor = btn.dataset.analysisColor;
+        });
+    });
+
+    runAnalysisBtn.addEventListener('click', async () => {
+        if (!currentUser) return;
+
+        runAnalysisBtn.disabled = true;
+        runAnalysisBtn.innerHTML = '<div class="loader"></div>';
+        analysisResult.classList.add('hidden');
+
+        try {
+            const formData = new FormData();
+            formData.append('username', currentUser.username);
+            formData.append('year', analysisYear.value);
+            formData.append('month', analysisMonth.value);
+            if (analysisColor) {
+                formData.append('color', analysisColor);
+            }
+
+            const response = await fetch(`${API_BASE}/analysis/run`, {
+                method: 'POST',
+                body: formData
+            });
+
+            if (!response.ok) {
+                const data = await response.json();
+                throw new Error(data.detail || 'Analysis failed');
+            }
+
+            const data = await response.json();
+
+            if (data.status === 'empty') {
+                analysisInfo.textContent = data.message;
+                analysisInfo.style.color = 'var(--text-muted)';
+                viewReportLink.classList.add('hidden');
+            } else {
+                analysisInfo.textContent = `Generated report for ${data.game_count} games!`;
+                analysisInfo.style.color = '#10b981';
+                viewReportLink.href = data.report_url;
+                viewReportLink.classList.remove('hidden');
+            }
+
+            analysisResult.classList.remove('hidden');
+        } catch (err) {
+            console.error(err);
+            alert(err.message);
+        } finally {
+            runAnalysisBtn.disabled = false;
+            runAnalysisBtn.innerHTML = '<span>Find Games & Divergences</span><i data-lucide="scan-search"></i>';
+            lucide.createIcons();
+        }
     });
 });

@@ -10,7 +10,10 @@ import logging
 import os
 from .auth import verify_chess_user
 from .repertoire import handle_repertoire_upload
-from .database import initialize_db
+from .database import initialize_db, get_repertoires_by_user
+from src.api.chesscom_api import get_games_from_chesscom
+from src.visualization.chess_display import create_index_html
+from pathlib import Path
 
 # Setup logging
 logging.basicConfig(level=logging.INFO)
@@ -29,6 +32,11 @@ async def startup_event():
 # Mount static files
 app.mount("/static", StaticFiles(directory="src/web/static"), name="static")
 
+# Mount reports directory to serve generated analysis
+REPORTS_DIR = Path("reports")
+REPORTS_DIR.mkdir(exist_ok=True)
+app.mount("/reports", StaticFiles(directory="reports"), name="reports")
+
 # Configure CORS - Restrict to specific origins in production
 app.add_middleware(
     CORSMiddleware,
@@ -42,7 +50,7 @@ app.add_middleware(
 @app.middleware("http")
 async def add_security_headers(request: Request, call_next):
     response = await call_next(request)
-    response.headers["Content-Security-Policy"] = "default-src 'self'; connect-src 'self'; script-src 'self' unpkg.com; style-src 'self' fonts.googleapis.com 'unsafe-inline'; font-src fonts.gstatic.com; img-src 'self' data: https://images.chesscomfiles.com https://www.chess.com https://www.chess.com/bundles/web/images/noavatar_l.84a92b24.gif;"
+    response.headers["Content-Security-Policy"] = "default-src 'self'; connect-src 'self' unpkg.com; script-src 'self' unpkg.com; style-src 'self' unpkg.com fonts.googleapis.com 'unsafe-inline'; font-src fonts.gstatic.com; img-src 'self' data: https://images.chesscomfiles.com https://www.chess.com https://www.chess.com/bundles/web/images/noavatar_l.84a92b24.gif;"
     response.headers["X-Content-Type-Options"] = "nosniff"
     response.headers["X-Frame-Options"] = "DENY"
     response.headers["X-XSS-Protection"] = "1; mode=block"
@@ -112,6 +120,69 @@ async def upload_repertoire(
         raise HTTPException(status_code=500, detail="Failed to process repertoire")
     
     return result
+
+@app.post("/analysis/run")
+@limiter.limit("2/minute")
+async def run_analysis(
+    request: Request,
+    username: str = Form(...),
+    year: str = Form(...),
+    month: str = Form(...),
+    color: Optional[str] = Form(None)
+):
+    """
+    Endpoint to fetch games from Chess.com and run divergence analysis.
+    """
+    try:
+        # 1. Fetch user repertoires from DB
+        repertoires = get_repertoires_by_user(username)
+        if not repertoires:
+            raise HTTPException(status_code=400, detail="No repertoire found. Please upload one first.")
+        
+        # Combine all PGNs from stored repertoires
+        repertoire_pgns = [r['pgn_content'] for r in repertoires]
+        
+        # 2. Fetch games from Chess.com
+        logger.info(f"Fetching games for {username} for {year}-{month}...")
+        games_data = get_games_from_chesscom(username, year, month, color=color)
+        
+        if not games_data:
+            return {
+                "status": "empty",
+                "message": f"No games found on Chess.com for {username} in {year}-{month}"
+            }
+        
+        # Extract PGN strings
+        game_pgns = [g.get('pgn') for g in games_data if g.get('pgn')]
+        
+        if not game_pgns:
+             return {
+                "status": "empty",
+                "message": "Found games but they don't contain PGN data."
+            }
+
+        # 3. Generate Report
+        report_filename = f"{username.lower()}_{year}_{month}_analysis.html"
+        report_path = REPORTS_DIR / report_filename
+        
+        logger.info(f"Generating report: {report_path}")
+        create_index_html(
+            games=game_pgns,
+            opening_repertoire=repertoire_pgns,
+            target_username=username,
+            output_file=str(report_path),
+            open_in_browser=False
+        )
+        
+        return {
+            "status": "success",
+            "report_url": f"/reports/{report_filename}",
+            "game_count": len(game_pgns)
+        }
+        
+    except Exception as e:
+        logger.error(f"Analysis failed for {username}: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=str(e))
 
 if __name__ == "__main__":
     import uvicorn
