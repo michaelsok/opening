@@ -18,10 +18,9 @@ I have completed a comprehensive UX and navigation overhaul to address user feed
 
 ### 3. Unified Styles Architecture
 - **Standardization**: Refactored the report generation to copy the main application's `styles.css` into the generated report directory.
-- **HTML Structure Repair**: Fixed a critical bug where CSS content was appearing as raw text on the page. Ensured that all templates (`index.html`, `single_game.html`, `multi_game.html`) correctly:
-    1. Link to the external `styles.css` for consistent app-wide styling.
-    2. Use ` <style>` tags to properly wrap page-specific CSS rules.
-- **Benefit**: This guarantees that reports look identical to the main application, renders cleanly without text leakage, and ensures efficient caching.
+- **HTML Structure Repair**: Fixed a critical bug where CSS content was appearing as raw text on the page. Ensured that all templates correctly use ` <style>` tags to properly wrap page-specific CSS rules.
+- **Layout Logic**: Fixed a layout bug where the game viewer was constricted to a narrow centered column. Implemented explicit overrides in report templates to force `display: block` and `width: 100%`, restoring the full-screen layout.
+- **Visual Highlighting**: Enforced the current move highlight style ensuring it persists even when sharing base styles.
 
 ### 4. Robust Report Navigation
 - **Unique Directories**: Each analysis run creates a timestamped directory in `reports/` (e.g., `reports/magnuscarlsen_20260124_232600/`) to prevent filename collisions.
@@ -33,8 +32,9 @@ I have completed a comprehensive UX and navigation overhaul to address user feed
 - **Scenario**: analyzed 10 Blitz games for `magnuscarlsen` from Jan 1, 2024 to Jan 2, 2024.
 - **Results**:
     - Progress bar moved smoothly through fetching -> analysis -> report generation.
-    - Final report opened with correct dark background styling and no visible CSS code.
-    - Clicking on games in the report index successfully opened the detailed analysis view.
+    - Final report uses the correct dark styling with no raw text leakage.
+    - **Layout**: The game board and move list now use the full available width as intended.
+    - **Highlights**: The current move in the move list is clearly highlighted with the primary brand color.
 
 ## How to use
 1.  **Select Dates**: Pick a specific start and end date for your analysis.

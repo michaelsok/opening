@@ -7,6 +7,15 @@
     <title>Chess Game Viewer - {{ event }}</title>
     <link rel="stylesheet" href="styles.css">
     <style>
+        body {
+            display: block !important;
+            justify-content: unset !important;
+            align-items: unset !important;
+            padding: 0 !important;
+            height: auto !important;
+            min-height: 100vh;
+        }
+
         .game-navigation-bar {
             display: flex;
             justify-content: space-between;
@@ -107,7 +116,7 @@
         }
 
         .move.current {
-            background: var(--primary);
+            background: var(--primary) !important;
             color: white !important;
         }
 
