@@ -701,38 +701,20 @@ def create_index_html(
     
     # Map categories to PGN files if we have a directory
     category_to_path = {}
-    
-    if isinstance(opening_repertoire, (str, Path)):
-        repertoire_root = Path(opening_repertoire)
-        if repertoire_root.is_dir():
-            # Index all split files
-            for color in ["white", "black"]:
-                color_dir = repertoire_root / color / "split"
-                if color_dir.is_dir():
-                    for pgn_file in color_dir.glob("*.pgn"):
-                        # We use the filename (without .pgn) as a key
-                        category_to_path[(color, pgn_file.stem)] = pgn_file
-                        
-            # Also check base color dirs just in case
-            for color in ["white", "black"]:
-                color_dir = repertoire_root / color
-                if color_dir.is_dir():
-                    for pgn_file in color_dir.glob("*.pgn"):
-                        stem = pgn_file.stem
-                        if (color, stem) not in category_to_path:
-                            category_to_path[(color, stem)] = pgn_file
-        else:
-            raise ValueError(f"Opening repertoire path is not a directory: {opening_repertoire}")
-
     # Cache for parsed trees: (color, category_stem) -> PGNTree
     tree_cache = {}
-    
-    # If starting with a list of PGNs, pre-populate the tree cache
-    if isinstance(opening_repertoire, list):
-        for rep_pgn in opening_repertoire:
-            rep_tree = parse_pgn_string_to_tree(rep_pgn)
-            # Find which opening this repository matches
-            temp_game = chess.pgn.read_game(io.StringIO(rep_pgn))
+    # Flat list of all trees for robust matching
+    all_trees_list = []
+    # Map from tree object id to PGN content
+    tree_to_pgn = {}
+
+    def load_pgn_into_cache(pgn_str: str, color_hint: Optional[str] = None, stem_hint: Optional[str] = None):
+        try:
+            tree = parse_pgn_string_to_tree(pgn_str)
+            all_trees_list.append(tree)
+            tree_to_pgn[id(tree)] = pgn_str
+            
+            temp_game = chess.pgn.read_game(io.StringIO(pgn_str))
             if temp_game:
                 rep_moves = []
                 temp_board = temp_game.board()
@@ -740,25 +722,53 @@ def create_index_html(
                     rep_moves.append(temp_board.san(m))
                     temp_board.push(m)
                 
-                rep_category = classify_opening(rep_moves)
-                stem = rep_category.lower().replace(" ", "_").replace("'", "")
-                # Store for both colors if unknown, or just use it as a generic match
-                tree_cache[('white', stem)] = rep_tree
-                tree_cache[('black', stem)] = rep_tree
-    
+                if rep_moves:
+                    rep_category = classify_opening(rep_moves)
+                    stem = rep_category.lower().replace(" ", "_").replace("'", "")
+                    if color_hint:
+                        tree_cache[(color_hint, stem)] = tree
+                    else:
+                        tree_cache[('white', stem)] = tree
+                        tree_cache[('black', stem)] = tree
+                
+                if stem_hint and color_hint:
+                    tree_cache[(color_hint, stem_hint)] = tree
+        except Exception:
+            pass
+
+    if isinstance(opening_repertoire, (str, Path)):
+        repertoire_root = Path(opening_repertoire)
+        if repertoire_root.is_dir():
+            # Check all .pgn files recursively
+            for pgn_file in repertoire_root.rglob("*.pgn"):
+                # Determine color code from path or filename
+                color_hint = None
+                parts = [p.lower() for p in pgn_file.parts]
+                full_path_lower = str(pgn_file).lower()
+                
+                if "white" in full_path_lower: color_hint = "white"
+                elif "black" in full_path_lower: color_hint = "black"
+                
+                with open(pgn_file, encoding="utf-8") as f:
+                    content = f.read()
+                    load_pgn_into_cache(content, color_hint, pgn_file.stem)
+                    if color_hint:
+                        category_to_path[(color_hint, pgn_file.stem)] = pgn_file
+                    else:
+                        # If no color info, register for both
+                        category_to_path[("white", pgn_file.stem)] = pgn_file
+                        category_to_path[("black", pgn_file.stem)] = pgn_file
+        else:
+            raise ValueError(f"Opening repertoire path is not a directory: {opening_repertoire}")
+    elif isinstance(opening_repertoire, list):
+        for rep_pgn in opening_repertoire:
+            load_pgn_into_cache(rep_pgn)
+
     def get_cached_tree(color: str, category: str):
         stem = category.lower().replace(" ", "_").replace("'", "")
-        key = (color, stem)
-        if key in tree_cache:
-            return tree_cache[key]
-        
-        path = category_to_path.get(key)
-        if path and path.exists():
-            with open(path, encoding="utf-8") as f:
-                tree = parse_pgn_string_to_tree(f.read())
-                tree_cache[key] = tree
-                return tree
-        return None
+        if color:
+            return tree_cache.get((color, stem))
+        return tree_cache.get(('white', stem)) or tree_cache.get(('black', stem))
     
     # Results container
     game_data_list = []
@@ -766,8 +776,7 @@ def create_index_html(
     for idx, game_pgn in enumerate(games):
         try:
             game_obj = chess.pgn.read_game(io.StringIO(game_pgn))
-            if game_obj is None:
-                continue
+            if game_obj is None: continue
                 
             headers = dict(game_obj.headers)
             user_color = None
@@ -778,48 +787,54 @@ def create_index_html(
                 elif headers.get('Black', '').lower() == target_username_lower:
                     user_color = 'black'
 
-            # Extract moves for classification
             board = game_obj.board()
             moves_san_list = []
             for move in game_obj.mainline_moves():
                 moves_san_list.append(board.san(move))
                 board.push(move)
             
-            # Step 1: Classify the opening
             category = classify_opening(moves_san_list)
-            
-            # Step 2: Load the specific repertoire tree and find divergence
             game_tree = parse_pgn_string_to_tree(game_pgn)
             divergence_point = None
             matching_opening_pgn = None
             full_repertoire_pgn_str = None
             
+            # Step 1: Try specific match
+            specific_tree = None
             if user_color:
                 specific_tree = get_cached_tree(user_color, category)
-                if specific_tree:
-                    divergence_point = find_divergence_point(game_tree, specific_tree)
-                    
-                    # Store the repertoire PGN content for the viewer
-                    stem = category.lower().replace(" ", "_").replace("'", "")
-                    path = category_to_path.get((user_color, stem))
-                    if path:
-                        with open(path, encoding="utf-8") as f:
-                            full_repertoire_pgn_str = f.read()
-                            matching_opening_pgn = full_repertoire_pgn_str
+            
+            # Step 2: Fallback to all trees if no specific match
+            if not specific_tree and all_trees_list:
+                # If we know the user color, we SHOULD prefer trees matching that color
+                relevant_trees = []
+                if user_color:
+                    relevant_trees = list(set(tree for (color, stem), tree in tree_cache.items() if color == user_color))
+                
+                if not relevant_trees:
+                    relevant_trees = all_trees_list
+                
+                divergence_point, best_idx = find_first_divergence_across_openings(game_tree, relevant_trees)
+                if best_idx is not None:
+                    matched_tree = relevant_trees[best_idx]
+                    matching_opening_pgn = tree_to_pgn.get(id(matched_tree))
+                    full_repertoire_pgn_str = matching_opening_pgn
+            elif specific_tree:
+                divergence_point = find_divergence_point(game_tree, specific_tree)
+                matching_opening_pgn = tree_to_pgn.get(id(specific_tree))
+                full_repertoire_pgn_str = matching_opening_pgn
             
             # Final data entry
             game_data_list.append({
-                'index': idx,
-                'pgn': game_pgn,
-                'game': game_obj,
-                'headers': headers,
-                'divergence_point': divergence_point if divergence_point else [],
+                'index': idx, 'pgn': game_pgn, 'game': game_obj, 'headers': headers,
+                'divergence_point': divergence_point if divergence_point is not None else [],
                 'opening_pgn': matching_opening_pgn,
                 'full_repertoire_pgn': full_repertoire_pgn_str,
-                'opening_idx': None, 
-                'user_color': user_color,
-                'category': category
+                'opening_idx': None, 'user_color': user_color, 'category': category
             })
+        except Exception as e:
+            logger.error(f"Error processing game {idx}: {e}")
+            continue
         except Exception as e:
             logger.error(f"Error processing game {idx}: {e}")
             continue

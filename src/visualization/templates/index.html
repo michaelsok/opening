@@ -124,41 +124,43 @@
     <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 
-<div class="container">
-    <div class="header">
-        <h1>♟️ Chess Games Index</h1>
-        <p class="subtitle">Click on any game to view it with divergence analysis</p>
-    </div>
+<body>
 
-    <div class="info-box">
-        <h3>About This Index</h3>
-        <p>This page shows all games analyzed against the opening repertoire.</p>
-        <p>Games that diverge from the repertoire are highlighted in orange.</p>
-        <p>Click any game to open its interactive viewer with divergence highlighting.</p>
-    </div>
-
-    <div class="games-list">
-        {% for game in game_list %}
-        <div class="game-item" onclick="window.open('{{ game.viewer_file }}', '_blank')">
-            <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
-            <div class="game-meta">
-                <div class="game-header">
-                    <span class="game-number">#{{ game.index }}</span>
-                    <span class="game-title">{{ game.event }}</span>
-                    <span class="game-result">{{ game.result }}</span>
-                </div>
-                <div class="game-players">{{ game.white }} vs {{ game.black }}{% if game.date %} • {{ game.date }}{%
-                    endif %}</div>
-                <div class="game-divergence{% if game.is_opponent_divergence %} opponent-divergence{% endif %}">{{
-                    game.divergence_html|safe }}</div>
-            </div>
+    <div class="container">
+        <div class="header">
+            <h1>♟️ Chess Games Index</h1>
+            <p class="subtitle">Click on any game to view it with divergence analysis</p>
         </div>
-        {% endfor %}
+
+        <div class="info-box">
+            <h3>About This Index</h3>
+            <p>This page shows all games analyzed against the opening repertoire.</p>
+            <p>Games that diverge from the repertoire are highlighted in orange.</p>
+            <p>Click any game to open its interactive viewer with divergence highlighting.</p>
+        </div>
+
+        <div class="games-list">
+            {% for game in game_list %}
+            <div class="game-item" onclick="window.open('{{ game.viewer_file }}', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#{{ game.index }}</span>
+                        <span class="game-title">{{ game.event }}</span>
+                        <span class="game-result">{{ game.result }}</span>
+                    </div>
+                    <div class="game-players">{{ game.white }} vs {{ game.black }}{% if game.date %} • {{ game.date }}{%
+                        endif %}</div>
+                    <div class="game-divergence{% if game.is_opponent_divergence %} opponent-divergence{% endif %}">{{
+                        game.divergence_html|safe }}</div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
     </div>
-</div>
-<script>
-    lucide.createIcons();
-</script>
+    <script>
+        lucide.createIcons();
+    </script>
 </body>
 
 </html>

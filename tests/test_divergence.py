@@ -29,6 +29,7 @@ def test_first_move_divergence(tmp_path):
     with open(output_file, 'r') as f:
         index_content = f.read()
     
+    assert "class=\"game-divergence" in index_content
     assert "Player diverges at: 1. d4" in index_content
     
     # Check individual game file
