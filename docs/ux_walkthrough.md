@@ -16,9 +16,10 @@ I have completed a comprehensive UX and navigation overhaul to address user feed
 - **Date Range**: Replaced rigid Year/Month dropdowns with flexible **Start Date** and **End Date** pickers.
 - **Time Controls**: Added a selector for **Time Control** (Blitz, Rapid, Bullet, Daily).
 
-### 3. Unified Glassmorphism Styling
-- **Background Consistency**: Fixed a bug where generated reports had a white background. Implemented a robust CSS loader with fallback styles to ensure the premium dark theme (radial gradient + glassmorphism) is applied to all pages.
-- **Implementation**: Fixed Jinja2 template syntax and added error logging for asset loading.
+### 3. Unified Styles Architecture
+- **Standardization**: Refactored the report generation to copy the main application's `styles.css` into the generated report directory.
+- **External Linking**: All report templates (`index.html`, `single_game.html`, `multi_game.html`) now use a standard `<link rel="stylesheet" href="styles.css">` tag.
+- **Benefit**: This guarantees that reports look identical to the main application and eliminates issues with inline CSS injection or caching.
 
 ### 4. Robust Report Navigation
 - **Unique Directories**: Each analysis run creates a timestamped directory in `reports/` (e.g., `reports/magnuscarlsen_20260124_232600/`) to prevent filename collisions.
@@ -27,10 +28,10 @@ I have completed a comprehensive UX and navigation overhaul to address user feed
 ## Verification
 
 ### End-to-End Test
-- **Scenario**: analyzed 20 Blitz games for `magnuscarlsen` from Jan 1, 2024 to Jan 5, 2024.
+- **Scenario**: analyzed 20 Blitz games for `magnuscarlsen` from Jan 1, 2024 to Jan 2, 2024.
 - **Results**:
     - Progress bar moved smoothly through fetching -> analysis -> report generation.
-    - Final report opened with correct dark background styling.
+    - Final report opened with correct dark background styling sourced from the verified `styles.css`.
     - Clicking on games in the report index successfully opened the detailed analysis view.
 
 ## How to use

@@ -35,26 +35,10 @@ def _get_jinja_env(variant: Optional[str] = None) -> jinja2.Environment:
     base_dir = Path(__file__).parent / "templates"
     template_dir = base_dir / variant if variant and variant != "standard" else base_dir
     
-    env = jinja2.Environment(
+    return jinja2.Environment(
         loader=jinja2.FileSystemLoader(template_dir),
         autoescape=jinja2.select_autoescape(['html', 'xml'])
     )
-    
-    def load_css(filename):
-        css_path = base_dir / "css" / filename
-        if css_path.exists():
-            with open(css_path, "r", encoding="utf-8") as f:
-                return f.read()
-        else:
-            logger.error(f"CSS file not found at: {css_path.absolute()}")
-            # Fallback style to avoid white flash
-            return """
-            :root { --bg-dark: #0f172a; --text-main: #f8fafc; }
-            body { background-color: var(--bg-dark); color: var(--text-main); font-family: sans-serif; }
-            """
-    
-    env.filters['load_css'] = load_css
-    return env
 
 def display_game_from_pgn(
     pgn_file_path: Union[str, Path],
@@ -890,6 +874,19 @@ def create_index_html(
     
     # Write HTML file
     output_file.parent.mkdir(parents=True, exist_ok=True)
+    
+    # Copy main styles.css to report directory
+    try:
+        import shutil
+        styles_src = Path(__file__).parent.parent / "web" / "static" / "css" / "styles.css"
+        styles_dest = output_file.parent / "styles.css"
+        if styles_src.exists():
+            shutil.copy2(styles_src, styles_dest)
+        else:
+            logger.warning(f"Main styles.css not found at {styles_src}")
+    except Exception as e:
+        logger.error(f"Failed to copy styles.css: {e}")
+
     with open(output_file, 'w', encoding='utf-8') as f:
         f.write(html_content)
     

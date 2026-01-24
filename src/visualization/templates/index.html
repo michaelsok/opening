@@ -5,121 +5,116 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chess Games Index - {{ num_games }} Games</title>
-    <style>
-        {
-                {
-                'reports.css' | load_css | safe
-            }
-        }
+    <link rel="stylesheet" href="styles.css">
 
-        .games-list {
-            padding: 2rem;
-            max-height: calc(100vh - 250px);
-            overflow-y: auto;
-        }
+    .games-list {
+    padding: 2rem;
+    max-height: calc(100vh - 250px);
+    overflow-y: auto;
+    }
 
-        .game-item {
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid var(--glass-border);
-            border-radius: 16px;
-            padding: 1.5rem;
-            margin-bottom: 1rem;
-            cursor: pointer;
-            transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            gap: 1.5rem;
-        }
+    .game-item {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    }
 
-        .game-item:hover {
-            background: rgba(255, 255, 255, 0.06);
-            border-color: var(--primary);
-            transform: translateY(-2px);
-        }
+    .game-item:hover {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: var(--primary);
+    transform: translateY(-2px);
+    }
 
-        .game-meta {
-            flex: 1;
-        }
+    .game-meta {
+    flex: 1;
+    }
 
-        .game-header {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            margin-bottom: 0.5rem;
-        }
+    .game-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.5rem;
+    }
 
-        .game-number {
-            background: rgba(99, 102, 241, 0.2);
-            color: var(--primary);
-            padding: 2px 8px;
-            border-radius: 6px;
-            font-weight: 700;
-            font-size: 0.75rem;
-        }
+    .game-number {
+    background: rgba(99, 102, 241, 0.2);
+    color: var(--primary);
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-weight: 700;
+    font-size: 0.75rem;
+    }
 
-        .game-title {
-            font-size: 1.125rem;
-            font-weight: 700;
-            color: var(--text-main);
-        }
+    .game-title {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--text-main);
+    }
 
-        .game-result {
-            margin-left: auto;
-            background: #10b981;
-            color: white;
-            padding: 2px 10px;
-            border-radius: 6px;
-            font-weight: 700;
-            font-size: 0.875rem;
-        }
+    .game-result {
+    margin-left: auto;
+    background: #10b981;
+    color: white;
+    padding: 2px 10px;
+    border-radius: 6px;
+    font-weight: 700;
+    font-size: 0.875rem;
+    }
 
-        .game-players {
-            color: var(--text-muted);
-            font-size: 0.875rem;
-            margin-bottom: 0.75rem;
-        }
+    .game-players {
+    color: var(--text-muted);
+    font-size: 0.875rem;
+    margin-bottom: 0.75rem;
+    }
 
-        .game-divergence {
-            padding: 0.75rem;
-            background: rgba(245, 158, 11, 0.1);
-            border-left: 3px solid var(--accent);
-            border-radius: 8px;
-            font-size: 0.8125rem;
-        }
+    .game-divergence {
+    padding: 0.75rem;
+    background: rgba(245, 158, 11, 0.1);
+    border-left: 3px solid var(--accent);
+    border-radius: 8px;
+    font-size: 0.8125rem;
+    }
 
-        .game-divergence.opponent-divergence {
-            background: rgba(16, 185, 129, 0.1);
-            border-left-color: #10b981;
-        }
+    .game-divergence.opponent-divergence {
+    background: rgba(16, 185, 129, 0.1);
+    border-left-color: #10b981;
+    }
 
-        .divergence-info {
-            color: var(--accent);
-            font-weight: 600;
-        }
+    .divergence-info {
+    color: var(--accent);
+    font-weight: 600;
+    }
 
-        .game-divergence.opponent-divergence .divergence-info {
-            color: #10b981;
-        }
+    .game-divergence.opponent-divergence .divergence-info {
+    color: #10b981;
+    }
 
-        .info-box {
-            background: rgba(99, 102, 241, 0.05);
-            border: 1px solid var(--glass-border);
-            padding: 1.5rem;
-            margin: 0 2rem 2rem;
-            border-radius: 16px;
-        }
+    .info-box {
+    background: rgba(99, 102, 241, 0.05);
+    border: 1px solid var(--glass-border);
+    padding: 1.5rem;
+    margin: 0 2rem 2rem;
+    border-radius: 16px;
+    }
 
-        .info-box h3 {
-            margin-bottom: 0.5rem;
-            color: var(--primary);
-            font-size: 1rem;
-        }
+    .info-box h3 {
+    margin-bottom: 0.5rem;
+    color: var(--primary);
+    font-size: 1rem;
+    }
 
-        .info-box p {
-            color: var(--text-muted);
-            font-size: 0.875rem;
-            margin-bottom: 0.25rem;
-        }
+    .info-box p {
+    color: var(--text-muted);
+    font-size: 0.875rem;
+    margin-bottom: 0.25rem;
+    }
     </style>
     <script src="https://unpkg.com/lucide@latest"></script>
 </head>
