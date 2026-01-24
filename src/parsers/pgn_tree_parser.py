@@ -57,6 +57,15 @@ class PGNTree:
         board = chess.Board()
         for variation in game.variations:
             self._add_variation(variation, self.root, board.copy())
+            
+    def add_pgn_string(self, pgn_string: str):
+        """Add all games from a PGN string to the tree."""
+        pgn_io = io.StringIO(pgn_string)
+        while True:
+            game = chess.pgn.read_game(pgn_io)
+            if game is None:
+                break
+            self.add_game(game)
     
     def _add_variation(self, node: chess.pgn.GameNode, tree_node: MoveNode, board: chess.Board):
         """Recursively add moves from a PGN game node to the tree."""

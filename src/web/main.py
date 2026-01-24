@@ -1,13 +1,18 @@
 from fastapi import FastAPI, UploadFile, File, HTTPException, Form, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse, JSONResponse
+from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
 from typing import Optional
 import logging
 import os
+import json
+import threading
+import queue
+import asyncio
+from datetime import datetime
 from .auth import verify_chess_user
 from .repertoire import handle_repertoire_upload
 from .database import initialize_db, get_repertoires_by_user
@@ -50,7 +55,8 @@ app.add_middleware(
 @app.middleware("http")
 async def add_security_headers(request: Request, call_next):
     response = await call_next(request)
-    response.headers["Content-Security-Policy"] = "default-src 'self'; connect-src 'self' unpkg.com; script-src 'self' unpkg.com; style-src 'self' unpkg.com fonts.googleapis.com 'unsafe-inline'; font-src fonts.gstatic.com; img-src 'self' data: https://images.chesscomfiles.com https://www.chess.com https://www.chess.com/bundles/web/images/noavatar_l.84a92b24.gif;"
+    # Updated CSP to allow scripts and styles from unpkg and fonts
+    response.headers["Content-Security-Policy"] = "default-src 'self'; connect-src 'self'; script-src 'self' unpkg.com; style-src 'self' unpkg.com fonts.googleapis.com 'unsafe-inline'; font-src fonts.gstatic.com; img-src 'self' data: https://images.chesscomfiles.com https://www.chess.com https://www.chess.com/bundles/web/images/noavatar_l.84a92b24.gif;"
     response.headers["X-Content-Type-Options"] = "nosniff"
     response.headers["X-Frame-Options"] = "DENY"
     response.headers["X-XSS-Protection"] = "1; mode=block"
@@ -128,61 +134,93 @@ async def run_analysis(
     username: str = Form(...),
     year: str = Form(...),
     month: str = Form(...),
-    color: Optional[str] = Form(None)
+    color: Optional[str] = Form(None),
+    start_date: Optional[str] = Form(None)
 ):
     """
-    Endpoint to fetch games from Chess.com and run divergence analysis.
+    Endpoint to fetch games from Chess.com and run divergence analysis with real-time streaming.
     """
-    try:
-        # 1. Fetch user repertoires from DB
-        repertoires = get_repertoires_by_user(username)
-        if not repertoires:
-            raise HTTPException(status_code=400, detail="No repertoire found. Please upload one first.")
-        
-        # Combine all PGNs from stored repertoires
-        repertoire_pgns = [r['pgn_content'] for r in repertoires]
-        
-        # 2. Fetch games from Chess.com
-        logger.info(f"Fetching games for {username} for {year}-{month}...")
-        games_data = get_games_from_chesscom(username, year, month, color=color)
-        
-        if not games_data:
-            return {
-                "status": "empty",
-                "message": f"No games found on Chess.com for {username} in {year}-{month}"
-            }
-        
-        # Extract PGN strings
-        game_pgns = [g.get('pgn') for g in games_data if g.get('pgn')]
-        
-        if not game_pgns:
-             return {
-                "status": "empty",
-                "message": "Found games but they don't contain PGN data."
-            }
+    q = queue.Queue()
+    
+    def background_worker():
+        try:
+            # 1. Fetch user repertoires
+            q.put({"type": "info", "message": "Loading repertoire..."})
+            repertoires = get_repertoires_by_user(username)
+            if not repertoires:
+                q.put({"type": "error", "detail": "No repertoire found. Please upload one first."})
+                return
+            
+            repertoire_pgns = [r['pgn_content'] for r in repertoires]
+            
+            # 2. Parse start_date if provided
+            dt_start_date = None
+            if start_date:
+                try:
+                    dt_start_date = datetime.strptime(start_date, "%Y-%m-%d")
+                except ValueError:
+                    q.put({"type": "error", "detail": "Invalid start_date format. Use YYYY-MM-DD."})
+                    return
 
-        # 3. Generate Report
-        report_filename = f"{username.lower()}_{year}_{month}_analysis.html"
-        report_path = REPORTS_DIR / report_filename
-        
-        logger.info(f"Generating report: {report_path}")
-        create_index_html(
-            games=game_pgns,
-            opening_repertoire=repertoire_pgns,
-            target_username=username,
-            output_file=str(report_path),
-            open_in_browser=False
-        )
-        
-        return {
-            "status": "success",
-            "report_url": f"/reports/{report_filename}",
-            "game_count": len(game_pgns)
-        }
-        
-    except Exception as e:
-        logger.error(f"Analysis failed for {username}: {e}", exc_info=True)
-        raise HTTPException(status_code=500, detail=str(e))
+            # 3. Fetch games
+            q.put({"type": "info", "message": f"Fetching games from Chess.com for {year}-{month}..."})
+            games_data = get_games_from_chesscom(username, year, month, color=color, start_date=dt_start_date)
+            
+            if not games_data:
+                q.put({"type": "empty", "message": f"No games found on Chess.com for {username} in {year}-{month}"})
+                return
+            
+            game_pgns = [g.get('pgn') for g in games_data if g.get('pgn')]
+            if not game_pgns:
+                q.put({"type": "empty", "message": "Found games but they don't contain PGN data."})
+                return
+
+            # 4. Run analysis with progress callback
+            q.put({"type": "info", "message": f"Analyzing {len(game_pgns)} games..."})
+            
+            def progress_callback(current, total):
+                q.put({"type": "progress", "current": current, "total": total})
+
+            report_filename = f"{username.lower()}_{year}_{month}_analysis.html"
+            report_path = REPORTS_DIR / report_filename
+            
+            create_index_html(
+                games=game_pgns,
+                opening_repertoire=repertoire_pgns,
+                target_username=username,
+                output_file=str(report_path),
+                open_in_browser=False,
+                progress_callback=progress_callback
+            )
+            
+            q.put({
+                "type": "success",
+                "report_url": f"/reports/{report_filename}",
+                "game_count": len(game_pgns)
+            })
+            
+        except Exception as e:
+            logger.error(f"Analysis failed for {username}: {e}", exc_info=True)
+            q.put({"type": "error", "detail": str(e)})
+        finally:
+            q.put(None) # End signal
+
+    threading.Thread(target=background_worker, daemon=True).start()
+
+    async def event_stream():
+        while True:
+            # We use an async loop to check the queue periodically
+            # to keep it fully non-blocking for FastAPI
+            try:
+                item = await asyncio.to_thread(q.get, timeout=0.1)
+                if item is None:
+                    break
+                yield json.dumps(item) + "\n"
+            except queue.Empty:
+                await asyncio.sleep(0.1)
+                continue
+
+    return StreamingResponse(event_stream(), media_type="application/x-ndjson")
 
 if __name__ == "__main__":
     import uvicorn

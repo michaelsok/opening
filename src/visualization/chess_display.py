@@ -10,7 +10,7 @@ import chess.pgn
 import chess.svg
 import io
 import json
-from typing import Optional, Union, List
+from typing import Optional, Union, List, Callable, Dict
 from pathlib import Path
 import webbrowser
 import tempfile
@@ -25,6 +25,7 @@ from src.parsers.pgn_tree_parser import (
     parse_pgn_string_to_tree,
     find_first_divergence_across_openings,
     find_divergence_point,
+    PGNTree,
 )
 from src.opening.definitions import classify_opening, get_filename_from_category
 
@@ -676,7 +677,8 @@ def create_index_html(
     output_file: Optional[Union[str, Path]] = None,
     open_in_browser: bool = True,
     size: int = 400,
-    template_variant: str = "standard"
+    template_variant: str = "standard",
+    progress_callback: Optional[Callable[[int, int], None]] = None
 ) -> str:
     """
     Create an index.html file with a list of chess games and their divergence points.
@@ -689,6 +691,8 @@ def create_index_html(
                      If None, saves to src/visualization/index.html
         open_in_browser: If True, automatically opens the HTML file in the default browser
         size: Size of chess board in pixels (default: 400)
+        template_variant: Template variant to use ("standard" or others)
+        progress_callback: Optional function (current, total) called after processing each game
         
     Returns:
         str: Path to the generated index.html file
@@ -705,6 +709,8 @@ def create_index_html(
     tree_cache = {}
     # Flat list of all trees for robust matching
     all_trees_list = []
+    # Master trees for lightning fast color-specific lookup
+    master_trees = {"white": PGNTree(), "black": PGNTree()}
     # Map from tree object id to PGN content
     tree_to_pgn = {}
 
@@ -714,6 +720,13 @@ def create_index_html(
             all_trees_list.append(tree)
             tree_to_pgn[id(tree)] = pgn_str
             
+            # Merge into master trees
+            if color_hint:
+                master_trees[color_hint].add_pgn_string(pgn_str)
+            else:
+                master_trees["white"].add_pgn_string(pgn_str)
+                master_trees["black"].add_pgn_string(pgn_str)
+
             temp_game = chess.pgn.read_game(io.StringIO(pgn_str))
             if temp_game:
                 rep_moves = []
@@ -772,6 +785,7 @@ def create_index_html(
     
     # Results container
     game_data_list = []
+    total_games_count = len(games)
     
     for idx, game_pgn in enumerate(games):
         try:
@@ -804,19 +818,26 @@ def create_index_html(
             if user_color:
                 specific_tree = get_cached_tree(user_color, category)
             
-            # Step 2: Fallback to all trees if no specific match
-            if not specific_tree and all_trees_list:
-                # If we know the user color, we SHOULD prefer trees matching that color
-                relevant_trees = []
-                if user_color:
-                    relevant_trees = list(set(tree for (color, stem), tree in tree_cache.items() if color == user_color))
-                
-                if not relevant_trees:
-                    relevant_trees = all_trees_list
-                
-                divergence_point, best_idx = find_first_divergence_across_openings(game_tree, relevant_trees)
+            # Step 2: Use Master Trees if no specific match (OPTIMIZED FALLBACK)
+            if not specific_tree and user_color:
+                master_tree = master_trees.get(user_color)
+                if master_tree and master_tree.root.children:
+                    divergence_point = find_divergence_point(game_tree, master_tree)
+                    
+                    relevant_trees = [t for (color, stem), t in tree_cache.items() if color == user_color]
+                    if not relevant_trees: relevant_trees = all_trees_list
+                    
+                    _, best_idx = find_first_divergence_across_openings(game_tree, relevant_trees)
+                    if best_idx is not None:
+                         matched_tree = relevant_trees[best_idx]
+                         matching_opening_pgn = tree_to_pgn.get(id(matched_tree))
+                         full_repertoire_pgn_str = matching_opening_pgn
+
+            elif not specific_tree and all_trees_list:
+                # If no user color, still have to scan all, but this is rare
+                divergence_point, best_idx = find_first_divergence_across_openings(game_tree, all_trees_list)
                 if best_idx is not None:
-                    matched_tree = relevant_trees[best_idx]
+                    matched_tree = all_trees_list[best_idx]
                     matching_opening_pgn = tree_to_pgn.get(id(matched_tree))
                     full_repertoire_pgn_str = matching_opening_pgn
             elif specific_tree:
@@ -832,11 +853,14 @@ def create_index_html(
                 'full_repertoire_pgn': full_repertoire_pgn_str,
                 'opening_idx': None, 'user_color': user_color, 'category': category
             })
+            
+            if progress_callback:
+                progress_callback(idx + 1, total_games_count)
+
         except Exception as e:
             logger.error(f"Error processing game {idx}: {e}")
-            continue
-        except Exception as e:
-            logger.error(f"Error processing game {idx}: {e}")
+            if progress_callback:
+                progress_callback(idx + 1, total_games_count)
             continue
     
     if not game_data_list:

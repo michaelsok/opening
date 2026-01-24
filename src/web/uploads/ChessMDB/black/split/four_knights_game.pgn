@@ -1,0 +1,10 @@
+[Event "Four Knights Game Repertoire"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "?"]
+[White "?"]
+[Black "?"]
+[Result "*"]
+
+1. e4 e5 2. Nf3 Nc6 3. Nc3 Nf6 4. Bc4 ( 4. d4 exd4 5. Nxd4 Bb4 6. Nxc6 bxc6 7. Bd3 d5 8. exd5 O-O 9. O-O ( 9. dxc6 Bg4 10. f3 Re8+ 11. Be2 ( 11. Kf1 Bh5 ) ( 11. Kf2 Qd4+ 12. Kf1 Bf5 13. Bxf5 Qxd1+ 14. Nxd1 Re1+ 15. Kf2 Rxh1 ) 11... Nd5 12. fxg4 Nxc3 13. Qxd8 ( 13. bxc3 Bxc3+ 14. Bd2 Bxa1 ) 13... Nxe2+ 14. Bd2 Raxd8 15. Bxb4 Nd4+ 16. Kf2 Nxc2 17. a3 Nxa1 ) 9... cxd5 10. Bg5 c6 11. Qf3 h6 12. Bxf6 Qxf6 13. Qxf6 gxf6 ) ( 4. Bb5 Nd4 5. Nxd4 ( 5. Bc4 Bc5 6. O-O d6 7. h3 O-O 8. d3 c6 ) 5... exd4 6. e5 ( 6. Ne2 Nxe4 7. Nxd4 Bc5 8. Qe2 ( 8. c3 O-O 9. O-O Bxd4 10. cxd4 d5 ) 8... O-O 9. O-O Re8 10. Qd3 c6 11. Ba4 b5 12. Bb3 Qf6 13. c3 a5 ) 6... dxc3 7. exf6 Qxf6 8. dxc3 ( 8. bxc3 c6 9. Be2 d5 ) 8... Qe5+ 9. Qe2 Qxe2+ 10. Bxe2 d5 ) ( 4. Nxe5 Nxe5 5. d4 Ng6 6. e5 Ng8 7. Bc4 d5 8. Bxd5 c6 9. Bb3 Be6 10. O-O Qd7 ) ( 4. d3 Bb4 ) 4... Nxe4 5. Bxf7+ ( 5. Nxe4 d5 6. Bd3 ( 6. Bxd5 Qxd5 7. Nc3 Qd8 ) 6... dxe4 7. Bxe4 Bd6 8. O-O ( 8. Bxc6+ bxc6 ) 8... O-O ) ( 5. O-O Nxc3 6. dxc3 f6 7. Nh4 ( 7. Re1 d6 8. Nh4 g6 9. f4 Qe7 ) 7... g6 8. f4 f5 9. Nf3 Bc5+ 10. Kh1 e4 11. Ng5 ( 11. Qd5 Qe7 12. Ng5 Nd8 ) 11... Qf6 ) 5... Kxf7 6. Nxe4 d5 7. Neg5+ ( 7. Ng3 e4 8. Ng1 Bc5 ) 7... Kg8 8. d3 h6 9. Nh3 Bg4 *
+

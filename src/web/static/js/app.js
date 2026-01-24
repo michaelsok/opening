@@ -239,9 +239,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const runAnalysisBtn = document.getElementById('run-analysis-btn');
     const analysisYear = document.getElementById('analysis-year');
     const analysisMonth = document.getElementById('analysis-month');
+    const analysisStartDate = document.getElementById('analysis-start-date');
     const analysisResult = document.getElementById('analysis-result');
     const analysisInfo = document.getElementById('analysis-info');
     const viewReportLink = document.getElementById('view-report-link');
+    const progressBar = document.getElementById('progress-bar');
+    const gamesRemaining = document.getElementById('games-remaining');
 
     // Set default month to current
     const now = new Date();
@@ -263,16 +266,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
         runAnalysisBtn.disabled = true;
         runAnalysisBtn.innerHTML = '<div class="loader"></div>';
-        analysisResult.classList.add('hidden');
+        analysisResult.classList.remove('hidden');
+        analysisInfo.textContent = 'Preparing...';
+        analysisInfo.style.color = 'var(--text-muted)';
+        progressBar.style.width = '0%';
+        gamesRemaining.textContent = '';
+        viewReportLink.classList.add('hidden');
 
         try {
             const formData = new FormData();
             formData.append('username', currentUser.username);
             formData.append('year', analysisYear.value);
             formData.append('month', analysisMonth.value);
-            if (analysisColor) {
-                formData.append('color', analysisColor);
-            }
+            if (analysisColor) formData.append('color', analysisColor);
+            if (analysisStartDate.value) formData.append('start_date', analysisStartDate.value);
 
             const response = await fetch(`${API_BASE}/analysis/run`, {
                 method: 'POST',
@@ -284,23 +291,57 @@ document.addEventListener('DOMContentLoaded', () => {
                 throw new Error(data.detail || 'Analysis failed');
             }
 
-            const data = await response.json();
+            const reader = response.body.getReader();
+            const decoder = new TextDecoder();
+            let buffer = '';
 
-            if (data.status === 'empty') {
-                analysisInfo.textContent = data.message;
-                analysisInfo.style.color = 'var(--text-muted)';
-                viewReportLink.classList.add('hidden');
-            } else {
-                analysisInfo.textContent = `Generated report for ${data.game_count} games!`;
-                analysisInfo.style.color = '#10b981';
-                viewReportLink.href = data.report_url;
-                viewReportLink.classList.remove('hidden');
+            function updateUI(data) {
+                if (data.type === 'info') {
+                    analysisInfo.textContent = data.message;
+                } else if (data.type === 'progress') {
+                    const percent = (data.current / data.total) * 100;
+                    progressBar.style.width = `${percent}%`;
+                    gamesRemaining.textContent = `Analyzing game ${data.current} of ${data.total}`;
+                } else if (data.type === 'success') {
+                    analysisInfo.textContent = `Generated report for ${data.game_count} games!`;
+                    analysisInfo.style.color = '#10b981';
+                    viewReportLink.href = data.report_url;
+                    viewReportLink.classList.remove('hidden');
+                    progressBar.style.width = '100%';
+                    gamesRemaining.textContent = 'Analysis Complete';
+                } else if (data.type === 'empty') {
+                    analysisInfo.textContent = data.message;
+                    gamesRemaining.textContent = '';
+                    progressBar.style.width = '0%';
+                } else if (data.type === 'error') {
+                    throw new Error(data.detail);
+                }
             }
 
-            analysisResult.classList.remove('hidden');
+            while (true) {
+                const { value, done } = await reader.read();
+                if (done) break;
+
+                buffer += decoder.decode(value, { stream: true });
+                const lines = buffer.split('\n');
+                buffer = lines.pop();
+
+                for (const line of lines) {
+                    if (!line.trim()) continue;
+                    try {
+                        const data = JSON.parse(line);
+                        updateUI(data);
+                    } catch (e) {
+                        console.error('Failed to parse chunk:', line, e);
+                    }
+                }
+            }
+
         } catch (err) {
             console.error(err);
-            alert(err.message);
+            analysisInfo.textContent = err.message;
+            analysisInfo.style.color = '#ef4444';
+            gamesRemaining.textContent = 'Error during analysis';
         } finally {
             runAnalysisBtn.disabled = false;
             runAnalysisBtn.innerHTML = '<span>Find Games & Divergences</span><i data-lucide="scan-search"></i>';

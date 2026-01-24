@@ -1,9 +1,8 @@
 # Plan on features on the website
 
-1. When uploading the repertoires, save them within a proper local database.
-2. After uploading the repertoires, the user to ask to find divergences on his chess.com games with some filters. You can connect with the game pages already developped.
+1. When finding divergence display in real time the number of games to analyze remaining.
+2. Add the possibility to give a starting date.
 
-# Plan on games pages
+# Optimisation
 
-1. Use the same background and style than the chess.com connection page.
-2. The background selection on moves are currently broken.
+1. Find way to optimize how the divergence move is found with a large repertoire. For instance, the current repertoire available in the openings/ folder takes a large amount of time.
