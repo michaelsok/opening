@@ -37,7 +37,7 @@ app.add_middleware(
 @app.middleware("http")
 async def add_security_headers(request: Request, call_next):
     response = await call_next(request)
-    response.headers["Content-Security-Policy"] = "default-src 'self'; script-src 'self' unpkg.com; style-src 'self' fonts.googleapis.com 'unsafe-inline'; font-src fonts.gstatic.com; img-src 'self' data: https://images.chesscomfiles.com https://www.chess.com;"
+    response.headers["Content-Security-Policy"] = "default-src 'self'; connect-src 'self'; script-src 'self' unpkg.com; style-src 'self' fonts.googleapis.com 'unsafe-inline'; font-src fonts.gstatic.com; img-src 'self' data: https://images.chesscomfiles.com https://www.chess.com https://www.chess.com/bundles/web/images/noavatar_l.84a92b24.gif;"
     response.headers["X-Content-Type-Options"] = "nosniff"
     response.headers["X-Frame-Options"] = "DENY"
     response.headers["X-XSS-Protection"] = "1; mode=block"
@@ -49,7 +49,7 @@ async def root():
     return FileResponse("src/web/static/index.html")
 
 @app.post("/auth/verify")
-@limiter.limit("5/minute")
+@limiter.limit("10/minute")
 async def verify_user(request: Request, username: str = Form(...)):
     """
     Endpoint to verify a Chess.com username.
@@ -61,6 +61,9 @@ async def verify_user(request: Request, username: str = Form(...)):
     user_info = verify_chess_user(username)
     if not user_info:
         raise HTTPException(status_code=404, detail="Chess.com user not found")
+    
+    if isinstance(user_info, dict) and user_info.get("error") == "rate_limit":
+        raise HTTPException(status_code=503, detail="Chess.com API is busy. Please try again later.")
     
     return {
         "status": "success",

@@ -35,8 +35,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Authentication ---
     connectBtn.addEventListener('click', async () => {
-        const username = usernameInput.value.trim();
+        let username = usernameInput.value.trim();
         if (!username) return;
+
+        // Auto-extract from URL if user pasted a link
+        if (username.includes('chess.com/member/')) {
+            username = username.split('chess.com/member/')[1].split('/')[0].split('?')[0];
+        } else if (username.includes('chess.com/player/')) {
+            username = username.split('chess.com/player/')[1].split('/')[0].split('?')[0];
+        }
 
         connectBtn.disabled = true;
         connectBtn.innerHTML = '<div class="loader"></div>';
@@ -51,7 +58,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 body: formData
             });
 
-            if (!response.ok) throw new Error('User not found');
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.detail || 'Connection failed');
+            }
 
             const data = await response.json();
             currentUser = data;
@@ -79,6 +89,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             showStep(dashboardStep);
         } catch (err) {
+            authError.textContent = err.message;
             authError.classList.remove('hidden');
         } finally {
             connectBtn.disabled = false;
