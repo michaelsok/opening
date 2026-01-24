@@ -553,7 +553,16 @@
         });
 
         window.addEventListener('load', init);
-        lucide.createIcons();
+
+        // Also run init on DOMContentLoaded as fallback
+        document.addEventListener('DOMContentLoaded', function () {
+            init();
+            try {
+                lucide.createIcons();
+            } catch (e) {
+                console.warn('Lucide icons not loaded:', e);
+            }
+        });
     </script>
 </body>
 
