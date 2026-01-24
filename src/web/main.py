@@ -56,7 +56,7 @@ app.add_middleware(
 async def add_security_headers(request: Request, call_next):
     response = await call_next(request)
     # Updated CSP to allow scripts and styles from unpkg and fonts
-    response.headers["Content-Security-Policy"] = "default-src 'self'; connect-src 'self'; script-src 'self' unpkg.com; style-src 'self' unpkg.com fonts.googleapis.com 'unsafe-inline'; font-src fonts.gstatic.com; img-src 'self' data: https://images.chesscomfiles.com https://www.chess.com https://www.chess.com/bundles/web/images/noavatar_l.84a92b24.gif;"
+    response.headers["Content-Security-Policy"] = "default-src 'self'; connect-src 'self' unpkg.com; script-src 'self' unpkg.com 'unsafe-inline'; style-src 'self' unpkg.com fonts.googleapis.com 'unsafe-inline'; font-src fonts.gstatic.com; img-src 'self' data: https://images.chesscomfiles.com https://www.chess.com https://www.chess.com/bundles/web/images/noavatar_l.84a92b24.gif;"
     response.headers["X-Content-Type-Options"] = "nosniff"
     response.headers["X-Frame-Options"] = "DENY"
     response.headers["X-XSS-Protection"] = "1; mode=block"
