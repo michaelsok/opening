@@ -6,148 +6,148 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chess Game Viewer - {{ event }}</title>
     <link rel="stylesheet" href="styles.css">
+    <style>
+        .game-navigation-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--glass-border);
+        }
 
-    .game-navigation-bar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 1rem 1.5rem;
-    border-bottom: 1px solid var(--glass-border);
-    }
+        .main-content {
+            display: flex;
+            flex-direction: column;
+        }
 
-    .main-content {
-    display: flex;
-    flex-direction: column;
-    }
+        @media (min-width: 992px) {
+            .main-content {
+                flex-direction: row;
+            }
+        }
 
-    @media (min-width: 992px) {
-    .main-content {
-    flex-direction: row;
-    }
-    }
+        .board-container {
+            flex: 1.2;
+            padding: 2.5rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
 
-    .board-container {
-    flex: 1.2;
-    padding: 2.5rem;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    }
+        #chessboard {
+            box-shadow: var(--shadow-xl);
+            border-radius: 8px;
+            border: 1px solid var(--glass-border);
+        }
 
-    #chessboard {
-    box-shadow: var(--shadow-xl);
-    border-radius: 8px;
-    border: 1px solid var(--glass-border);
-    }
+        .controls {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: center;
+            margin-top: 2rem;
+        }
 
-    .controls {
-    display: flex;
-    gap: 0.5rem;
-    justify-content: center;
-    margin-top: 2rem;
-    }
+        .btn-nav {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--glass-border);
+            color: var(--text-main);
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.875rem;
+        }
 
-    .btn-nav {
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid var(--glass-border);
-    color: var(--text-main);
-    padding: 0.5rem 1rem;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: all 0.2s;
-    font-size: 0.875rem;
-    }
+        .btn-nav:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--primary);
+        }
 
-    .btn-nav:hover {
-    background: rgba(255, 255, 255, 0.1);
-    border-color: var(--primary);
-    }
+        .move-list-container {
+            flex: 1;
+            padding: 2rem;
+            background: rgba(0, 0, 0, 0.2);
+            border-left: 1px solid var(--glass-border);
+            max-height: 800px;
+            overflow-y: auto;
+        }
 
-    .move-list-container {
-    flex: 1;
-    padding: 2rem;
-    background: rgba(0, 0, 0, 0.2);
-    border-left: 1px solid var(--glass-border);
-    max-height: 800px;
-    overflow-y: auto;
-    }
+        .move-list-title {
+            font-size: 1.125rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
 
-    .move-list-title {
-    font-size: 1.125rem;
-    font-weight: 700;
-    margin-bottom: 1.5rem;
-    color: var(--text-main);
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    }
+        .move-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.25rem 0.5rem;
+            line-height: 1.8;
+        }
 
-    .move-list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.25rem 0.5rem;
-    line-height: 1.8;
-    }
+        .move {
+            padding: 2px 6px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.9375rem;
+        }
 
-    .move {
-    padding: 2px 6px;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: all 0.2s;
-    font-size: 0.9375rem;
-    }
+        .move:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
 
-    .move:hover {
-    background: rgba(255, 255, 255, 0.1);
-    }
+        .move.active {
+            color: #10b981;
+            font-weight: 600;
+        }
 
-    .move.active {
-    color: #10b981;
-    font-weight: 600;
-    }
+        .move.current {
+            background: var(--primary);
+            color: white !important;
+        }
 
-    .move.current {
-    background: var(--primary);
-    color: white !important;
-    }
+        .move.divergence-move {
+            background: rgba(239, 68, 68, 0.2);
+            border: 1px solid #ef4444;
+            color: #f87171 !important;
+        }
 
-    .move.divergence-move {
-    background: rgba(239, 68, 68, 0.2);
-    border: 1px solid #ef4444;
-    color: #f87171 !important;
-    }
+        .move.opponent-divergence {
+            background: rgba(16, 185, 129, 0.15);
+            border: 1px solid #10b981;
+            color: #34d399 !important;
+        }
 
-    .move.opponent-divergence {
-    background: rgba(16, 185, 129, 0.15);
-    border: 1px solid #10b981;
-    color: #34d399 !important;
-    }
+        .move-number {
+            color: var(--text-muted);
+            font-weight: 700;
+            user-select: none;
+        }
 
-    .move-number {
-    color: var(--text-muted);
-    font-weight: 700;
-    user-select: none;
-    }
+        .variation {
+            color: var(--text-muted);
+            font-style: italic;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 4px;
+            padding: 0 4px;
+        }
 
-    .variation {
-    color: var(--text-muted);
-    font-style: italic;
-    background: rgba(255, 255, 255, 0.03);
-    border-radius: 4px;
-    padding: 0 4px;
-    }
-
-    .position-info {
-    margin-top: 1.5rem;
-    font-family: 'Fira Code', monospace;
-    font-size: 0.75rem;
-    color: var(--text-muted);
-    background: rgba(0, 0, 0, 0.1);
-    padding: 0.75rem;
-    border-radius: 8px;
-    width: 100%;
-    text-align: center;
-    }
+        .position-info {
+            margin-top: 1.5rem;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            background: rgba(0, 0, 0, 0.1);
+            padding: 0.75rem;
+            border-radius: 8px;
+            width: 100%;
+            text-align: center;
+        }
     </style>
     <script src="https://unpkg.com/lucide@latest"></script>
 </head>

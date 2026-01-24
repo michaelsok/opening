@@ -6,182 +6,182 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chess Games Viewer - {{ num_games }} Games</title>
     <link rel="stylesheet" href="styles.css">
+    <style>
+        .game-navigation {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--glass-border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+        }
 
-    .game-navigation {
-    background: rgba(0, 0, 0, 0.2);
-    padding: 1rem 1.5rem;
-    border-bottom: 1px solid var(--glass-border);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
-    }
+        .game-nav-controls {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
 
-    .game-nav-controls {
-    display: flex;
-    gap: 0.5rem;
-    align-items: center;
-    }
+        .game-list-container {
+            position: relative;
+            min-width: 200px;
+        }
 
-    .game-list-container {
-    position: relative;
-    min-width: 200px;
-    }
+        .game-list-dropdown {
+            position: absolute;
+            top: calc(100% + 0.5rem);
+            left: 0;
+            right: 0;
+            background: var(--bg-dark);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            box-shadow: var(--shadow-xl);
+            max-height: 400px;
+            overflow-y: auto;
+            display: none;
+            z-index: 1000;
+        }
 
-    .game-list-dropdown {
-    position: absolute;
-    top: calc(100% + 0.5rem);
-    left: 0;
-    right: 0;
-    background: var(--bg-dark);
-    border: 1px solid var(--glass-border);
-    border-radius: 12px;
-    box-shadow: var(--shadow-xl);
-    max-height: 400px;
-    overflow-y: auto;
-    display: none;
-    z-index: 1000;
-    }
+        .game-list-dropdown.show {
+            display: block;
+        }
 
-    .game-list-dropdown.show {
-    display: block;
-    }
+        .game-item {
+            padding: 0.75rem 1rem;
+            cursor: pointer;
+            border-bottom: 1px solid var(--glass-border);
+            font-size: 0.8125rem;
+            transition: all 0.2s;
+        }
 
-    .game-item {
-    padding: 0.75rem 1rem;
-    cursor: pointer;
-    border-bottom: 1px solid var(--glass-border);
-    font-size: 0.8125rem;
-    transition: all 0.2s;
-    }
+        .game-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
 
-    .game-item:hover {
-    background: rgba(255, 255, 255, 0.05);
-    }
+        .game-item.active {
+            background: rgba(99, 102, 241, 0.1);
+            color: var(--primary);
+            font-weight: 700;
+        }
 
-    .game-item.active {
-    background: rgba(99, 102, 241, 0.1);
-    color: var(--primary);
-    font-weight: 700;
-    }
+        .main-content {
+            display: flex;
+            flex-direction: column;
+        }
 
-    .main-content {
-    display: flex;
-    flex-direction: column;
-    }
+        @media (min-width: 992px) {
+            .main-content {
+                flex-direction: row;
+            }
+        }
 
-    @media (min-width: 992px) {
-    .main-content {
-    flex-direction: row;
-    }
-    }
+        .board-container {
+            flex: 1.2;
+            padding: 2.5rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
 
-    .board-container {
-    flex: 1.2;
-    padding: 2.5rem;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    }
+        #chessboard {
+            box-shadow: var(--shadow-xl);
+            border-radius: 8px;
+            border: 1px solid var(--glass-border);
+        }
 
-    #chessboard {
-    box-shadow: var(--shadow-xl);
-    border-radius: 8px;
-    border: 1px solid var(--glass-border);
-    }
+        .controls {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: center;
+            margin-top: 2rem;
+        }
 
-    .controls {
-    display: flex;
-    gap: 0.5rem;
-    justify-content: center;
-    margin-top: 2rem;
-    }
+        .btn-nav {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--glass-border);
+            color: var(--text-main);
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.875rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
 
-    .btn-nav {
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid var(--glass-border);
-    color: var(--text-main);
-    padding: 0.5rem 1rem;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: all 0.2s;
-    font-size: 0.875rem;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    }
+        .btn-nav:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--primary);
+        }
 
-    .btn-nav:hover {
-    background: rgba(255, 255, 255, 0.1);
-    border-color: var(--primary);
-    }
+        .btn-nav:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
 
-    .btn-nav:disabled {
-    opacity: 0.3;
-    cursor: not-allowed;
-    }
+        .move-list-container {
+            flex: 1;
+            padding: 2rem;
+            background: rgba(0, 0, 0, 0.2);
+            border-left: 1px solid var(--glass-border);
+            max-height: 800px;
+            overflow-y: auto;
+        }
 
-    .move-list-container {
-    flex: 1;
-    padding: 2rem;
-    background: rgba(0, 0, 0, 0.2);
-    border-left: 1px solid var(--glass-border);
-    max-height: 800px;
-    overflow-y: auto;
-    }
+        .move-list-title {
+            font-size: 1.125rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            color: var(--text-main);
+        }
 
-    .move-list-title {
-    font-size: 1.125rem;
-    font-weight: 700;
-    margin-bottom: 1.5rem;
-    color: var(--text-main);
-    }
+        .move-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.25rem 0.5rem;
+            line-height: 1.8;
+        }
 
-    .move-list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.25rem 0.5rem;
-    line-height: 1.8;
-    }
+        .move {
+            padding: 2px 6px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.9375rem;
+        }
 
-    .move {
-    padding: 2px 6px;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: all 0.2s;
-    font-size: 0.9375rem;
-    }
+        .move:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
 
-    .move:hover {
-    background: rgba(255, 255, 255, 0.1);
-    }
+        .move.active {
+            color: #10b981;
+            font-weight: 600;
+        }
 
-    .move.active {
-    color: #10b981;
-    font-weight: 600;
-    }
+        .move.current {
+            background: var(--primary);
+            color: white !important;
+        }
 
-    .move.current {
-    background: var(--primary);
-    color: white !important;
-    }
+        .move-number {
+            color: var(--text-muted);
+            font-weight: 700;
+        }
 
-    .move-number {
-    color: var(--text-muted);
-    font-weight: 700;
-    }
-
-    .position-info {
-    margin-top: 1.5rem;
-    font-family: 'Fira Code', monospace;
-    font-size: 0.75rem;
-    color: var(--text-muted);
-    background: rgba(0, 0, 0, 0.1);
-    padding: 0.75rem;
-    border-radius: 8px;
-    width: 100%;
-    text-align: center;
-    }
+        .position-info {
+            margin-top: 1.5rem;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            background: rgba(0, 0, 0, 0.1);
+            padding: 0.75rem;
+            border-radius: 8px;
+            width: 100%;
+            text-align: center;
+        }
     </style>
     <script src="https://unpkg.com/lucide@latest"></script>
 </head>
