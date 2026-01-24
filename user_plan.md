@@ -1,9 +1,9 @@
-# Plan on UI/UX improvements on the website page
+# Plan on features on the website
 
-1. After connecting, the user name profile picture does not appear. It should appear or at least default to a chess piece icon.
-2. After connecting, the user can upload a repertoire, but there should be a specification for a white repertoire and a black repertoire. The user should be able to upload both.
-3. After uploading the repertoire, the user cannot click on the button to add another repertoire.
+1. When uploading the repertoires, save them within a proper local database.
+2. After uploading the repertoires, the user to ask to find divergences on his chess.com games with some filters. You can connect with the game pages already developped.
 
 # Plan on games pages
 
-1. The games pages and index html should follow the same style as the main connection page.
+1. Use the same background and style than the chess.com connection page.
+2. The background selection on moves are currently broken.

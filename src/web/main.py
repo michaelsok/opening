@@ -10,6 +10,7 @@ import logging
 import os
 from .auth import verify_chess_user
 from .repertoire import handle_repertoire_upload
+from .database import initialize_db
 
 # Setup logging
 logging.basicConfig(level=logging.INFO)
@@ -20,6 +21,10 @@ limiter = Limiter(key_func=get_remote_address)
 app = FastAPI(title="Chess Opening Analysis API")
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+
+@app.on_event("startup")
+async def startup_event():
+    initialize_db()
 
 # Mount static files
 app.mount("/static", StaticFiles(directory="src/web/static"), name="static")
