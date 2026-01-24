@@ -237,19 +237,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Analysis Filters & Trigger ---
     const runAnalysisBtn = document.getElementById('run-analysis-btn');
-    const analysisYear = document.getElementById('analysis-year');
-    const analysisMonth = document.getElementById('analysis-month');
     const analysisStartDate = document.getElementById('analysis-start-date');
+    const analysisEndDate = document.getElementById('analysis-end-date');
+    const analysisTimeClass = document.getElementById('analysis-time-class');
     const analysisResult = document.getElementById('analysis-result');
     const analysisInfo = document.getElementById('analysis-info');
     const viewReportLink = document.getElementById('view-report-link');
     const progressBar = document.getElementById('progress-bar');
     const gamesRemaining = document.getElementById('games-remaining');
 
-    // Set default month to current
+    // Set default range to current month
     const now = new Date();
-    analysisYear.value = now.getFullYear().toString();
-    analysisMonth.value = (now.getMonth() + 1).toString().padStart(2, '0');
+    const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
+    const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+
+    analysisStartDate.value = firstDay.toISOString().split('T')[0];
+    analysisEndDate.value = lastDay.toISOString().split('T')[0];
 
     let analysisColor = ''; // empty string means "All Games"
 
@@ -264,6 +267,11 @@ document.addEventListener('DOMContentLoaded', () => {
     runAnalysisBtn.addEventListener('click', async () => {
         if (!currentUser) return;
 
+        if (!analysisStartDate.value || !analysisEndDate.value) {
+            alert('Please select both Start and End dates');
+            return;
+        }
+
         runAnalysisBtn.disabled = true;
         runAnalysisBtn.innerHTML = '<div class="loader"></div>';
         analysisResult.classList.remove('hidden');
@@ -276,10 +284,10 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             const formData = new FormData();
             formData.append('username', currentUser.username);
-            formData.append('year', analysisYear.value);
-            formData.append('month', analysisMonth.value);
+            formData.append('start_date', analysisStartDate.value);
+            formData.append('end_date', analysisEndDate.value);
+            if (analysisTimeClass.value) formData.append('time_class', analysisTimeClass.value);
             if (analysisColor) formData.append('color', analysisColor);
-            if (analysisStartDate.value) formData.append('start_date', analysisStartDate.value);
 
             const response = await fetch(`${API_BASE}/analysis/run`, {
                 method: 'POST',

@@ -1,8 +1,6 @@
 # Plan on features on the website
 
-1. When finding divergence display in real time the number of games to analyze remaining.
-2. Add the possibility to give a starting date.
-
-# Optimisation
-
-1. Find way to optimize how the divergence move is found with a large repertoire. For instance, the current repertoire available in the openings/ folder takes a large amount of time.
+1. The number of games to analyze remaining seems to be stuck a long time at 0 before going directly to the last number of games.
+2. Add time control filters, an ending date filter and remove the year and month filters.
+3. The report and games pages should have the same background than the connection page. 
+4. The report page does not leads to the games pages when clicking on a game.

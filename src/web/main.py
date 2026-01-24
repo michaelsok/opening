@@ -132,13 +132,14 @@ async def upload_repertoire(
 async def run_analysis(
     request: Request,
     username: str = Form(...),
-    year: str = Form(...),
-    month: str = Form(...),
-    color: Optional[str] = Form(None),
-    start_date: Optional[str] = Form(None)
+    start_date: str = Form(...),
+    end_date: str = Form(...),
+    time_class: Optional[str] = Form(None),
+    color: Optional[str] = Form(None)
 ):
     """
     Endpoint to fetch games from Chess.com and run divergence analysis with real-time streaming.
+    Supports granular date ranges and time controls.
     """
     q = queue.Queue()
     
@@ -153,21 +154,33 @@ async def run_analysis(
             
             repertoire_pgns = [r['pgn_content'] for r in repertoires]
             
-            # 2. Parse start_date if provided
-            dt_start_date = None
-            if start_date:
-                try:
-                    dt_start_date = datetime.strptime(start_date, "%Y-%m-%d")
-                except ValueError:
-                    q.put({"type": "error", "detail": "Invalid start_date format. Use YYYY-MM-DD."})
-                    return
+            # 2. Parse dates
+            try:
+                dt_start = datetime.strptime(start_date, "%Y-%m-%d")
+                dt_end = datetime.strptime(end_date, "%Y-%m-%d")
+                # Make end date inclusive (end of day)
+                dt_end = dt_end.replace(hour=23, minute=59, second=59)
+            except ValueError:
+                q.put({"type": "error", "detail": "Invalid date format. Use YYYY-MM-DD."})
+                return
 
-            # 3. Fetch games
-            q.put({"type": "info", "message": f"Fetching games from Chess.com for {year}-{month}..."})
-            games_data = get_games_from_chesscom(username, year, month, color=color, start_date=dt_start_date)
+            # 3. Fetch games with progress reporting
+            def fetch_progress(current, total, message):
+                q.put({"type": "info", "message": f"[{current}/{total}] {message}"})
+
+            q.put({"type": "info", "message": f"Fetching games from {start_date} to {end_date}..."})
+            from src.api.chesscom_api import get_user_games
+            games_data = get_user_games(
+                username, 
+                start_date=dt_start, 
+                end_date=dt_end, 
+                time_class=time_class, 
+                color=color,
+                progress_callback=fetch_progress
+            )
             
             if not games_data:
-                q.put({"type": "empty", "message": f"No games found on Chess.com for {username} in {year}-{month}"})
+                q.put({"type": "empty", "message": f"No games found on Chess.com for {username} in the selected range."})
                 return
             
             game_pgns = [g.get('pgn') for g in games_data if g.get('pgn')]
@@ -178,11 +191,14 @@ async def run_analysis(
             # 4. Run analysis with progress callback
             q.put({"type": "info", "message": f"Analyzing {len(game_pgns)} games..."})
             
-            def progress_callback(current, total):
+            def analysis_progress(current, total):
                 q.put({"type": "progress", "current": current, "total": total})
 
-            report_filename = f"{username.lower()}_{year}_{month}_analysis.html"
-            report_path = REPORTS_DIR / report_filename
+            # Create a unique directory for this analysis session
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            report_dir = REPORTS_DIR / f"{username.lower()}_{timestamp}"
+            report_dir.mkdir(parents=True, exist_ok=True)
+            report_path = report_dir / "index.html"
             
             create_index_html(
                 games=game_pgns,
@@ -190,12 +206,12 @@ async def run_analysis(
                 target_username=username,
                 output_file=str(report_path),
                 open_in_browser=False,
-                progress_callback=progress_callback
+                progress_callback=analysis_progress
             )
             
             q.put({
                 "type": "success",
-                "report_url": f"/reports/{report_filename}",
+                "report_url": f"/reports/{report_dir.name}/index.html",
                 "game_count": len(game_pgns)
             })
             
@@ -209,8 +225,6 @@ async def run_analysis(
 
     async def event_stream():
         while True:
-            # We use an async loop to check the queue periodically
-            # to keep it fully non-blocking for FastAPI
             try:
                 item = await asyncio.to_thread(q.get, timeout=0.1)
                 if item is None:

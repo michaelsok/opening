@@ -1,6 +1,6 @@
 import requests
 import logging
-from typing import List, Dict, Optional, Union
+from typing import List, Dict, Optional, Union, Callable
 from datetime import datetime
 
 logger = logging.getLogger(__name__)
@@ -141,7 +141,8 @@ def get_games_from_chesscom(
     start_date: Optional[datetime] = None,
     end_date: Optional[datetime] = None,
     rated: Optional[bool] = None,
-    rules: Optional[str] = None
+    rules: Optional[str] = None,
+    progress_callback: Optional[Callable[[int, int, str], None]] = None
 ) -> List[Dict]:
     """
     Fetch games from Chess.com API for a given username, year, and month(s).
@@ -157,6 +158,7 @@ def get_games_from_chesscom(
         end_date: Filter games before this date (datetime object)
         rated: Filter by rated status (True for rated, False for unrated)
         rules: Filter by rules/variant (e.g., "chess", "chess960")
+        progress_callback: Optional callback(current, total, message)
         
     Returns:
         List[Dict]: List of filtered game dictionaries, each containing game data including PGN
@@ -180,7 +182,10 @@ def get_games_from_chesscom(
     # Handle single month or list of months
     months = [month] if isinstance(month, str) else month
     
-    for month_str in months:
+    for i, month_str in enumerate(months):
+        if progress_callback:
+            progress_callback(i + 1, len(months), f"Fetching {year}-{month_str}...")
+
         # Construct API URL for the specific month
         url = f"https://api.chess.com/pub/player/{username}/games/{year}/{month_str}"
         
@@ -227,7 +232,8 @@ def get_user_games(
     start_date: Optional[datetime] = None,
     end_date: Optional[datetime] = None,
     rated: Optional[bool] = None,
-    rules: Optional[str] = None
+    rules: Optional[str] = None,
+    progress_callback: Optional[Callable[[int, int, str], None]] = None
 ) -> List[Dict]:
     """
     Convenience function to get games for a user with optional filters.
@@ -247,6 +253,7 @@ def get_user_games(
         end_date: Filter games before this date (datetime object)
         rated: Filter by rated status (True for rated, False for unrated)
         rules: Filter by rules/variant (e.g., "chess", "chess960")
+        progress_callback: Optional function(current, total, message)
         
     Returns:
         List[Dict]: List of filtered game dictionaries, each containing game data including PGN
@@ -288,14 +295,14 @@ def get_user_games(
     
     if year is None and month is None:
         # Get all available archives
-        return get_all_user_games(username, **filter_kwargs)
+        return get_all_user_games(username, progress_callback=progress_callback, **filter_kwargs)
     elif year is not None and month is None:
         # Get all months for the year
         months = [f"{i:02d}" for i in range(1, 13)]
-        return get_games_from_chesscom(username, year, months, **filter_kwargs)
+        return get_games_from_chesscom(username, year, months, progress_callback=progress_callback, **filter_kwargs)
     elif year is not None and month is not None:
         # Get specific month(s)
-        return get_games_from_chesscom(username, year, month, **filter_kwargs)
+        return get_games_from_chesscom(username, year, month, progress_callback=progress_callback, **filter_kwargs)
     else:
         raise ValueError("If month is specified, year must also be specified")
 
@@ -308,7 +315,8 @@ def get_all_user_games(
     start_date: Optional[datetime] = None,
     end_date: Optional[datetime] = None,
     rated: Optional[bool] = None,
-    rules: Optional[str] = None
+    rules: Optional[str] = None,
+    progress_callback: Optional[Callable[[int, int, str], None]] = None
 ) -> List[Dict]:
     """
     Fetch all available games for a user from Chess.com API with optional filters.
@@ -325,6 +333,7 @@ def get_all_user_games(
         end_date: Filter games before this date (datetime object)
         rated: Filter by rated status (True for rated, False for unrated)
         rules: Filter by rules/variant (e.g., "chess", "chess960")
+        progress_callback: Optional function(current, total, message)
         
     Returns:
         List[Dict]: List of filtered game dictionaries, each containing game data including PGN
@@ -402,7 +411,13 @@ def get_all_user_games(
     # Fetch games from each archive
     all_games = []
     
-    for archive_url in archive_urls:
+    for i, archive_url in enumerate(archive_urls):
+        if progress_callback:
+            # Extract month/year for display
+            parts = archive_url.split('/')
+            display_date = f"{parts[-2]}-{parts[-1]}"
+            progress_callback(i + 1, len(archive_urls), f"Fetching games from {display_date}...")
+
         try:
             response = requests.get(archive_url, timeout=10, headers=headers)
             response.raise_for_status()
@@ -436,4 +451,7 @@ def get_all_user_games(
     if rules is not None:
         filter_kwargs["rules"] = rules
     
+    if progress_callback and all_games:
+        progress_callback(len(archive_urls), len(archive_urls), f"Applying filters to {len(all_games)} games...")
+
     return _apply_filters(all_games, username, **filter_kwargs)
