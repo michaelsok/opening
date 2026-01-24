@@ -45,7 +45,13 @@ def _get_jinja_env(variant: Optional[str] = None) -> jinja2.Environment:
         if css_path.exists():
             with open(css_path, "r", encoding="utf-8") as f:
                 return f.read()
-        return ""
+        else:
+            logger.error(f"CSS file not found at: {css_path.absolute()}")
+            # Fallback style to avoid white flash
+            return """
+            :root { --bg-dark: #0f172a; --text-main: #f8fafc; }
+            body { background-color: var(--bg-dark); color: var(--text-main); font-family: sans-serif; }
+            """
     
     env.filters['load_css'] = load_css
     return env
