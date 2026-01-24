@@ -678,7 +678,7 @@ def create_index_html(
     open_in_browser: bool = True,
     size: int = 400,
     template_variant: str = "standard",
-    progress_callback: Optional[Callable[[int, int], None]] = None
+    progress_callback: Optional[Callable[[int, int, Optional[str]], None]] = None
 ) -> str:
     """
     Create an index.html file with a list of chess games and their divergence points.
@@ -855,12 +855,12 @@ def create_index_html(
             })
             
             if progress_callback:
-                progress_callback(idx + 1, total_games_count)
+                progress_callback(idx + 1, total_games_count, f"Analyzing game {idx + 1} of {total_games_count}")
 
         except Exception as e:
             logger.error(f"Error processing game {idx}: {e}")
             if progress_callback:
-                progress_callback(idx + 1, total_games_count)
+                progress_callback(idx + 1, total_games_count, f"Analyzing game {idx + 1} of {total_games_count}")
             continue
     
     if not game_data_list:
@@ -877,6 +877,9 @@ def create_index_html(
         output_file = Path(output_file)
     
     # Generate HTML content for index page with game list
+    if progress_callback:
+        progress_callback(total_games_count, total_games_count, "Preparing report index...")
+        
     html_content = _generate_index_html_content(game_data_list, size, template_variant=template_variant)
     
     # Write HTML file
@@ -886,7 +889,10 @@ def create_index_html(
     
     # Generate individual game viewer files
     game_viewer_files = []
-    for game_data in game_data_list:
+    for i, game_data in enumerate(game_data_list):
+        if progress_callback:
+            progress_callback(i + 1, total_games_count, f"Generating report {i + 1} of {total_games_count}")
+            
         viewer_file = output_file.parent / f"game_{game_data['index']}.html"
         try:
             display_game_from_string(

@@ -1,0 +1,2699 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chess Games Index - 196 Games</title>
+    <style>
+        {
+                {
+                'reports.css' | load_css | safe
+            }
+        }
+
+        .games-list {
+            padding: 2rem;
+            max-height: calc(100vh - 250px);
+            overflow-y: auto;
+        }
+
+        .game-item {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .game-item:hover {
+            background: rgba(255, 255, 255, 0.06);
+            border-color: var(--primary);
+            transform: translateY(-2px);
+        }
+
+        .game-meta {
+            flex: 1;
+        }
+
+        .game-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .game-number {
+            background: rgba(99, 102, 241, 0.2);
+            color: var(--primary);
+            padding: 2px 8px;
+            border-radius: 6px;
+            font-weight: 700;
+            font-size: 0.75rem;
+        }
+
+        .game-title {
+            font-size: 1.125rem;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .game-result {
+            margin-left: auto;
+            background: #10b981;
+            color: white;
+            padding: 2px 10px;
+            border-radius: 6px;
+            font-weight: 700;
+            font-size: 0.875rem;
+        }
+
+        .game-players {
+            color: var(--text-muted);
+            font-size: 0.875rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .game-divergence {
+            padding: 0.75rem;
+            background: rgba(245, 158, 11, 0.1);
+            border-left: 3px solid var(--accent);
+            border-radius: 8px;
+            font-size: 0.8125rem;
+        }
+
+        .game-divergence.opponent-divergence {
+            background: rgba(16, 185, 129, 0.1);
+            border-left-color: #10b981;
+        }
+
+        .divergence-info {
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        .game-divergence.opponent-divergence .divergence-info {
+            color: #10b981;
+        }
+
+        .info-box {
+            background: rgba(99, 102, 241, 0.05);
+            border: 1px solid var(--glass-border);
+            padding: 1.5rem;
+            margin: 0 2rem 2rem;
+            border-radius: 16px;
+        }
+
+        .info-box h3 {
+            margin-bottom: 0.5rem;
+            color: var(--primary);
+            font-size: 1rem;
+        }
+
+        .info-box p {
+            color: var(--text-muted);
+            font-size: 0.875rem;
+            margin-bottom: 0.25rem;
+        }
+    </style>
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+
+<body>
+
+    <div class="container">
+        <div class="header">
+            <h1>♟️ Chess Games Index</h1>
+            <p class="subtitle">Click on any game to view it with divergence analysis</p>
+        </div>
+
+        <div class="info-box">
+            <h3>About This Index</h3>
+            <p>This page shows all games analyzed against the opening repertoire.</p>
+            <p>Games that diverge from the repertoire are highlighted in orange.</p>
+            <p>Click any game to open its interactive viewer with divergence highlighting.</p>
+        </div>
+
+        <div class="games-list">
+            
+            <div class="game-item" onclick="window.open('game_0.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#1</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">1-0</span>
+                    </div>
+                    <div class="game-players">ChessMDB vs brumikk05 • 2026.01.01</div>
+                    <div class="game-divergence opponent-divergence"><span class="divergence-info">Opponent diverges at: 8... Bd7</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_1.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#2</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">1-0</span>
+                    </div>
+                    <div class="game-players">ChessMDB vs Rocks_ama51 • 2026.01.01</div>
+                    <div class="game-divergence opponent-divergence"><span class="divergence-info">Opponent diverges at: 7... Bg4</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_2.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#3</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">0-1</span>
+                    </div>
+                    <div class="game-players">skloke vs ChessMDB • 2026.01.01</div>
+                    <div class="game-divergence"><span class="divergence-info">Player diverges at: 3... Nf6</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_3.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#4</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">1-0</span>
+                    </div>
+                    <div class="game-players">ChessMDB vs CapaMorphy • 2026.01.02</div>
+                    <div class="game-divergence opponent-divergence"><span class="divergence-info">Opponent diverges at: 5... Be7</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_4.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#5</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">0-1</span>
+                    </div>
+                    <div class="game-players">ChessMDB vs Moremostafa • 2026.01.02</div>
+                    <div class="game-divergence"><span class="divergence-info">Player diverges at: 4. Bc4</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_5.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#6</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">1-0</span>
+                    </div>
+                    <div class="game-players">Slushzz vs ChessMDB • 2026.01.02</div>
+                    <div class="game-divergence opponent-divergence"><span class="divergence-info">Opponent diverges at: 5. Nf3</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_6.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#7</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">1-0</span>
+                    </div>
+                    <div class="game-players">ChessMDB vs FernandoTorres5 • 2026.01.02</div>
+                    <div class="game-divergence opponent-divergence"><span class="divergence-info">Opponent diverges at: 3... Bc5</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_7.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#8</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">0-1</span>
+                    </div>
+                    <div class="game-players">tonimenorca vs ChessMDB • 2026.01.02</div>
+                    <div class="game-divergence opponent-divergence"><span class="divergence-info">Opponent diverges at: 9. Nf1</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_8.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#9</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">0-1</span>
+                    </div>
+                    <div class="game-players">ChessMDB vs akotchkin • 2026.01.02</div>
+                    <div class="game-divergence opponent-divergence"><span class="divergence-info">Opponent diverges at: 8... Bxd4</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_9.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#10</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">0-1</span>
+                    </div>
+                    <div class="game-players">NehasZendeli vs ChessMDB • 2026.01.02</div>
+                    <div class="game-divergence"><span class="divergence-info">Player diverges at: 3... dxe4</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_10.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#11</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">0-1</span>
+                    </div>
+                    <div class="game-players">ChessMDB vs NehasZendeli • 2026.01.02</div>
+                    <div class="game-divergence opponent-divergence"><span class="divergence-info">Opponent diverges at: 3... Bc5</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_11.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#12</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">0-1</span>
+                    </div>
+                    <div class="game-players">NehasZendeli vs ChessMDB • 2026.01.02</div>
+                    <div class="game-divergence"><span class="divergence-info">Player diverges at: 4... Be7</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_12.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#13</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">0-1</span>
+                    </div>
+                    <div class="game-players">ChessMDB vs Aarushkaushik0001 • 2026.01.03</div>
+                    <div class="game-divergence opponent-divergence"><span class="divergence-info">Opponent diverges at: 2... d6</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_13.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#14</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">1/2-1/2</span>
+                    </div>
+                    <div class="game-players">ChessMDB vs grecnic • 2026.01.03</div>
+                    <div class="game-divergence opponent-divergence"><span class="divergence-info">Opponent diverges at: 5... Ne7</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_14.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#15</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">1-0</span>
+                    </div>
+                    <div class="game-players">boroda_spaset_mir vs ChessMDB • 2026.01.03</div>
+                    <div class="game-divergence opponent-divergence"><span class="divergence-info">Opponent diverges at: 4. Qe2</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_15.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#16</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">1-0</span>
+                    </div>
+                    <div class="game-players">Imhnanart vs ChessMDB • 2026.01.03</div>
+                    <div class="game-divergence"><span class="divergence-info">Player diverges at: 3... Bg7</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_16.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#17</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">0-1</span>
+                    </div>
+                    <div class="game-players">ChessMDB vs Maybe1900 • 2026.01.03</div>
+                    <div class="game-divergence opponent-divergence"><span class="divergence-info">Opponent diverges at: 2... Nf6</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_17.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#18</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">0-1</span>
+                    </div>
+                    <div class="game-players">Swedenforeveryx vs ChessMDB • 2026.01.03</div>
+                    <div class="game-divergence"><span class="divergence-info">Player diverges at: 6... Na6</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_18.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#19</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">0-1</span>
+                    </div>
+                    <div class="game-players">ChessMDB vs Nbo_m • 2026.01.03</div>
+                    <div class="game-divergence opponent-divergence"><span class="divergence-info">Opponent diverges at: 8... b5</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_19.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#20</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">0-1</span>
+                    </div>
+                    <div class="game-players">ChessMDB vs LJuve14 • 2026.01.03</div>
+                    <div class="game-divergence"><span class="divergence-info">Player diverges at: 5. Bg5</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_20.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#21</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">1-0</span>
+                    </div>
+                    <div class="game-players">koumechacha vs ChessMDB • 2026.01.03</div>
+                    <div class="game-divergence"><span class="divergence-info">Player diverges at: 8... Bd6</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_21.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#22</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">1/2-1/2</span>
+                    </div>
+                    <div class="game-players">ChessMDB vs fork321 • 2026.01.03</div>
+                    <div class="game-divergence"><span class="divergence-info">Player diverges at: 9. Nf3</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_22.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#23</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">1-0</span>
+                    </div>
+                    <div class="game-players">ChessMDB vs Diplodocunredbrown • 2026.01.03</div>
+                    <div class="game-divergence opponent-divergence"><span class="divergence-info">Opponent diverges at: 3... Nf6</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_23.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#24</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">1-0</span>
+                    </div>
+                    <div class="game-players">lualopezpe vs ChessMDB • 2026.01.03</div>
+                    <div class="game-divergence opponent-divergence"><span class="divergence-info">Opponent diverges at: 5. f4</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_24.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#25</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">1-0</span>
+                    </div>
+                    <div class="game-players">ChessMDB vs Siamakis • 2026.01.03</div>
+                    <div class="game-divergence"><span class="divergence-info">Player diverges at: 5. Bf4</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_25.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#26</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">0-1</span>
+                    </div>
+                    <div class="game-players">InterstellarBishop vs ChessMDB • 2026.01.04</div>
+                    <div class="game-divergence"><span class="divergence-info">Player diverges at: 8... Ng4</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_26.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#27</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">1-0</span>
+                    </div>
+                    <div class="game-players">Shu_Kurenai vs ChessMDB • 2026.01.04</div>
+                    <div class="game-divergence"><span class="divergence-info">Player diverges at: 5... Bc5</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_27.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#28</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">0-1</span>
+                    </div>
+                    <div class="game-players">ChessMDB vs Riso317 • 2026.01.04</div>
+                    <div class="game-divergence opponent-divergence"><span class="divergence-info">Opponent diverges at: 4... e6</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_28.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#29</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">1-0</span>
+                    </div>
+                    <div class="game-players">TheSecondChickenBrother vs ChessMDB • 2026.01.04</div>
+                    <div class="game-divergence"><span class="divergence-info">Player diverges at: 4... Be7</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_29.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#30</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">0-1</span>
+                    </div>
+                    <div class="game-players">ChessMDB vs OP8176 • 2026.01.04</div>
+                    <div class="game-divergence"><span class="divergence-info">Player diverges at: 7. e5</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_30.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#31</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">0-1</span>
+                    </div>
+                    <div class="game-players">ClevelandIan vs ChessMDB • 2026.01.04</div>
+                    <div class="game-divergence"><span class="divergence-info">Player diverges at: 5... O-O</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_31.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#32</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">0-1</span>
+                    </div>
+                    <div class="game-players">MNCirobernardes vs ChessMDB • 2026.01.04</div>
+                    <div class="game-divergence"><span class="divergence-info">Player diverges at: 11... Ng4</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_32.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#33</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">0-1</span>
+                    </div>
+                    <div class="game-players">ChessMDB vs Rico • 2026.01.05</div>
+                    <div class="game-divergence opponent-divergence"><span class="divergence-info">Opponent diverges at: 5... h6</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_33.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#34</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">1-0</span>
+                    </div>
+                    <div class="game-players">SemiTrap vs ChessMDB • 2026.01.05</div>
+                    <div class="game-divergence"><span class="divergence-info">Player diverges at: 4... d6</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_34.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#35</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">1-0</span>
+                    </div>
+                    <div class="game-players">ChessMDB vs WeeBen • 2026.01.05</div>
+                    <div class="game-divergence opponent-divergence"><span class="divergence-info">Opponent diverges at: 2... Nf6</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_35.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#36</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">0-1</span>
+                    </div>
+                    <div class="game-players">Bloch-Kato vs ChessMDB • 2026.01.05</div>
+                    <div class="game-divergence"><span class="divergence-info">Player diverges at: 6... Nf6</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_36.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#37</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">1-0</span>
+                    </div>
+                    <div class="game-players">ChessMDB vs AlfredoTheArg • 2026.01.05</div>
+                    <div class="game-divergence opponent-divergence"><span class="divergence-info">Opponent diverges at: 4... c6</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_37.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#38</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">0-1</span>
+                    </div>
+                    <div class="game-players">ChessMDB vs replym1 • 2026.01.05</div>
+                    <div class="game-divergence opponent-divergence"><span class="divergence-info">Opponent diverges at: 4... Bc5</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_38.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#39</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">0-1</span>
+                    </div>
+                    <div class="game-players">ChessMDB vs Ulstr85 • 2026.01.05</div>
+                    <div class="game-divergence opponent-divergence"><span class="divergence-info">Opponent diverges at: 4... Bc5</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_39.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#40</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">0-1</span>
+                    </div>
+                    <div class="game-players">BabaYAGA3450 vs ChessMDB • 2026.01.05</div>
+                    <div class="game-divergence"><span class="divergence-info">Player diverges at: 4... Bd6</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_40.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#41</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">1-0</span>
+                    </div>
+                    <div class="game-players">ChessMDB vs fakendmc2 • 2026.01.06</div>
+                    <div class="game-divergence opponent-divergence"><span class="divergence-info">Opponent diverges at: 10... Be7</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_41.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#42</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">0-1</span>
+                    </div>
+                    <div class="game-players">antonex21 vs ChessMDB • 2026.01.06</div>
+                    <div class="game-divergence"><span class="divergence-info">Player diverges at: 4... Be7</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_42.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#43</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">1-0</span>
+                    </div>
+                    <div class="game-players">lojzkoznabrezine vs ChessMDB • 2026.01.06</div>
+                    <div class="game-divergence opponent-divergence"><span class="divergence-info">Opponent diverges at: 7. Qf3</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_43.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#44</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">1-0</span>
+                    </div>
+                    <div class="game-players">ChessMDB vs rycvoland • 2026.01.06</div>
+                    <div class="game-divergence"><span class="divergence-info">Player diverges at: 6. Bf4</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_44.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#45</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">1-0</span>
+                    </div>
+                    <div class="game-players">ILS_RWY_05R vs ChessMDB • 2026.01.06</div>
+                    <div class="game-divergence"><span class="divergence-info">Player diverges at: 11... hxg4</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_45.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#46</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">0-1</span>
+                    </div>
+                    <div class="game-players">ChessMDB vs ShadowMonarchSJW • 2026.01.06</div>
+                    <div class="game-divergence opponent-divergence"><span class="divergence-info">Opponent diverges at: 6... a6</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_46.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#47</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">0-1</span>
+                    </div>
+                    <div class="game-players">FCS2000 vs ChessMDB • 2026.01.06</div>
+                    <div class="game-divergence"><span class="divergence-info">Player diverges at: 8... O-O</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_47.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#48</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">0-1</span>
+                    </div>
+                    <div class="game-players">ChessMDB vs Amanyadav2700 • 2026.01.06</div>
+                    <div class="game-divergence"><span class="divergence-info">Player diverges at: 3. c4</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_48.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#49</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">1-0</span>
+                    </div>
+                    <div class="game-players">Mircogc vs ChessMDB • 2026.01.06</div>
+                    <div class="game-divergence"><span class="divergence-info">Player diverges at: 1... g6</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_49.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#50</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">1-0</span>
+                    </div>
+                    <div class="game-players">ChessMDB vs Pascal77 • 2026.01.06</div>
+                    <div class="game-divergence opponent-divergence"><span class="divergence-info">Opponent diverges at: 3... Bc5</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_50.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#51</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">1-0</span>
+                    </div>
+                    <div class="game-players">Mahmoud_M_Kamel vs ChessMDB • 2026.01.06</div>
+                    <div class="game-divergence opponent-divergence"><span class="divergence-info">Opponent diverges at: 3. Bb5</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_51.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#52</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">0-1</span>
+                    </div>
+                    <div class="game-players">ChessMDB vs Ajinososuke • 2026.01.06</div>
+                    <div class="game-divergence"><span class="divergence-info">Player diverges at: 6. g3</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_52.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#53</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">0-1</span>
+                    </div>
+                    <div class="game-players">Hendry35 vs ChessMDB • 2026.01.06</div>
+                    <div class="game-divergence opponent-divergence"><span class="divergence-info">Opponent diverges at: 2. e3</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_53.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#54</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">0-1</span>
+                    </div>
+                    <div class="game-players">Jeff_Alpha vs ChessMDB • 2026.01.06</div>
+                    <div class="game-divergence opponent-divergence"><span class="divergence-info">Opponent diverges at: 9. g3</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_54.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#55</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">0-1</span>
+                    </div>
+                    <div class="game-players">ChessMDB vs ZIBA-OT • 2026.01.06</div>
+                    <div class="game-divergence opponent-divergence"><span class="divergence-info">Opponent diverges at: 7... Bc5</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_55.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#56</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">0-1</span>
+                    </div>
+                    <div class="game-players">ChessMDB vs EdoFernando22 • 2026.01.06</div>
+                    <div class="game-divergence opponent-divergence"><span class="divergence-info">Opponent diverges at: 2... d5</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_56.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#57</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">0-1</span>
+                    </div>
+                    <div class="game-players">ChessMDB vs grinnifwin • 2026.01.06</div>
+                    <div class="game-divergence opponent-divergence"><span class="divergence-info">Opponent diverges at: 4... d5</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_57.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#58</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">0-1</span>
+                    </div>
+                    <div class="game-players">Vhangani vs ChessMDB • 2026.01.06</div>
+                    <div class="game-divergence"><span class="divergence-info">Player diverges at: 7... d5</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_58.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#59</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">0-1</span>
+                    </div>
+                    <div class="game-players">HandDuet vs ChessMDB • 2026.01.07</div>
+                    <div class="game-divergence"><span class="divergence-info">Player diverges at: 6... Na6</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_59.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#60</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">1-0</span>
+                    </div>
+                    <div class="game-players">ChessMDB vs Gyana-1234 • 2026.01.07</div>
+                    <div class="game-divergence opponent-divergence"><span class="divergence-info">Opponent diverges at: 4... Nc6</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_60.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#61</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">1-0</span>
+                    </div>
+                    <div class="game-players">ChessMDB vs OmerAze123 • 2026.01.07</div>
+                    <div class="game-divergence opponent-divergence"><span class="divergence-info">Opponent diverges at: 10... Kc7</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_61.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#62</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">0-1</span>
+                    </div>
+                    <div class="game-players">ChessMDB vs Hiddenaccount1 • 2026.01.07</div>
+                    <div class="game-divergence opponent-divergence"><span class="divergence-info">Opponent diverges at: 5... O-O</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_62.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#63</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">0-1</span>
+                    </div>
+                    <div class="game-players">Anat_Mikulyak vs ChessMDB • 2026.01.07</div>
+                    <div class="game-divergence"><span class="divergence-info">Player diverges at: 5... Bc5</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_63.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#64</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">1-0</span>
+                    </div>
+                    <div class="game-players">nosoydeboca vs ChessMDB • 2026.01.07</div>
+                    <div class="game-divergence"><span class="divergence-info">Player diverges at: 2... c6</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_64.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#65</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">0-1</span>
+                    </div>
+                    <div class="game-players">ChessMDB vs husarz4husaria • 2026.01.07</div>
+                    <div class="game-divergence"><span class="divergence-info">Player diverges at: 6. Bf4</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_65.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#66</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">0-1</span>
+                    </div>
+                    <div class="game-players">ChessMDB vs leo271207 • 2026.01.07</div>
+                    <div class="game-divergence opponent-divergence"><span class="divergence-info">Opponent diverges at: 3... e5</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_66.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#67</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">1-0</span>
+                    </div>
+                    <div class="game-players">ChessMDB vs ViniemDubai • 2026.01.07</div>
+                    <div class="game-divergence opponent-divergence"><span class="divergence-info">Opponent diverges at: 6... Be7</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_67.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#68</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">1-0</span>
+                    </div>
+                    <div class="game-players">ChessMDB vs flavioparenti • 2026.01.07</div>
+                    <div class="game-divergence opponent-divergence"><span class="divergence-info">Opponent diverges at: 4... a6</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_68.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#69</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">1-0</span>
+                    </div>
+                    <div class="game-players">Marcellas_birthday vs ChessMDB • 2026.01.07</div>
+                    <div class="game-divergence opponent-divergence"><span class="divergence-info">Opponent diverges at: 6. h3</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_69.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#70</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">0-1</span>
+                    </div>
+                    <div class="game-players">zako99 vs ChessMDB • 2026.01.07</div>
+                    <div class="game-divergence"><span class="divergence-info">Player diverges at: 5... O-O</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_70.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#71</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">1-0</span>
+                    </div>
+                    <div class="game-players">Hemodynamics vs ChessMDB • 2026.01.07</div>
+                    <div class="game-divergence"><span class="divergence-info">Player diverges at: 2... g6</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_71.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#72</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">0-1</span>
+                    </div>
+                    <div class="game-players">ChessMDB vs worldchesschampion2028 • 2026.01.07</div>
+                    <div class="game-divergence opponent-divergence"><span class="divergence-info">Opponent diverges at: 8... h5</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_72.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#73</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">0-1</span>
+                    </div>
+                    <div class="game-players">kenzoskow vs ChessMDB • 2026.01.07</div>
+                    <div class="game-divergence"><span class="divergence-info">Player diverges at: 5... c5</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_73.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#74</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">1-0</span>
+                    </div>
+                    <div class="game-players">ChessMDB vs DesafioG • 2026.01.07</div>
+                    <div class="game-divergence"><span class="divergence-info">Player diverges at: 7. Bxe7</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_74.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#75</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">0-1</span>
+                    </div>
+                    <div class="game-players">gettrektm8 vs ChessMDB • 2026.01.07</div>
+                    <div class="game-divergence"><span class="divergence-info">Player diverges at: 2... g6</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_75.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#76</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">0-1</span>
+                    </div>
+                    <div class="game-players">engsoran vs ChessMDB • 2026.01.08</div>
+                    <div class="game-divergence"><span class="divergence-info">Player diverges at: 1... Nf6</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_76.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#77</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">1-0</span>
+                    </div>
+                    <div class="game-players">Teigumm vs ChessMDB • 2026.01.08</div>
+                    <div class="game-divergence opponent-divergence"><span class="divergence-info">Opponent diverges at: 6. Bb3</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_77.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#78</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">1-0</span>
+                    </div>
+                    <div class="game-players">ChessMDB vs InterstellarBishop • 2026.01.08</div>
+                    <div class="game-divergence opponent-divergence"><span class="divergence-info">Opponent diverges at: 3... Bc5</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_78.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#79</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">0-1</span>
+                    </div>
+                    <div class="game-players">ChessMDB vs cloudHQ • 2026.01.08</div>
+                    <div class="game-divergence opponent-divergence"><span class="divergence-info">Opponent diverges at: 1... a5</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_79.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#80</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">1-0</span>
+                    </div>
+                    <div class="game-players">Ruslik06 vs ChessMDB • 2026.01.08</div>
+                    <div class="game-divergence opponent-divergence"><span class="divergence-info">Opponent diverges at: 10. Nxe5</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_80.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#81</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">0-1</span>
+                    </div>
+                    <div class="game-players">ChessMDB vs ckoy3404 • 2026.01.08</div>
+                    <div class="game-divergence opponent-divergence"><span class="divergence-info">Opponent diverges at: 6... Bc5</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_81.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#82</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">1-0</span>
+                    </div>
+                    <div class="game-players">ljubisala vs ChessMDB • 2026.01.08</div>
+                    <div class="game-divergence opponent-divergence"><span class="divergence-info">Opponent diverges at: 3. Nd2</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_82.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#83</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">1-0</span>
+                    </div>
+                    <div class="game-players">ChessMDB vs InterstellarBishop • 2026.01.08</div>
+                    <div class="game-divergence opponent-divergence"><span class="divergence-info">Opponent diverges at: 3... Bc5</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_83.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#84</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">0-1</span>
+                    </div>
+                    <div class="game-players">achessmonkey vs ChessMDB • 2026.01.08</div>
+                    <div class="game-divergence opponent-divergence"><span class="divergence-info">Opponent diverges at: 3. d3</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_84.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#85</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">1-0</span>
+                    </div>
+                    <div class="game-players">ChessMDB vs chessprince_tiger64 • 2026.01.09</div>
+                    <div class="game-divergence"><span class="divergence-info">Player diverges at: 4. Nc3</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_85.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#86</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">1-0</span>
+                    </div>
+                    <div class="game-players">nyasdasd vs ChessMDB • 2026.01.09</div>
+                    <div class="game-divergence"><span class="divergence-info">Player diverges at: 6... Na6</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_86.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#87</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">1-0</span>
+                    </div>
+                    <div class="game-players">ChessMDB vs yochessy • 2026.01.09</div>
+                    <div class="game-divergence"><span class="divergence-info">Player diverges at: 4. c3</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_87.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#88</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">0-1</span>
+                    </div>
+                    <div class="game-players">ChessMDB vs sultanalghanam • 2026.01.09</div>
+                    <div class="game-divergence opponent-divergence"><span class="divergence-info">Opponent diverges at: 2... e5</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_88.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#89</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">1-0</span>
+                    </div>
+                    <div class="game-players">julek735 vs ChessMDB • 2026.01.09</div>
+                    <div class="game-divergence opponent-divergence"><span class="divergence-info">Opponent diverges at: 8. c4</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_89.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#90</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">1-0</span>
+                    </div>
+                    <div class="game-players">ChessMDB vs alfio • 2026.01.09</div>
+                    <div class="game-divergence"><span class="divergence-info">Player diverges at: 5. Bf4</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_90.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#91</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">1-0</span>
+                    </div>
+                    <div class="game-players">Rumen1968bg vs ChessMDB • 2026.01.09</div>
+                    <div class="game-divergence"><span class="divergence-info">Player diverges at: 7... g5</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_91.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#92</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">0-1</span>
+                    </div>
+                    <div class="game-players">ChessMDB vs Call_Sign_Maverick • 2026.01.10</div>
+                    <div class="game-divergence opponent-divergence"><span class="divergence-info">Opponent diverges at: 3... Bc5</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_92.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#93</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">0-1</span>
+                    </div>
+                    <div class="game-players">Mohan276 vs ChessMDB • 2026.01.10</div>
+                    <div class="game-divergence"><span class="divergence-info">Player diverges at: 6... Nf6</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_93.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#94</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">0-1</span>
+                    </div>
+                    <div class="game-players">ChessMDB vs ZIBA-OT • 2026.01.10</div>
+                    <div class="game-divergence"><span class="divergence-info">Player diverges at: 6. Be3</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_94.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#95</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">1-0</span>
+                    </div>
+                    <div class="game-players">Mahrez8 vs ChessMDB • 2026.01.11</div>
+                    <div class="game-divergence"><span class="divergence-info">Player diverges at: 7... Nf6</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_95.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#96</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">0-1</span>
+                    </div>
+                    <div class="game-players">ChessMDB vs ninod • 2026.01.11</div>
+                    <div class="game-divergence opponent-divergence"><span class="divergence-info">Opponent diverges at: 3... Be7</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_96.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#97</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">0-1</span>
+                    </div>
+                    <div class="game-players">SuperAlvinChess vs ChessMDB • 2026.01.11</div>
+                    <div class="game-divergence opponent-divergence"><span class="divergence-info">Opponent diverges at: 8. Nc3</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_97.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#98</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">1-0</span>
+                    </div>
+                    <div class="game-players">ChessMDB vs Mahrez8 • 2026.01.11</div>
+                    <div class="game-divergence"><span class="divergence-info">Player diverges at: 8. Bg5</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_98.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#99</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">0-1</span>
+                    </div>
+                    <div class="game-players">aranlev vs ChessMDB • 2026.01.11</div>
+                    <div class="game-divergence"><span class="divergence-info">Player diverges at: 2... g6</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_99.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#100</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">1-0</span>
+                    </div>
+                    <div class="game-players">ChessMDB vs XMAS_ALAMBICCO7818 • 2026.01.11</div>
+                    <div class="game-divergence opponent-divergence"><span class="divergence-info">Opponent diverges at: 5... f5</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_100.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#101</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">1-0</span>
+                    </div>
+                    <div class="game-players">ChessMDB vs TuttyFruity7 • 2026.01.11</div>
+                    <div class="game-divergence"><span class="divergence-info">Player diverges at: 4. Nf3</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_101.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#102</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">1-0</span>
+                    </div>
+                    <div class="game-players">kkarrrma vs ChessMDB • 2026.01.12</div>
+                    <div class="game-divergence"><span class="divergence-info">Player diverges at: 3... Bg7</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_102.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#103</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">1-0</span>
+                    </div>
+                    <div class="game-players">garudautankayu vs ChessMDB • 2026.01.12</div>
+                    <div class="game-divergence"><span class="divergence-info">Player diverges at: 4... h6</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_103.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#104</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">0-1</span>
+                    </div>
+                    <div class="game-players">ChessMDB vs SimonV1860 • 2026.01.12</div>
+                    <div class="game-divergence opponent-divergence"><span class="divergence-info">Opponent diverges at: 2... d5</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_104.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#105</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">1-0</span>
+                    </div>
+                    <div class="game-players">ChessMDB vs sungsaikit26 • 2026.01.12</div>
+                    <div class="game-divergence opponent-divergence"><span class="divergence-info">Opponent diverges at: 4... Bd7</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_105.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#106</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">0-1</span>
+                    </div>
+                    <div class="game-players">roadto2200s vs ChessMDB • 2026.01.12</div>
+                    <div class="game-divergence"><span class="divergence-info">Player diverges at: 5... Bc5</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_106.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#107</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">1-0</span>
+                    </div>
+                    <div class="game-players">ChessMDB vs lamokss • 2026.01.12</div>
+                    <div class="game-divergence opponent-divergence"><span class="divergence-info">Opponent diverges at: 2... Nf6</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_107.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#108</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">0-1</span>
+                    </div>
+                    <div class="game-players">Ace_1215 vs ChessMDB • 2026.01.12</div>
+                    <div class="game-divergence opponent-divergence"><span class="divergence-info">Opponent diverges at: 10. b3</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_108.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#109</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">0-1</span>
+                    </div>
+                    <div class="game-players">ChessMDB vs RaphaV130213 • 2026.01.12</div>
+                    <div class="game-divergence opponent-divergence"><span class="divergence-info">Opponent diverges at: 3... Bc5</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_109.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#110</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">1-0</span>
+                    </div>
+                    <div class="game-players">ChessMDB vs lacafi • 2026.01.12</div>
+                    <div class="game-divergence opponent-divergence"><span class="divergence-info">Opponent diverges at: 3... c5</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_110.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#111</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">0-1</span>
+                    </div>
+                    <div class="game-players">MilijaGolubovic vs ChessMDB • 2026.01.13</div>
+                    <div class="game-divergence"><span class="divergence-info">Player diverges at: 2... d6</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_111.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#112</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">0-1</span>
+                    </div>
+                    <div class="game-players">BelkiKatlanmanLazim vs ChessMDB • 2026.01.13</div>
+                    <div class="game-divergence opponent-divergence"><span class="divergence-info">Opponent diverges at: 10. h3</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_112.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#113</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">1-0</span>
+                    </div>
+                    <div class="game-players">ChessMDB vs estebandel • 2026.01.13</div>
+                    <div class="game-divergence"><span class="divergence-info">Player diverges at: 8. Bc4</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_113.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#114</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">0-1</span>
+                    </div>
+                    <div class="game-players">Benjavara34 vs ChessMDB • 2026.01.13</div>
+                    <div class="game-divergence"><span class="divergence-info">Player diverges at: 7... Kh8</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_114.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#115</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">0-1</span>
+                    </div>
+                    <div class="game-players">akotchkin vs ChessMDB • 2026.01.13</div>
+                    <div class="game-divergence"><span class="divergence-info">Player diverges at: 8... Bf5</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_115.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#116</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">1-0</span>
+                    </div>
+                    <div class="game-players">MRBEANIEBRU vs ChessMDB • 2026.01.14</div>
+                    <div class="game-divergence"><span class="divergence-info">Player diverges at: 5... Bc5</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_116.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#117</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">1-0</span>
+                    </div>
+                    <div class="game-players">ChessMDB vs DaveSamBerg • 2026.01.14</div>
+                    <div class="game-divergence opponent-divergence"><span class="divergence-info">Opponent diverges at: 3... Bc5</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_117.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#118</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">1-0</span>
+                    </div>
+                    <div class="game-players">ChessMDB vs UndergroundMan27 • 2026.01.14</div>
+                    <div class="game-divergence opponent-divergence"><span class="divergence-info">Opponent diverges at: 6... d6</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_118.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#119</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">0-1</span>
+                    </div>
+                    <div class="game-players">ChessMDB vs MightyWrongMoves • 2026.01.15</div>
+                    <div class="game-divergence"><span class="divergence-info">Player diverges at: 7. Be2</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_119.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#120</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">0-1</span>
+                    </div>
+                    <div class="game-players">Okasha25 vs ChessMDB • 2026.01.15</div>
+                    <div class="game-divergence"><span class="divergence-info">Player diverges at: 3... Bg7</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_120.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#121</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">1-0</span>
+                    </div>
+                    <div class="game-players">ChessMDB vs jcpoza1971 • 2026.01.15</div>
+                    <div class="game-divergence opponent-divergence"><span class="divergence-info">Opponent diverges at: 8... Ng4</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_121.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#122</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">0-1</span>
+                    </div>
+                    <div class="game-players">arcice vs ChessMDB • 2026.01.15</div>
+                    <div class="game-divergence opponent-divergence"><span class="divergence-info">Opponent diverges at: 9. b3</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_122.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#123</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">1-0</span>
+                    </div>
+                    <div class="game-players">ChessMDB vs HenryTheKing9 • 2026.01.15</div>
+                    <div class="game-divergence opponent-divergence"><span class="divergence-info">Opponent diverges at: 11... f5</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_123.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#124</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">0-1</span>
+                    </div>
+                    <div class="game-players">chesswastetime vs ChessMDB • 2026.01.15</div>
+                    <div class="game-divergence"><span class="divergence-info">Player diverges at: 1... Nf6</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_124.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#125</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">0-1</span>
+                    </div>
+                    <div class="game-players">CamMinhHo vs ChessMDB • 2026.01.15</div>
+                    <div class="game-divergence opponent-divergence"><span class="divergence-info">Opponent diverges at: 3. b3</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_125.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#126</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">0-1</span>
+                    </div>
+                    <div class="game-players">ChessMDB vs b1gbawz97 • 2026.01.15</div>
+                    <div class="game-divergence opponent-divergence"><span class="divergence-info">Opponent diverges at: 3... e6</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_126.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#127</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">1-0</span>
+                    </div>
+                    <div class="game-players">amiralfio vs ChessMDB • 2026.01.15</div>
+                    <div class="game-divergence"><span class="divergence-info">Player diverges at: 4... Be7</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_127.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#128</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">0-1</span>
+                    </div>
+                    <div class="game-players">ChessMDB vs amiralfio • 2026.01.15</div>
+                    <div class="game-divergence"><span class="divergence-info">Player diverges at: 5. Ne2</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_128.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#129</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">0-1</span>
+                    </div>
+                    <div class="game-players">ChessMDB vs Amozart • 2026.01.15</div>
+                    <div class="game-divergence opponent-divergence"><span class="divergence-info">Opponent diverges at: 1... e5</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_129.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#130</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">0-1</span>
+                    </div>
+                    <div class="game-players">GILY1998 vs ChessMDB • 2026.01.15</div>
+                    <div class="game-divergence opponent-divergence"><span class="divergence-info">Opponent diverges at: 1. h3</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_130.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#131</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">0-1</span>
+                    </div>
+                    <div class="game-players">checkmatechad32 vs ChessMDB • 2026.01.16</div>
+                    <div class="game-divergence"><span class="divergence-info">Player diverges at: 2... g6</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_131.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#132</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">0-1</span>
+                    </div>
+                    <div class="game-players">ChessMDB vs nachess2024 • 2026.01.16</div>
+                    <div class="game-divergence"><span class="divergence-info">Player diverges at: 8. Nxe4</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_132.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#133</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">0-1</span>
+                    </div>
+                    <div class="game-players">ChessMDB vs giovanysilva • 2026.01.16</div>
+                    <div class="game-divergence opponent-divergence"><span class="divergence-info">Opponent diverges at: 9... e5</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_133.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#134</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">1-0</span>
+                    </div>
+                    <div class="game-players">cranith vs ChessMDB • 2026.01.16</div>
+                    <div class="game-divergence"><span class="divergence-info">Player diverges at: 9... O-O</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_134.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#135</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">1-0</span>
+                    </div>
+                    <div class="game-players">ntliu vs ChessMDB • 2026.01.16</div>
+                    <div class="game-divergence"><span class="divergence-info">Player diverges at: 4... d6</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_135.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#136</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">1-0</span>
+                    </div>
+                    <div class="game-players">Mir-Ismayil vs ChessMDB • 2026.01.16</div>
+                    <div class="game-divergence"><span class="divergence-info">Player diverges at: 2... Nc6</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_136.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#137</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">1-0</span>
+                    </div>
+                    <div class="game-players">ChessMDB vs Fredtlv • 2026.01.16</div>
+                    <div class="game-divergence"><span class="divergence-info">Player diverges at: 9. Bd3</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_137.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#138</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">1-0</span>
+                    </div>
+                    <div class="game-players">ChessMDB vs VictoriaGalle • 2026.01.16</div>
+                    <div class="game-divergence opponent-divergence"><span class="divergence-info">Opponent diverges at: 3... Bc5</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_138.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#139</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">0-1</span>
+                    </div>
+                    <div class="game-players">Lucharisme vs ChessMDB • 2026.01.16</div>
+                    <div class="game-divergence opponent-divergence"><span class="divergence-info">Opponent diverges at: 7. Bd3</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_139.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#140</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">0-1</span>
+                    </div>
+                    <div class="game-players">ChessMDB vs Ramzai440 • 2026.01.16</div>
+                    <div class="game-divergence"><span class="divergence-info">Player diverges at: 4. Nf3</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_140.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#141</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">1-0</span>
+                    </div>
+                    <div class="game-players">BrianWall vs ChessMDB • 2026.01.16</div>
+                    <div class="game-divergence opponent-divergence"><span class="divergence-info">Opponent diverges at: 2. e4</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_141.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#142</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">1-0</span>
+                    </div>
+                    <div class="game-players">ChessMDB vs Purple1szed • 2026.01.16</div>
+                    <div class="game-divergence opponent-divergence"><span class="divergence-info">Opponent diverges at: 4... Bc5</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_142.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#143</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">1-0</span>
+                    </div>
+                    <div class="game-players">ChessMDB vs Markbryanmanrique • 2026.01.17</div>
+                    <div class="game-divergence"><span class="divergence-info">Player diverges at: 4. Nf3</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_143.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#144</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">1-0</span>
+                    </div>
+                    <div class="game-players">ChessMDB vs Dboria • 2026.01.17</div>
+                    <div class="game-divergence opponent-divergence"><span class="divergence-info">Opponent diverges at: 5... Bd7</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_144.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#145</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">1-0</span>
+                    </div>
+                    <div class="game-players">always-peaceful-1 vs ChessMDB • 2026.01.17</div>
+                    <div class="game-divergence opponent-divergence"><span class="divergence-info">Opponent diverges at: 5. Nxe5</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_145.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#146</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">1-0</span>
+                    </div>
+                    <div class="game-players">cepam_romHa vs ChessMDB • 2026.01.17</div>
+                    <div class="game-divergence"><span class="divergence-info">Player diverges at: 2... g6</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_146.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#147</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">0-1</span>
+                    </div>
+                    <div class="game-players">ChessMDB vs chesshero27 • 2026.01.17</div>
+                    <div class="game-divergence opponent-divergence"><span class="divergence-info">Opponent diverges at: 14... d6</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_147.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#148</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">0-1</span>
+                    </div>
+                    <div class="game-players">Fr3nchWarri0r vs ChessMDB • 2026.01.18</div>
+                    <div class="game-divergence"><span class="divergence-info">Player diverges at: 8... Bb6</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_148.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#149</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">1-0</span>
+                    </div>
+                    <div class="game-players">ChessMDB vs jsoler100 • 2026.01.18</div>
+                    <div class="game-divergence"><span class="divergence-info">Player diverges at: 5. Be3</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_149.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#150</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">1-0</span>
+                    </div>
+                    <div class="game-players">einguter vs ChessMDB • 2026.01.18</div>
+                    <div class="game-divergence"><span class="divergence-info">Player diverges at: 5... O-O</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_150.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#151</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">0-1</span>
+                    </div>
+                    <div class="game-players">ChessMDB vs Lazyy95 • 2026.01.18</div>
+                    <div class="game-divergence"><span class="divergence-info">Player diverges at: 11. h4</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_151.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#152</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">0-1</span>
+                    </div>
+                    <div class="game-players">Evros2020 vs ChessMDB • 2026.01.18</div>
+                    <div class="game-divergence"><span class="divergence-info no-divergence">✓ Follows opening repertoire</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_152.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#153</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">0-1</span>
+                    </div>
+                    <div class="game-players">auonR vs ChessMDB • 2026.01.18</div>
+                    <div class="game-divergence"><span class="divergence-info">Player diverges at: 2... g6</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_153.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#154</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">0-1</span>
+                    </div>
+                    <div class="game-players">ChessMDB vs WilliamBryan08 • 2026.01.18</div>
+                    <div class="game-divergence"><span class="divergence-info">Player diverges at: 6. g3</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_154.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#155</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">1-0</span>
+                    </div>
+                    <div class="game-players">BorgovVasiliiy vs ChessMDB • 2026.01.18</div>
+                    <div class="game-divergence opponent-divergence"><span class="divergence-info">Opponent diverges at: 5. d3</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_155.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#156</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">0-1</span>
+                    </div>
+                    <div class="game-players">ChessMDB vs AndrewCiur • 2026.01.18</div>
+                    <div class="game-divergence"><span class="divergence-info">Player diverges at: 8. Bxf6</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_156.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#157</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">1-0</span>
+                    </div>
+                    <div class="game-players">gkbw60 vs ChessMDB • 2026.01.19</div>
+                    <div class="game-divergence opponent-divergence"><span class="divergence-info">Opponent diverges at: 7. g5</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_157.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#158</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">0-1</span>
+                    </div>
+                    <div class="game-players">ChessMDB vs iamlikeyou • 2026.01.19</div>
+                    <div class="game-divergence"><span class="divergence-info">Player diverges at: 6. Bg5</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_158.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#159</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">1-0</span>
+                    </div>
+                    <div class="game-players">ChessMDB vs bagus_mahya • 2026.01.19</div>
+                    <div class="game-divergence opponent-divergence"><span class="divergence-info">Opponent diverges at: 5... Nf6</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_159.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#160</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">0-1</span>
+                    </div>
+                    <div class="game-players">Zakol95 vs ChessMDB • 2026.01.19</div>
+                    <div class="game-divergence"><span class="divergence-info">Player diverges at: 8... O-O</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_160.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#161</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">1-0</span>
+                    </div>
+                    <div class="game-players">ChessMDB vs galindovro • 2026.01.19</div>
+                    <div class="game-divergence opponent-divergence"><span class="divergence-info">Opponent diverges at: 3... c6</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_161.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#162</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">1-0</span>
+                    </div>
+                    <div class="game-players">Julian123412345 vs ChessMDB • 2026.01.19</div>
+                    <div class="game-divergence"><span class="divergence-info">Player diverges at: 5... Bc5</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_162.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#163</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">1-0</span>
+                    </div>
+                    <div class="game-players">ChessMDB vs Taphumingo • 2026.01.19</div>
+                    <div class="game-divergence opponent-divergence"><span class="divergence-info">Opponent diverges at: 2... d6</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_163.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#164</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">1-0</span>
+                    </div>
+                    <div class="game-players">Ashen1soul vs ChessMDB • 2026.01.19</div>
+                    <div class="game-divergence"><span class="divergence-info">Player diverges at: 5... Bb4</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_164.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#165</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">0-1</span>
+                    </div>
+                    <div class="game-players">ChessMDB vs BorgovVasiliiy • 2026.01.19</div>
+                    <div class="game-divergence"><span class="divergence-info">Player diverges at: 6. Nc3</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_165.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#166</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">1/2-1/2</span>
+                    </div>
+                    <div class="game-players">jonaimadj vs ChessMDB • 2026.01.19</div>
+                    <div class="game-divergence"><span class="divergence-info">Player diverges at: 4... d6</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_166.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#167</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">1-0</span>
+                    </div>
+                    <div class="game-players">ChessMDB vs Vitachess79 • 2026.01.20</div>
+                    <div class="game-divergence"><span class="divergence-info">Player diverges at: 9. O-O</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_167.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#168</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">0-1</span>
+                    </div>
+                    <div class="game-players">Dias_ken vs ChessMDB • 2026.01.20</div>
+                    <div class="game-divergence opponent-divergence"><span class="divergence-info">Opponent diverges at: 6. Qd2</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_168.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#169</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">0-1</span>
+                    </div>
+                    <div class="game-players">ChessMDB vs rodriguezmartinemilio • 2026.01.20</div>
+                    <div class="game-divergence"><span class="divergence-info">Player diverges at: 11. Be2</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_169.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#170</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">1-0</span>
+                    </div>
+                    <div class="game-players">mjelcic vs ChessMDB • 2026.01.20</div>
+                    <div class="game-divergence opponent-divergence"><span class="divergence-info">Opponent diverges at: 8. Re1</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_170.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#171</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">1-0</span>
+                    </div>
+                    <div class="game-players">Drunkalannn vs ChessMDB • 2026.01.20</div>
+                    <div class="game-divergence"><span class="divergence-info">Player diverges at: 7... Nf6</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_171.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#172</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">0-1</span>
+                    </div>
+                    <div class="game-players">ChessMDB vs mori_XI • 2026.01.20</div>
+                    <div class="game-divergence opponent-divergence"><span class="divergence-info">Opponent diverges at: 9... Nb6</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_172.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#173</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">1-0</span>
+                    </div>
+                    <div class="game-players">AkshajCPQ vs ChessMDB • 2026.01.20</div>
+                    <div class="game-divergence opponent-divergence"><span class="divergence-info">Opponent diverges at: 6. a4</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_173.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#174</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">1-0</span>
+                    </div>
+                    <div class="game-players">ChessMDB vs allonahoya • 2026.01.20</div>
+                    <div class="game-divergence opponent-divergence"><span class="divergence-info">Opponent diverges at: 10... exd4</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_174.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#175</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">0-1</span>
+                    </div>
+                    <div class="game-players">ChessMDB vs jcpoza1971 • 2026.01.20</div>
+                    <div class="game-divergence opponent-divergence"><span class="divergence-info">Opponent diverges at: 8... d5</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_175.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#176</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">0-1</span>
+                    </div>
+                    <div class="game-players">ChessMDB vs Expeed98 • 2026.01.20</div>
+                    <div class="game-divergence"><span class="divergence-info">Player diverges at: 8. Bd3</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_176.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#177</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">1-0</span>
+                    </div>
+                    <div class="game-players">Bagrationi7 vs ChessMDB • 2026.01.20</div>
+                    <div class="game-divergence opponent-divergence"><span class="divergence-info">Opponent diverges at: 9. Bc4</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_177.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#178</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">1-0</span>
+                    </div>
+                    <div class="game-players">ChessMDB vs Bagrationi7 • 2026.01.20</div>
+                    <div class="game-divergence opponent-divergence"><span class="divergence-info">Opponent diverges at: 4... Qb6</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_178.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#179</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">0-1</span>
+                    </div>
+                    <div class="game-players">Bagrationi7 vs ChessMDB • 2026.01.20</div>
+                    <div class="game-divergence"><span class="divergence-info">Player diverges at: 7... d5</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_179.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#180</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">1/2-1/2</span>
+                    </div>
+                    <div class="game-players">Winasorb vs ChessMDB • 2026.01.20</div>
+                    <div class="game-divergence"><span class="divergence-info">Player diverges at: 7... d5</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_180.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#181</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">1-0</span>
+                    </div>
+                    <div class="game-players">Zdravkosd vs ChessMDB • 2026.01.20</div>
+                    <div class="game-divergence opponent-divergence"><span class="divergence-info">Opponent diverges at: 2. c4</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_181.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#182</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">1-0</span>
+                    </div>
+                    <div class="game-players">ChessMDB vs MarkBoyles_Manzano • 2026.01.21</div>
+                    <div class="game-divergence opponent-divergence"><span class="divergence-info">Opponent diverges at: 4... e6</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_182.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#183</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">0-1</span>
+                    </div>
+                    <div class="game-players">sinchan22sincha22sinchan2 vs ChessMDB • 2026.01.21</div>
+                    <div class="game-divergence opponent-divergence"><span class="divergence-info">Opponent diverges at: 3. g3</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_183.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#184</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">1-0</span>
+                    </div>
+                    <div class="game-players">DoomedNutria15 vs ChessMDB • 2026.01.21</div>
+                    <div class="game-divergence opponent-divergence"><span class="divergence-info">Opponent diverges at: 6. Bc4</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_184.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#185</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">0-1</span>
+                    </div>
+                    <div class="game-players">ChessMDB vs Lorenzo4414 • 2026.01.22</div>
+                    <div class="game-divergence opponent-divergence"><span class="divergence-info">Opponent diverges at: 7... d6</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_185.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#186</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">0-1</span>
+                    </div>
+                    <div class="game-players">ChessMDB vs LovreMirosevicGM • 2026.01.22</div>
+                    <div class="game-divergence"><span class="divergence-info">Player diverges at: 9. O-O</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_186.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#187</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">0-1</span>
+                    </div>
+                    <div class="game-players">Maxtr_08 vs ChessMDB • 2026.01.22</div>
+                    <div class="game-divergence opponent-divergence"><span class="divergence-info">Opponent diverges at: 10. Bg5</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_187.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#188</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">0-1</span>
+                    </div>
+                    <div class="game-players">IMArtus vs ChessMDB • 2026.01.22</div>
+                    <div class="game-divergence"><span class="divergence-info">Player diverges at: 4... d6</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_188.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#189</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">1-0</span>
+                    </div>
+                    <div class="game-players">ChessMDB vs MrPatzersson • 2026.01.22</div>
+                    <div class="game-divergence opponent-divergence"><span class="divergence-info">Opponent diverges at: 6... d6</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_189.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#190</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">1-0</span>
+                    </div>
+                    <div class="game-players">Hirnakrobat20 vs ChessMDB • 2026.01.22</div>
+                    <div class="game-divergence"><span class="divergence-info">Player diverges at: 2... g6</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_190.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#191</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">1-0</span>
+                    </div>
+                    <div class="game-players">ChessMDB vs AtillaBozkurt • 2026.01.22</div>
+                    <div class="game-divergence opponent-divergence"><span class="divergence-info">Opponent diverges at: 4... c6</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_191.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#192</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">0-1</span>
+                    </div>
+                    <div class="game-players">ChessMDB vs BabyPanda94 • 2026.01.23</div>
+                    <div class="game-divergence opponent-divergence"><span class="divergence-info">Opponent diverges at: 3... d6</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_192.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#193</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">0-1</span>
+                    </div>
+                    <div class="game-players">DevinKaradag vs ChessMDB • 2026.01.23</div>
+                    <div class="game-divergence"><span class="divergence-info">Player diverges at: 7... Kh8</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_193.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#194</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">0-1</span>
+                    </div>
+                    <div class="game-players">ChessMDB vs ashwink26 • 2026.01.24</div>
+                    <div class="game-divergence"><span class="divergence-info">Player diverges at: 3. c4</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_194.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#195</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">1-0</span>
+                    </div>
+                    <div class="game-players">Kelocky vs ChessMDB • 2026.01.24</div>
+                    <div class="game-divergence"><span class="divergence-info">Player diverges at: 2... g6</span></div>
+                </div>
+            </div>
+            
+            <div class="game-item" onclick="window.open('game_195.html', '_blank')">
+                <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
+                <div class="game-meta">
+                    <div class="game-header">
+                        <span class="game-number">#196</span>
+                        <span class="game-title">Live Chess</span>
+                        <span class="game-result">0-1</span>
+                    </div>
+                    <div class="game-players">ChessMDB vs GM_Pakanovich • 2026.01.24</div>
+                    <div class="game-divergence opponent-divergence"><span class="divergence-info">Opponent diverges at: 8... Qb6</span></div>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+    <script>
+        lucide.createIcons();
+    </script>
+</body>
+
+</html>

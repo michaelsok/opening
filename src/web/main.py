@@ -191,8 +191,8 @@ async def run_analysis(
             # 4. Run analysis with progress callback
             q.put({"type": "info", "message": f"Analyzing {len(game_pgns)} games..."})
             
-            def analysis_progress(current, total):
-                q.put({"type": "progress", "current": current, "total": total})
+            def analysis_progress(current, total, message=None):
+                q.put({"type": "progress", "current": current, "total": total, "message": message})
 
             # Create a unique directory for this analysis session
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")

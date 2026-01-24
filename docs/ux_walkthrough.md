@@ -1,34 +1,40 @@
 # UX and Navigation Overhaul Walkthrough
 
-I have completed all the requested UX and navigation improvements, focusing on better feedback, granular controls, and visual consistency.
+I have completed a comprehensive UX and navigation overhaul to address user feedback regarding progress visibility, filtering, and visual consistency.
 
 ## Changes Made
 
-### 1. Real-time Fetching Progress
-- **The Issue**: The progress bar used to stay at 0% while the backend was downloading games from Chess.com archives, which could take a while for large histories.
-- **The Fix**: Updated [chesscom_api.py](file:///home/msok/projects/opening/src/api/chesscom_api.py) to support progress callbacks. The UI now shows updates like `[1/3] Fetching games from 2024-01...` in real-time.
+### 1. Granular Real-time Progress Reporting
+- **The Issue**: Users experienced two main "stuck" states:
+    1. During game fetching (backend downloading from Chess.com).
+    2. During the transition from game analysis to HTML report generation (stuck at 100% or the last game).
+- **The Fix**:
+    - **Fetching Phase**: Updated `chesscom_api.py` to stream progress while downloading from archives (e.g., `[1/3] Fetching games from 2024-01...`).
+    - **Report Generation Phase**: Updated `chess_display.py` and `main.py` to differentiate between "Analyzing game X" and "Generating report X". The UI now explicitly shows "Generating report 1 of 20..." so the user knows the system is still working.
 
-### 2. Granular Filters
-- **New Controls**: Replaced the limited Year/Month dropdowns with flexible **Start Date** and **End Date** pickers.
-- **Time Class Filter**: Added a **Time Control** selector (Blitz, Rapid, Bullet, Daily) to target specific types of gameplay.
+### 2. Advanced Filters
+- **Date Range**: Replaced rigid Year/Month dropdowns with flexible **Start Date** and **End Date** pickers.
+- **Time Controls**: Added a selector for **Time Control** (Blitz, Rapid, Bullet, Daily) to filter for relevant competitive games.
 
 ### 3. Unified Glassmorphism Styling
-- **Background Consistency**: Fixed the report templates ([single_game.html](file:///home/msok/projects/opening/src/visualization/templates/single_game.html), [multi_game.html](file:///home/msok/projects/opening/src/visualization/templates/multi_game.html), and [index.html](file:///home/msok/projects/opening/src/visualization/templates/index.html)) to correctly load `reports.css`.
-- **Visual Style**: All analysis pages now share the same premium dark-themed radial gradient background and glassmorphism cards as the connection page.
+- **Background Consistency**: All generated report pages (index and individual game viewers) now share the same premium dark-themed radial gradient background and glassmorphism styling as the main application.
+- **Implementation**: Fixed Jinja2 template syntax to correctly inject shared CSS resources.
 
 ### 4. Robust Report Navigation
-- **Unique Directories**: Each analysis run now generates its own unique directory in `reports/` (e.g., `reports/username_timestamp/`).
-- **Fix**: This prevents games from being overwritten by subsequent runs and ensures that the "View Analysis Report" link always points to a complete, self-contained set of HTML files.
+- **Unique Directories**: Each analysis run creates a timestamped directory in `reports/` (e.g., `reports/magnuscarlsen_20260124_232600/`).
+- **Fix**: This prevents filename collisions between runs and ensures links between the report index and game viewers always work correctly.
 
 ## Verification
 
-### End-to-End Flow
-- Verified by analyzing a 10-day range of Blitz games for `magnuscarlsen`.
-- **Progress**: Bar moved smoothly during both fetching and analysis phases.
-- **Navigation**: Clicked through the index to individual games; all links were functional and styles were consistent.
-- **Cleanup**: Verified that game files (`game_0.html`, etc.) are correctly placed inside the timestamped folder.
+### End-to-End Test
+- **Scenario**: analyzed 20 Blitz games for `magnuscarlsen` from Jan 1, 2024 to Jan 5, 2024.
+- **Results**:
+    - Progress bar moved smoothly through fetching -> analysis -> report generation.
+    - Status text updated accurately (e.g., "Generating report 15 of 20").
+    - Final report opened with correct styling.
+    - Start/End date and Time Class filters worked as expected.
 
 ## How to use
-- Use the new **Start/End Date** pickers to select any duration.
-- Filter by **Time Control** to focus on your competitive games.
-- Enjoy the seamless navigation from the report index to individual game analysis pages.
+1.  **Select Dates**: Pick a specific date range.
+2.  **Choose Time Control**: Select 'Blitz' or 'Rapid' etc.
+3.  **Run**: Watch the progress bar show detailed status updates for every step of the process.

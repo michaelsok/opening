@@ -309,7 +309,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 } else if (data.type === 'progress') {
                     const percent = (data.current / data.total) * 100;
                     progressBar.style.width = `${percent}%`;
-                    gamesRemaining.textContent = `Analyzing game ${data.current} of ${data.total}`;
+                    gamesRemaining.textContent = data.message || `Analyzing game ${data.current} of ${data.total}`;
                 } else if (data.type === 'success') {
                     analysisInfo.textContent = `Generated report for ${data.game_count} games!`;
                     analysisInfo.style.color = '#10b981';
