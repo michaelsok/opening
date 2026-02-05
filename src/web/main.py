@@ -1,7 +1,8 @@
 from fastapi import FastAPI, UploadFile, File, HTTPException, Form, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
+from fastapi.responses import FileResponse, JSONResponse, StreamingResponse, HTMLResponse
+from fastapi.templating import Jinja2Templates
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
@@ -42,6 +43,9 @@ REPORTS_DIR = Path("reports")
 REPORTS_DIR.mkdir(exist_ok=True)
 app.mount("/reports", StaticFiles(directory="reports"), name="reports")
 
+# Setup Jinja2 Templates
+templates = Jinja2Templates(directory="src/web/templates")
+
 # Configure CORS - Restrict to specific origins in production
 app.add_middleware(
     CORSMiddleware,
@@ -55,44 +59,50 @@ app.add_middleware(
 @app.middleware("http")
 async def add_security_headers(request: Request, call_next):
     response = await call_next(request)
-    # Updated CSP to allow scripts and styles from unpkg and fonts
-    response.headers["Content-Security-Policy"] = "default-src 'self'; connect-src 'self' unpkg.com; script-src 'self' unpkg.com 'unsafe-inline'; style-src 'self' unpkg.com fonts.googleapis.com 'unsafe-inline'; font-src fonts.gstatic.com; img-src 'self' data: https://images.chesscomfiles.com https://www.chess.com https://www.chess.com/bundles/web/images/noavatar_l.84a92b24.gif;"
+    # Updated CSP to allow scripts and styles from unpkg, fonts, and tailwind cdn
+    response.headers["Content-Security-Policy"] = "default-src 'self'; connect-src 'self' unpkg.com; script-src 'self' unpkg.com 'unsafe-inline' 'unsafe-eval' cdn.tailwindcss.com; style-src 'self' unpkg.com fonts.googleapis.com 'unsafe-inline'; font-src fonts.gstatic.com; img-src 'self' data: https://images.chesscomfiles.com https://www.chess.com https://www.chess.com/bundles/web/images/noavatar_l.84a92b24.gif;"
     response.headers["X-Content-Type-Options"] = "nosniff"
     response.headers["X-Frame-Options"] = "DENY"
     response.headers["X-XSS-Protection"] = "1; mode=block"
     response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
     return response
 
-@app.get("/")
-async def root():
-    return FileResponse("src/web/static/index.html")
+@app.get("/", response_class=HTMLResponse)
+async def root(request: Request):
+    """
+    Serve the main entry point with the Connect wizard Step 1.
+    """
+    return templates.TemplateResponse("index.html", {"request": request})
 
-@app.post("/auth/verify")
+@app.post("/auth/verify", response_class=HTMLResponse)
 @limiter.limit("10/minute")
 async def verify_user(request: Request, username: str = Form(...)):
     """
-    Endpoint to verify a Chess.com username.
+    HTMX Endpoint: Verifies user and returns the Dashboard partial (Step 2).
     """
     # Simple input validation
     if not username or len(username) > 40:
-        raise HTTPException(status_code=400, detail="Invalid username format")
+        # Return error as OOB swap or part of a partial? 
+        # For simplicity, returning error message div
+        return HTMLResponse("<div id='error-message' class='text-red-400 text-sm text-center mb-4 block'>Invalid username format</div>")
         
     user_info = verify_chess_user(username)
     if not user_info:
-        raise HTTPException(status_code=404, detail="Chess.com user not found")
+        return HTMLResponse("<div id='error-message' class='text-red-400 text-sm text-center mb-4 block animate-pulse'>Chess.com user not found</div>")
     
     if isinstance(user_info, dict) and user_info.get("error") == "rate_limit":
-        raise HTTPException(status_code=503, detail="Chess.com API is busy. Please try again later.")
+        return HTMLResponse("<div id='error-message' class='text-red-400 text-sm text-center mb-4 block'>Chess.com API is busy. Please try again later.</div>")
     
-    return {
-        "status": "success",
+    # Return the Dashboard Partial
+    return templates.TemplateResponse("partials/dashboard.html", {
+        "request": request, 
         "username": username,
         "profile": user_info
-    }
+    })
 
 MAX_FILE_SIZE = 2 * 1024 * 1024  # 2MB
 
-@app.post("/repertoire/upload")
+@app.post("/repertoire/upload", response_class=HTMLResponse)
 @limiter.limit("2/minute")
 async def upload_repertoire(
     request: Request,
@@ -101,10 +111,10 @@ async def upload_repertoire(
     file: UploadFile = File(...)
 ):
     """
-    Endpoint to upload and split a repertoire PGN.
+    HTMX Endpoint: Uploads PGN and returns the Success partial (Step 3).
     """
     if not file.filename.endswith(".pgn"):
-        raise HTTPException(status_code=400, detail="Only .pgn files are allowed")
+        return HTMLResponse("<div id='upload-error' class='text-red-400 text-sm text-center mt-2 block'>Only .pgn files are allowed</div>")
     
     # Check file size
     file.file.seek(0, os.SEEK_END)
@@ -112,20 +122,26 @@ async def upload_repertoire(
     file.file.seek(0)
     
     if file_size > MAX_FILE_SIZE:
-        raise HTTPException(status_code=413, detail="File too large (max 2MB)")
+        return HTMLResponse("<div id='upload-error' class='text-red-400 text-sm text-center mt-2 block'>File too large (max 2MB)</div>")
     
     content = await file.read()
     
     # Basic content check
     if b"[" not in content:
-        raise HTTPException(status_code=400, detail="Invalid PGN format")
+        return HTMLResponse("<div id='upload-error' class='text-red-400 text-sm text-center mt-2 block'>Invalid PGN format</div>")
 
     result = handle_repertoire_upload(username, content, file.filename, color=color)
     
     if result["status"] == "error":
-        raise HTTPException(status_code=500, detail="Failed to process repertoire")
+        return HTMLResponse(f"<div id='upload-error' class='text-red-400 text-sm text-center mt-2 block'>{result.get('message', 'Failed to process repertoire')}</div>")
     
-    return result
+    # Return Success Partial
+    return templates.TemplateResponse("partials/success.html", {
+        "request": request,
+        "username": username,
+        "categories": result.get("categories", []),
+        "color_processed": color
+    })
 
 @app.post("/analysis/run")
 @limiter.limit("2/minute")

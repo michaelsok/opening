@@ -1,0 +1,29 @@
+<div class="glass-card p-8 animate-fade-in" id="connect-step">
+    <div class="text-center mb-8">
+        <span class="text-4xl mb-4 block">♟️</span>
+        <h1 class="text-2xl font-bold mb-2">Connect Chess.com</h1>
+        <p class="text-slate-400">Enter your username to access your dashboard</p>
+    </div>
+
+    <form hx-post="/auth/verify" hx-target="#wizard-step" hx-swap="innerHTML" hx-indicator="#loading-indicator"
+        class="space-y-6">
+
+        <div>
+            <label for="username" class="block text-sm font-medium text-slate-300 mb-2">Username</label>
+            <input type="text" name="username" id="username" placeholder="e.g. magnuscarlsen" class="input-field"
+                required autocomplete="off">
+        </div>
+
+        <button type="submit" class="btn w-full relative">
+            <span class="htmx-indicator-text">Connect with Chess.com</span>
+            <i data-lucide="chevron-right" class="w-5 h-5 ml-1"></i>
+            <!-- Loading Spinner -->
+            <div id="loading-indicator"
+                class="htmx-indicator absolute inset-0 flex items-center justify-center bg-inherit rounded-lg">
+                <div class="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+            </div>
+        </button>
+
+        <div id="error-message" class="text-red-400 text-sm text-center hidden"></div>
+    </form>
+</div>

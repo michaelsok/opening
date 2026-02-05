@@ -1,0 +1,149 @@
+<div class="glass-card p-8 animate-fade-in" id="success-step" x-data="{
+         progress: 0,
+         message: '',
+         gameCount: '',
+         isAnalyzing: false,
+         reportUrl: null,
+         error: null,
+         startDate: '',
+         endDate: '',
+         // Initialize dates to current month
+         init() {
+            const now = new Date();
+            const first = new Date(now.getFullYear(), now.getMonth(), 1);
+            const last = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+            this.startDate = first.toISOString().split('T')[0];
+            this.endDate = last.toISOString().split('T')[0];
+         },
+         // Function to consume the NDJSON stream
+         async runAnalysis() {
+            this.isAnalyzing = true;
+            this.error = null;
+            this.message = 'Starting analysis...';
+            this.progress = 0;
+            this.gameCount = '';
+            
+            const formData = new FormData();
+            formData.append('username', '{{ username }}');
+            formData.append('start_date', this.startDate);
+            formData.append('end_date', this.endDate);
+            // Add other filters as needed
+
+            try {
+                const response = await fetch('/analysis/run', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) throw new Error('Analysis request failed');
+
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
+                let buffer = '';
+
+                while (true) {
+                    const { value, done } = await reader.read();
+                    if (done) break;
+                    
+                    buffer += decoder.decode(value, { stream: true });
+                    const lines = buffer.split('\n');
+                    buffer = lines.pop(); // Keep incomplete line
+
+                    for (const line of lines) {
+                        if (!line.trim()) continue;
+                        const data = JSON.parse(line);
+                        
+                        if (data.type === 'info') {
+                            this.message = data.message;
+                        } else if (data.type === 'progress') {
+                            this.progress = (data.current / data.total) * 100;
+                            this.gameCount = `Analyzing ${data.current} of ${data.total}`;
+                        } else if (data.type === 'success') {
+                            this.message = 'Analysis Complete!';
+                            this.progress = 100;
+                            this.reportUrl = data.report_url;
+                            this.isAnalyzing = false; // Done
+                        } else if (data.type === 'error') {
+                            this.error = data.detail;
+                            this.isAnalyzing = false;
+                        } else if (data.type === 'empty') {
+                            this.message = data.message;
+                            this.isAnalyzing = false;
+                        }
+                    }
+                }
+            } catch (e) {
+                console.error(e);
+                this.error = 'Connection lost or error occurred.';
+                this.isAnalyzing = false;
+            }
+         }
+     }">
+
+    <div class="text-center mb-6">
+        <i data-lucide="check-circle" class="w-16 h-16 text-emerald-500 mx-auto mb-4"></i>
+        <h1 class="text-2xl font-bold mb-2 text-emerald-400">Repertoire Loaded!</h1>
+        <p class="text-slate-400">Analyze your games for divergences</p>
+    </div>
+
+    <!-- Categories -->
+    <div class="flex flex-wrap gap-2 justify-center mb-8">
+        {% for category in categories %}
+        <span class="px-3 py-1 bg-primary/20 border border-primary/50 rounded-full text-xs text-primary-light">
+            {{ category }}
+        </span>
+        {% endfor %}
+    </div>
+
+    <!-- Filters -->
+    <div class="grid grid-cols-2 gap-4 mb-6">
+        <div>
+            <label class="block text-sm font-medium text-slate-400 mb-2">Start Date</label>
+            <input type="date" x-model="startDate" class="input-field">
+        </div>
+        <div>
+            <label class="block text-sm font-medium text-slate-400 mb-2">End Date</label>
+            <input type="date" x-model="endDate" class="input-field">
+        </div>
+    </div>
+
+    <!-- Analysis Controls -->
+    <div x-show="!reportUrl">
+        <button @click="runAnalysis()" class="btn w-full" :disabled="isAnalyzing">
+            <span x-text="isAnalyzing ? 'Analyzing...' : 'Find Games & Divergences'"></span>
+            <i data-lucide="scan-search" class="w-5 h-5 ml-1" x-show="!isAnalyzing"></i>
+            <div x-show="isAnalyzing"
+                class="w-5 h-5 ml-2 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+        </button>
+    </div>
+
+    <!-- Error Message -->
+    <div x-show="error" x-text="error" class="text-red-400 text-sm text-center mt-4 bg-red-900/20 p-2 rounded"></div>
+
+    <!-- Progress Bar -->
+    <div x-show="isAnalyzing || progress > 0" class="mt-6 space-y-2" x-transition>
+        <div class="h-2 bg-slate-800 rounded-full overflow-hidden">
+            <div class="h-full bg-primary transition-all duration-300 ease-out" :style="`width: ${progress}%`"></div>
+        </div>
+        <div class="flex justify-between text-xs text-slate-400">
+            <span x-text="message"></span>
+            <span x-text="gameCount"></span>
+        </div>
+    </div>
+
+    <!-- View Report Button -->
+    <div x-show="reportUrl" class="mt-6 text-center" x-transition>
+        <a :href="reportUrl" target="_blank" class="btn bg-emerald-600 hover:bg-emerald-500 w-full">
+            <span>View Analysis Report</span>
+            <i data-lucide="external-link" class="w-5 h-5 ml-1"></i>
+        </a>
+    </div>
+
+    <div class="mt-4 pt-4 border-t border-glass-border">
+        <button onclick="window.location.reload()"
+            class="text-sm text-slate-500 hover:text-white flex items-center justify-center gap-1 mx-auto">
+            <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+            Start Over
+        </button>
+    </div>
+</div>

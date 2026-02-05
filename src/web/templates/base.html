@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src 'self' unpkg.com; script-src 'self' unpkg.com 'unsafe-inline' 'unsafe-eval'; style-src 'self' unpkg.com fonts.googleapis.com 'unsafe-inline'; font-src fonts.gstatic.com; img-src 'self' data: https://images.chesscomfiles.com https://www.chess.com https://www.chess.com/bundles/web/images/noavatar_l.84a92b24.gif;">
+    <title>{% block title %}Chess Opening Analysis{% endblock %}</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Example Design System Styles using Tailwind CDN for simplicity as requested -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#818cf8', // Indigo 400
+                        secondary: '#4f46e5', // Indigo 600
+                        dark: '#0f172a', // Slate 900
+                        glass: 'rgba(255, 255, 255, 0.05)',
+                        'glass-border': 'rgba(255, 255, 255, 0.1)'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Custom CSS for Glassmorphism -->
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .glass-card {
+                @apply bg-glass backdrop-blur-lg border border-glass-border rounded-xl shadow-2xl;
+            }
+            .btn {
+                @apply flex items-center justify-center gap-2 px-6 py-3 rounded-lg font-medium transition-all duration-200;
+                background: linear-gradient(135deg, theme('colors.primary'), theme('colors.secondary'));
+                color: white;
+            }
+            .btn:hover {
+                @apply shadow-lg shadow-indigo-500/30 transform -translate-y-0.5;
+                filter: brightness(1.1);
+            }
+            .btn:disabled {
+                @apply opacity-50 cursor-not-allowed transform-none shadow-none;
+                filter: grayscale(0.5);
+            }
+            .input-field {
+                @apply w-full bg-slate-800/50 border border-slate-700 rounded-lg px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all;
+            }
+        }
+        body {
+            @apply bg-dark text-white min-h-screen flex items-center justify-center font-sans antialiased bg-[url('/static/bg-pattern.svg')] bg-cover;
+            background-color: #0f172a; /* Fallback */
+        }
+    </style>
+
+    <!-- Scripts -->
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+    <script src="https://unpkg.com/alpinejs@3.13.3/dist/cdn.min.js" defer></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="p-4">
+    <div class="w-full max-w-md mx-auto" id="main-container">
+        {% block content %}{% endblock %}
+    </div>
+
+    <!-- Re-initialize icons after HTMX swaps -->
+    <script>
+        document.body.addEventListener('htmx:afterSwap', function(evt) {
+            lucide.createIcons();
+        });
+        lucide.createIcons();
+    </script>
+</body>
+</html>
