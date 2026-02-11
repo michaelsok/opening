@@ -14,9 +14,9 @@ import threading
 import queue
 import asyncio
 from datetime import datetime
-from .auth import verify_chess_user
-from .repertoire import handle_repertoire_upload
-from .database import initialize_db, get_repertoires_by_user
+from src.web.auth import verify_chess_user
+from src.web.repertoire import handle_repertoire_upload
+from src.web.database import initialize_db, get_repertoires_by_user
 from src.api.chesscom_api import get_games_from_chesscom
 from src.visualization.chess_display import create_index_html
 from pathlib import Path
